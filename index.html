@@ -710,9 +710,6 @@ canvas.sparkline{display:block}
 @media(max-width:900px){.mobile-toggle{display:flex}}
 .mobile-bottom-nav{display:none}
 </style>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#e8ff00">
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js");</script>
 </head>
 <body>
 
@@ -4630,11 +4627,25 @@ function renderMiAsistencia(){
   const a=asistencias.filter(x=>x.alumnoId===currentUser?.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const c=document.getElementById('page-mi-asistencia');
   if(!c) return;
+  const yaHoy=a.filter(x=>x.fecha===todayStr).length>0;
   c.innerHTML=`<div class="page-header"><div class="ph-left"><div class="page-title">Mi <span>Asistencia</span></div></div></div>
     <div class="stats-grid" style="margin-bottom:20px">
       <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-num c-accent">${a.length}</div><div class="stat-label">Total asistencias</div></div>
-      <div class="stat-card"><span class="stat-icon">🔥</span><div class="stat-num c-green">${a.filter(x=>x.fecha===todayStr).length?'Sí':'No'}</div><div class="stat-label">Hoy</div></div>
+      <div class="stat-card"><span class="stat-icon">🔥</span><div class="stat-num c-green">${yaHoy?'Sí':'No'}</div><div class="stat-label">Hoy</div></div>
     </div>
+    ${yaHoy
+      ? `<div style="background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.25);border-radius:12px;padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+          <span style="font-size:32px">✅</span>
+          <div><div style="font-weight:700;color:var(--success);font-size:15px">¡Ya registraste tu asistencia hoy!</div>
+          <div style="font-size:12px;color:var(--muted2);margin-top:2px">Buen entrenamiento 💪</div></div>
+        </div>`
+      : `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px;text-align:center">
+          <div style="font-size:13px;color:var(--muted2);margin-bottom:16px">Escaneá el QR del gimnasio para registrar tu presencia</div>
+          <button class="btn btn-accent" style="font-size:15px;padding:14px 28px;border-radius:10px" onclick="abrirEscanerQR()">
+            📷 Escanear QR del gimnasio
+          </button>
+        </div>`
+    }
     <div class="card"><div class="card-header"><span class="card-title">Historial</span></div>
     <div class="card-body" style="padding:0">
       ${a.slice(0,30).map(x=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
@@ -4642,6 +4653,117 @@ function renderMiAsistencia(){
         <span class="badge b-green">✓ Presente</span>
       </div>`).join('')||'<div style="padding:24px;text-align:center;color:var(--muted2)">Sin asistencias registradas</div>'}
     </div></div>`;
+}
+
+function abrirEscanerQR(){
+  // Crear modal con video para escanear QR
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'qrScanOverlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:400px;text-align:center">
+      <div class="modal-header">
+        <span class="modal-title">📷 Escanear QR</span>
+        <button class="modal-close" onclick="cerrarEscanerQR()">×</button>
+      </div>
+      <div class="modal-body" style="padding:20px">
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:14px">
+          Apuntá la cámara al QR del gimnasio
+        </div>
+        <div style="position:relative;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:1">
+          <video id="qrVideo" style="width:100%;height:100%;object-fit:cover" playsinline autoplay></video>
+          <canvas id="qrCanvas" style="display:none"></canvas>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+            <div style="width:200px;height:200px;border:3px solid var(--accent);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"></div>
+          </div>
+        </div>
+        <div id="qrScanStatus" style="margin-top:14px;font-size:13px;color:var(--muted2)">Buscando QR...</div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  iniciarCamaraQR();
+}
+
+function cerrarEscanerQR(){
+  const ov=document.getElementById('qrScanOverlay');
+  if(ov) ov.remove();
+  if(window._qrStream) window._qrStream.getTracks().forEach(t=>t.stop());
+  if(window._qrInterval) clearInterval(window._qrInterval);
+}
+
+async function iniciarCamaraQR(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    window._qrStream = stream;
+    const video = document.getElementById('qrVideo');
+    if(!video){cerrarEscanerQR();return;}
+    video.srcObject = stream;
+    await video.play();
+    // Usar BarcodeDetector si está disponible (Chrome Android)
+    if('BarcodeDetector' in window){
+      const detector = new BarcodeDetector({formats:['qr_code']});
+      window._qrInterval = setInterval(async()=>{
+        try{
+          const codes = await detector.detect(video);
+          if(codes.length>0){
+            clearInterval(window._qrInterval);
+            procesarQRTexto(codes[0].rawValue);
+          }
+        }catch(e){}
+      }, 400);
+    } else {
+      // Fallback: jsQR via canvas
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+      script.onload = ()=>{
+        const canvas = document.getElementById('qrCanvas');
+        const ctx = canvas.getContext('2d');
+        window._qrInterval = setInterval(()=>{
+          if(!video.videoWidth) return;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video,0,0);
+          const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+          const code = jsQR(img.data,img.width,img.height);
+          if(code){
+            clearInterval(window._qrInterval);
+            procesarQRTexto(code.data);
+          }
+        }, 400);
+      };
+      document.head.appendChild(script);
+    }
+  }catch(err){
+    const st=document.getElementById('qrScanStatus');
+    if(st) st.textContent='No se pudo acceder a la cámara. Permití el acceso e intentá de nuevo.';
+    if(st) st.style.color='var(--danger)';
+  }
+}
+
+async function procesarQRTexto(texto){
+  cerrarEscanerQR();
+  // Extraer token del texto/URL escaneado
+  let token = texto;
+  try{
+    const url = new URL(texto);
+    token = url.searchParams.get('asistencia') || texto;
+  }catch(e){}
+  // Validar token del día
+  if(token !== getTokenDelDia()){
+    showToast('QR inválido o vencido. Pedile al admin que muestre el QR de hoy.','error');
+    return;
+  }
+  // Verificar si ya marcó hoy
+  const yaMarco = asistencias.find(a=>a.alumnoId===currentUser.id&&a.fecha===todayStr);
+  if(yaMarco){showToast('¡Ya registraste tu asistencia hoy! ✓','info');return;}
+  try{
+    await dbMarcarAsistencia(currentUser.id);
+    showToast('✅ ¡Asistencia registrada! Bienvenido al gym 💪','success');
+    setTimeout(()=>showAchievement('📱','¡QR escaneado!','Asistencia registrada automáticamente'), 800);
+    renderMiAsistencia();
+  }catch(err){
+    showToast('Error al registrar asistencia: '+err.message,'error');
+  }
 }
 
 function renderMisLogros(){
