@@ -710,6 +710,12 @@ canvas.sparkline{display:block}
 @media(max-width:900px){.mobile-toggle{display:flex}}
 .mobile-bottom-nav{display:none}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#e8ff00">
+<link rel="apple-touch-icon" href="https://gymos-gamma.vercel.app/icon-512.png">
+<link rel="icon" type="image/png" sizes="512x512" href="https://gymos-gamma.vercel.app/icon-512.png">
+<link rel="shortcut icon" href="https://gymos-gamma.vercel.app/icon-512.png">
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js");</script>
 </head>
 <body>
 
@@ -2593,37 +2599,82 @@ async function deleteRutina(id){
   }
 }
 
+function getMusculosUnicos(){
+  const m=new Set(EJERCICIOS.map(e=>e.musculo).filter(Boolean));
+  return [...m].sort();
+}
+
 function renderRutinaDaysBuilder(){
   document.getElementById('rutinaDaysBuilder').innerHTML=rutinaDaysData.map(function(d,di){
     const exRows=d.ejercicios.map(function(ex,ei){
       const e=EJERCICIOS.find(function(x){return x.id===ex.exId;});
       return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--surface);border-radius:8px">'
-        +'<span style="font-size:12px;flex:1">'+(e?e.nombre:'—')+'</span>'
+        +'<span style="font-size:12px;flex:1">'+(e?e.nombre:'—')+'<span style="color:var(--muted2);font-size:11px"> · '+(e?e.musculo:'')+'</span></span>'
         +'<input type="text" value="'+ex.series+'" placeholder="3x10" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:inherit;font-size:12px;width:80px;outline:none"'
         +' onchange="rutinaDaysData['+di+'].ejercicios['+ei+'].series=this.value" />'
-        +'<input type="text" value="'+(ex.notas||'')+'" placeholder="notas..." style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:inherit;font-size:12px;width:120px;outline:none"'
+        +'<input type="text" value="'+(ex.notas||'')+'" placeholder="notas..." style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:inherit;font-size:12px;width:100px;outline:none"'
         +' onchange="rutinaDaysData['+di+'].ejercicios['+ei+'].notas=this.value" />'
         +'<button class="btn btn-xs btn-danger" onclick="removeExDia('+di+','+ei+')">✕</button>'
         +'</div>';
     }).join('');
-    const exOptions=EJERCICIOS.map(function(e){
-      return '<option value="'+e.id+'">'+e.nombre+' ('+e.musculo+')</option>';
-    }).join('');
+    const musculos=getMusculosUnicos();
+    const muscOpts='<option value="">Todos los músculos</option>'+musculos.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
     return '<div style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--border)">'
       +'<div class="flex-between mb12">'
-      +'<input type="text" value="'+d.nombre+'" style="background:transparent;border:none;color:var(--accent);font-family:\'Bebas Neue\';font-size:20px;letter-spacing:2px;outline:none;width:200px"'
+      +'<input type="text" value="'+d.nombre+'" style="background:transparent;border:none;color:var(--accent);font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;outline:none;width:200px"'
       +' onchange="rutinaDaysData['+di+'].nombre=this.value" />'
       +'<button class="btn btn-sm btn-danger" onclick="removeRutinaDay('+di+')">✕</button>'
       +'</div>'
       +exRows
-      +'<select style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:inherit;font-size:13px;margin-top:4px;outline:none;width:100%"'
-      +' onchange="addExToDia('+di+',this)">'
-      +'<option value="">+ Agregar ejercicio...</option>'
-      +exOptions
+      +'<div style="margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px">'
+      +'<div style="display:flex;gap:8px;margin-bottom:8px">'
+      +'<input id="exSearch_'+di+'" type="text" placeholder="🔍 Buscar ejercicio..." '
+      +'style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:inherit;font-size:13px;outline:none" '
+      +'oninput="filtrarEjercicios('+di+')" />'
+      +'<select id="exMusculo_'+di+'" '
+      +'style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:inherit;font-size:13px;outline:none" '
+      +'onchange="filtrarEjercicios('+di+')">'
+      +muscOpts
       +'</select>'
+      +'</div>'
+      +'<div id="exLista_'+di+'" style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">'
+      +renderExLista(di,'','')
+      +'</div>'
+      +'</div>'
       +'</div>';
   }).join('');
 }
+
+function renderExLista(di,busqueda,musculo){
+  let lista=EJERCICIOS;
+  if(musculo) lista=lista.filter(e=>e.musculo===musculo);
+  if(busqueda) lista=lista.filter(e=>e.nombre.toLowerCase().includes(busqueda.toLowerCase()));
+  if(!lista.length) return '<div style="padding:10px;text-align:center;color:var(--muted2);font-size:12px">Sin resultados</div>';
+  return lista.slice(0,40).map(e=>
+    '<div onclick="addExToDiaById('+di+',''+e.id+'')" '
+    +'style="padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;justify-content:space-between;align-items:center;transition:background .15s" '
+    +'onmouseover="this.style.background='var(--surface2)'" '
+    +'onmouseout="this.style.background='transparent'">'
+    +'<span>'+e.nombre+'</span>'
+    +'<span style="font-size:11px;color:var(--muted2);margin-left:8px">'+e.musculo+'</span>'
+    +'</div>'
+  ).join('');
+}
+
+function filtrarEjercicios(di){
+  const busqueda=document.getElementById('exSearch_'+di)?.value||'';
+  const musculo=document.getElementById('exMusculo_'+di)?.value||'';
+  const lista=document.getElementById('exLista_'+di);
+  if(lista) lista.innerHTML=renderExLista(di,busqueda,musculo);
+}
+
+function addExToDiaById(di,exId){
+  rutinaDaysData[di].ejercicios.push({exId:exId,series:'3x10',notas:''});
+  const s=document.getElementById('exSearch_'+di); if(s) s.value='';
+  const m=document.getElementById('exMusculo_'+di); if(m) m.value='';
+  renderRutinaDaysBuilder();
+}
+
 
 function addRutinaDay(){rutinaDaysData.push({nombre:`Día ${rutinaDaysData.length+1}`,ejercicios:[]});renderRutinaDaysBuilder()}
 function removeRutinaDay(i){rutinaDaysData.splice(i,1);renderRutinaDaysBuilder()}
@@ -4656,30 +4707,23 @@ function renderMiAsistencia(){
 }
 
 function abrirEscanerQR(){
-  // Crear modal con video para escanear QR
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay open';
-  overlay.id = 'qrScanOverlay';
-  overlay.innerHTML = `
-    <div class="modal" style="max-width:400px;text-align:center">
-      <div class="modal-header">
-        <span class="modal-title">📷 Escanear QR</span>
-        <button class="modal-close" onclick="cerrarEscanerQR()">×</button>
-      </div>
-      <div class="modal-body" style="padding:20px">
-        <div style="font-size:12px;color:var(--muted2);margin-bottom:14px">
-          Apuntá la cámara al QR del gimnasio
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay open';
+  overlay.id='qrScanOverlay';
+  overlay.innerHTML=`<div class="modal" style="max-width:400px;text-align:center">
+    <div class="modal-header"><span class="modal-title">📷 Escanear QR</span>
+    <button class="modal-close" onclick="cerrarEscanerQR()">×</button></div>
+    <div class="modal-body" style="padding:20px">
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:14px">Apuntá la cámara al QR del gimnasio</div>
+      <div style="position:relative;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:1">
+        <video id="qrVideo" style="width:100%;height:100%;object-fit:cover" playsinline autoplay></video>
+        <canvas id="qrCanvas" style="display:none"></canvas>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+          <div style="width:200px;height:200px;border:3px solid var(--accent);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"></div>
         </div>
-        <div style="position:relative;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:1">
-          <video id="qrVideo" style="width:100%;height:100%;object-fit:cover" playsinline autoplay></video>
-          <canvas id="qrCanvas" style="display:none"></canvas>
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
-            <div style="width:200px;height:200px;border:3px solid var(--accent);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"></div>
-          </div>
-        </div>
-        <div id="qrScanStatus" style="margin-top:14px;font-size:13px;color:var(--muted2)">Buscando QR...</div>
       </div>
-    </div>`;
+      <div id="qrScanStatus" style="margin-top:14px;font-size:13px;color:var(--muted2)">Buscando QR...</div>
+    </div></div>`;
   document.body.appendChild(overlay);
   iniciarCamaraQR();
 }
@@ -4693,78 +4737,55 @@ function cerrarEscanerQR(){
 
 async function iniciarCamaraQR(){
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-    window._qrStream = stream;
-    const video = document.getElementById('qrVideo');
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    window._qrStream=stream;
+    const video=document.getElementById('qrVideo');
     if(!video){cerrarEscanerQR();return;}
-    video.srcObject = stream;
+    video.srcObject=stream;
     await video.play();
-    // Usar BarcodeDetector si está disponible (Chrome Android)
     if('BarcodeDetector' in window){
-      const detector = new BarcodeDetector({formats:['qr_code']});
-      window._qrInterval = setInterval(async()=>{
-        try{
-          const codes = await detector.detect(video);
-          if(codes.length>0){
-            clearInterval(window._qrInterval);
-            procesarQRTexto(codes[0].rawValue);
-          }
-        }catch(e){}
-      }, 400);
+      const detector=new BarcodeDetector({formats:['qr_code']});
+      window._qrInterval=setInterval(async()=>{
+        try{const codes=await detector.detect(video);if(codes.length>0){clearInterval(window._qrInterval);procesarQRTexto(codes[0].rawValue);}}catch(e){}
+      },400);
     } else {
-      // Fallback: jsQR via canvas
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
-      script.onload = ()=>{
-        const canvas = document.getElementById('qrCanvas');
-        const ctx = canvas.getContext('2d');
-        window._qrInterval = setInterval(()=>{
+      const script=document.createElement('script');
+      script.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+      script.onload=()=>{
+        const canvas=document.getElementById('qrCanvas');
+        const ctx=canvas.getContext('2d');
+        window._qrInterval=setInterval(()=>{
           if(!video.videoWidth) return;
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+          canvas.width=video.videoWidth;canvas.height=video.videoHeight;
           ctx.drawImage(video,0,0);
-          const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-          const code = jsQR(img.data,img.width,img.height);
-          if(code){
-            clearInterval(window._qrInterval);
-            procesarQRTexto(code.data);
-          }
-        }, 400);
+          const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+          const code=jsQR(img.data,img.width,img.height);
+          if(code){clearInterval(window._qrInterval);procesarQRTexto(code.data);}
+        },400);
       };
       document.head.appendChild(script);
     }
   }catch(err){
     const st=document.getElementById('qrScanStatus');
-    if(st) st.textContent='No se pudo acceder a la cámara. Permití el acceso e intentá de nuevo.';
-    if(st) st.style.color='var(--danger)';
+    if(st){st.textContent='No se pudo acceder a la cámara.';st.style.color='var(--danger)';}
   }
 }
 
 async function procesarQRTexto(texto){
   cerrarEscanerQR();
-  // Extraer token del texto/URL escaneado
-  let token = texto;
-  try{
-    const url = new URL(texto);
-    token = url.searchParams.get('asistencia') || texto;
-  }catch(e){}
-  // Validar token del día
-  if(token !== getTokenDelDia()){
-    showToast('QR inválido o vencido. Pedile al admin que muestre el QR de hoy.','error');
-    return;
-  }
-  // Verificar si ya marcó hoy
-  const yaMarco = asistencias.find(a=>a.alumnoId===currentUser.id&&a.fecha===todayStr);
+  let token=texto;
+  try{const url=new URL(texto);token=url.searchParams.get('asistencia')||texto;}catch(e){}
+  if(token!==getTokenDelDia()){showToast('QR inválido o vencido.','error');return;}
+  const yaMarco=asistencias.find(a=>a.alumnoId===currentUser.id&&a.fecha===todayStr);
   if(yaMarco){showToast('¡Ya registraste tu asistencia hoy! ✓','info');return;}
   try{
     await dbMarcarAsistencia(currentUser.id);
     showToast('✅ ¡Asistencia registrada! Bienvenido al gym 💪','success');
-    setTimeout(()=>showAchievement('📱','¡QR escaneado!','Asistencia registrada automáticamente'), 800);
+    setTimeout(()=>showAchievement('📱','¡QR escaneado!','Asistencia registrada automáticamente'),800);
     renderMiAsistencia();
-  }catch(err){
-    showToast('Error al registrar asistencia: '+err.message,'error');
-  }
+  }catch(err){showToast('Error: '+err.message,'error');}
 }
+
 
 function renderMisLogros(){
   const mis=logros.filter(x=>x.alumnoId===currentUser?.id);
@@ -5518,18 +5539,9 @@ document.addEventListener('keydown',e=>{
   }
 });
 </script>
-
-<!-- WhatsApp Flotante -->
 <a href="https://wa.me/5402246501413?text=Hola%20MOVE-GYM%2C%20tengo%20una%20consulta%20%F0%9F%92%AA" 
    target="_blank" rel="noopener"
-   style="position:fixed;bottom:80px;right:18px;z-index:9999;
-          background:#25D366;color:#fff;border-radius:50%;
-          width:52px;height:52px;display:flex;align-items:center;justify-content:center;
-          box-shadow:0 4px 16px rgba(37,211,102,.5);
-          text-decoration:none;font-size:26px;
-          transition:transform .2s,box-shadow .2s"
-   onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 24px rgba(37,211,102,.7)'"
-   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 16px rgba(37,211,102,.5)'"
+   style="position:fixed;bottom:80px;right:18px;z-index:9999;background:#25D366;color:#fff;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,.5);text-decoration:none;font-size:26px;transition:transform .2s,box-shadow .2s"
    title="Consultanos por WhatsApp">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28" height="28">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
