@@ -2621,7 +2621,7 @@ function renderRutinaDaysBuilder(){
     const muscOpts='<option value="">Todos los músculos</option>'+musculos.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
     return '<div style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--border)">'
       +'<div class="flex-between mb12">'
-      +'<input type="text" value="'+d.nombre+'" style="background:transparent;border:none;color:var(--accent);font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;outline:none;width:200px"'
+      +'<input type="text" value="'+d.nombre+'" style="background:transparent;border:none;color:var(--accent);font-family:Bebas Neue;font-size:20px;letter-spacing:2px;outline:none;width:200px"'
       +' onchange="rutinaDaysData['+di+'].nombre=this.value" />'
       +'<button class="btn btn-sm btn-danger" onclick="removeRutinaDay('+di+')">✕</button>'
       +'</div>'
