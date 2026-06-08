@@ -2438,7 +2438,7 @@ function renderDiasCerrados(){
       +(d.motivo?'<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+d.motivo+'</div>':'')
       +'</div>'
       +'<span style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid;border-color:'+color+';color:'+color+'">'+tipo+'</span>'
-      +'<button onclick="eliminarDiaCerrado(''+d.id+'')" style="background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:4px">✕</button>'
+      +'<button onclick="eliminarDiaCerrado(\"'+d.id+'\")" style="background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:4px">✕</button>'
       +'</div>';
   }
 
