@@ -2604,6 +2604,23 @@ function getMusculosUnicos(){
   return [...m].sort();
 }
 
+// Grupos generales para el filtro de rutinas
+const GRUPOS_MUSCULARES = [
+  {label:'Pecho',   match:['pecho','Pecho','pectoral','Pectoral','chest']},
+  {label:'Espalda', match:['espalda','Espalda','back','dorsal','Dorsal','trapecio','Trapecio','lumbar','Lumbar','Romboides']},
+  {label:'Pierna',  match:['pierna','Pierna','cuádriceps','Cuádriceps','femoral','Femoral','glúteo','Glúteo','pantorrilla','Pantorrilla','isquiotibiales','Isquiotibiales','abductores','Abductores']},
+  {label:'Hombros', match:['hombro','Hombro','deltoides','Deltoides','shoulder']},
+  {label:'Brazos',  match:['brazo','Brazo','bíceps','Bíceps','tríceps','Tríceps','antebrazo','Antebrazo']},
+  {label:'Core',    match:['core','Core','abdomen','Abdomen','abdominal','Abdominal','oblicuo','Oblicuo']},
+  {label:'Cardio',  match:['cardio','Cardio']},
+];
+
+function ejercicioMatchGrupo(musculo, grupo){
+  if(!musculo||!grupo) return true;
+  const m=musculo.toLowerCase();
+  return GRUPOS_MUSCULARES.find(g=>g.label===grupo)?.match.some(k=>m.includes(k.toLowerCase()))||m===grupo.toLowerCase();
+}
+
 function renderRutinaDaysBuilder(){
   document.getElementById('rutinaDaysBuilder').innerHTML=rutinaDaysData.map(function(d,di){
     const exRows=d.ejercicios.map(function(ex,ei){
@@ -2617,8 +2634,7 @@ function renderRutinaDaysBuilder(){
         +'<button class="btn btn-xs btn-danger" onclick="removeExDia('+di+','+ei+')">✕</button>'
         +'</div>';
     }).join('');
-    const musculos=getMusculosUnicos();
-    const muscOpts='<option value="">Todos los músculos</option>'+musculos.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+    const muscOpts='<option value="">Todos los músculos</option>'+GRUPOS_MUSCULARES.map(g=>'<option value="'+g.label+'">'+g.label+'</option>').join('');
     return '<div style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--border)">'
       +'<div class="flex-between mb12">'
       +'<input type="text" value="'+d.nombre+'" style="background:transparent;border:none;color:var(--accent);font-family:Bebas Neue;font-size:20px;letter-spacing:2px;outline:none;width:200px"'
@@ -2647,7 +2663,7 @@ function renderRutinaDaysBuilder(){
 
 function renderExLista(di,busqueda,musculo){
   let lista=EJERCICIOS;
-  if(musculo) lista=lista.filter(e=>e.musculo===musculo);
+  if(musculo) lista=lista.filter(e=>ejercicioMatchGrupo(e.musculo,musculo));
   if(busqueda) lista=lista.filter(e=>e.nombre.toLowerCase().includes(busqueda.toLowerCase()));
   if(!lista.length) return '<div style="padding:10px;text-align:center;color:var(--muted2);font-size:12px">Sin resultados</div>';
   return lista.slice(0,40).map(e=>
