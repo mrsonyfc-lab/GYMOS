@@ -2757,33 +2757,9 @@ async function saveRutina(){
 // ══════════════════════════════════════════════
 function matchExGrupo(e, grupo){
   if(grupo==='todos') return true;
-  // Coincidencia exacta por musculo o grupo
-  if(e.musculo===grupo||e.grupo===grupo) return true;
-  // Mapeo de filtros nuevos a valores viejos de grupo
-  const MAP={
-    'Cuádriceps':['pierna','Pierna','cuadriceps'],
-    'Isquio':['pierna','Pierna','isquio'],
-    'Glúteos':['pierna','Pierna','gluteo'],
-    'Gemelos':['pierna','Pierna','gemelo'],
-    'Pecho medio':['pecho','Pecho'],
-    'Pecho sup.':['pecho','Pecho'],
-    'Pecho inf.':['pecho','Pecho'],
-    'Dorsal':['espalda','Espalda'],
-    'Espalda media':['espalda','Espalda'],
-    'Lumbar':['espalda','Espalda'],
-    'Trapecio':['espalda','Espalda','hombro'],
-    'Hombro ant.':['hombro','Hombro'],
-    'Hombro lat.':['hombro','Hombro'],
-    'Hombro post.':['hombro','Hombro'],
-    'Bíceps':['brazo','Brazo'],
-    'Tríceps':['brazo','Brazo'],
-    'Abdomen':['core','Core'],
-    'Oblicuos':['core','Core'],
-    'Core':['core','Core'],
-    'Cardio':['cardio','Cardio'],
-  };
-  const aliases=MAP[grupo]||[];
-  return aliases.includes(e.grupo)||aliases.includes(e.musculo);
+  const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+  if(norm(e.musculo)===norm(grupo)||norm(e.grupo)===norm(grupo)) return true;
+  return false;
 }
 
 function renderEjercicios(grupo){
