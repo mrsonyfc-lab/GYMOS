@@ -1297,7 +1297,40 @@ canvas.sparkline{display:block}
     <div class="form-grid">
       <div class="form-group form-full"><label>Nombre del ejercicio</label><input type="text" id="neNombre" placeholder="Ej: Press con bandas" /></div>
       <div class="form-group"><label>Grupo muscular</label>
-        <select id="neGrupo"><option value="pecho">Pecho</option><option value="espalda">Espalda</option><option value="pierna">Pierna</option><option value="hombro">Hombros</option><option value="brazo">Brazos</option><option value="core">Core</option><option value="cardio">Cardio</option></select>
+        <select id="neGrupo">
+  <optgroup label="Pecho">
+    <option value="Pecho medio">Pecho medio</option>
+    <option value="Pecho sup.">Pecho sup.</option>
+    <option value="Pecho inf.">Pecho inf.</option>
+  </optgroup>
+  <optgroup label="Espalda">
+    <option value="Dorsal">Dorsal</option>
+    <option value="Espalda media">Espalda media</option>
+    <option value="Lumbar">Lumbar</option>
+    <option value="Trapecio">Trapecio</option>
+  </optgroup>
+  <optgroup label="Pierna">
+    <option value="Cuádriceps">Cuádriceps</option>
+    <option value="Isquio">Isquio</option>
+    <option value="Glúteos">Glúteos</option>
+    <option value="Gemelos">Gemelos</option>
+  </optgroup>
+  <optgroup label="Hombros">
+    <option value="Hombro ant.">Hombro ant.</option>
+    <option value="Hombro lat.">Hombro lat.</option>
+    <option value="Hombro post.">Hombro post.</option>
+  </optgroup>
+  <optgroup label="Brazos">
+    <option value="Bíceps">Bíceps</option>
+    <option value="Tríceps">Tríceps</option>
+  </optgroup>
+  <optgroup label="Core">
+    <option value="Abdomen">Abdomen</option>
+    <option value="Oblicuos">Oblicuos</option>
+    <option value="Core">Core</option>
+  </optgroup>
+  <option value="Cardio">Cardio</option>
+</select>
       </div>
       <div class="form-group"><label>Series x Reps</label><input type="text" id="neSeries" placeholder="3x12" /></div>
       <div class="form-group"><label>Descanso</label><input type="text" id="neDescanso" placeholder="60 seg" /></div>
@@ -2604,21 +2637,20 @@ function getMusculosUnicos(){
   return [...m].sort();
 }
 
-// Grupos generales para el filtro de rutinas
+// Grupos para el filtro de rutinas (coinciden exacto con los valores del select de creación)
 const GRUPOS_MUSCULARES = [
-  {label:'Pecho',   match:['pecho','Pecho','pectoral','Pectoral','chest']},
-  {label:'Espalda', match:['espalda','Espalda','back','dorsal','Dorsal','trapecio','Trapecio','lumbar','Lumbar','Romboides']},
-  {label:'Pierna',  match:['pierna','Pierna','cuádriceps','Cuádriceps','femoral','Femoral','glúteo','Glúteo','pantorrilla','Pantorrilla','isquiotibiales','Isquiotibiales','abductores','Abductores']},
-  {label:'Hombros', match:['hombro','Hombro','deltoides','Deltoides','shoulder']},
-  {label:'Brazos',  match:['brazo','Brazo','bíceps','Bíceps','tríceps','Tríceps','antebrazo','Antebrazo']},
-  {label:'Core',    match:['core','Core','abdomen','Abdomen','abdominal','Abdominal','oblicuo','Oblicuo']},
-  {label:'Cardio',  match:['cardio','Cardio']},
+  {label:'Pecho medio'}, {label:'Pecho sup.'}, {label:'Pecho inf.'},
+  {label:'Dorsal'}, {label:'Espalda media'}, {label:'Lumbar'}, {label:'Trapecio'},
+  {label:'Cuádriceps'}, {label:'Isquio'}, {label:'Glúteos'}, {label:'Gemelos'},
+  {label:'Hombro ant.'}, {label:'Hombro lat.'}, {label:'Hombro post.'},
+  {label:'Bíceps'}, {label:'Tríceps'},
+  {label:'Abdomen'}, {label:'Oblicuos'}, {label:'Core'},
+  {label:'Cardio'},
 ];
 
 function ejercicioMatchGrupo(musculo, grupo){
   if(!musculo||!grupo) return true;
-  const m=musculo.toLowerCase();
-  return GRUPOS_MUSCULARES.find(g=>g.label===grupo)?.match.some(k=>m.includes(k.toLowerCase()))||m===grupo.toLowerCase();
+  return musculo===grupo||musculo.toLowerCase()===grupo.toLowerCase();
 }
 
 function renderRutinaDaysBuilder(){
@@ -2634,7 +2666,14 @@ function renderRutinaDaysBuilder(){
         +'<button class="btn btn-xs btn-danger" onclick="removeExDia('+di+','+ei+')">✕</button>'
         +'</div>';
     }).join('');
-    const muscOpts='<option value="">Todos los músculos</option>'+GRUPOS_MUSCULARES.map(g=>'<option value="'+g.label+'">'+g.label+'</option>').join('');
+    const muscOpts='<option value="">Todos los músculos</option>'
+      +'<optgroup label="Pecho"><option value="Pecho medio">Pecho medio</option><option value="Pecho sup.">Pecho sup.</option><option value="Pecho inf.">Pecho inf.</option></optgroup>'
+      +'<optgroup label="Espalda"><option value="Dorsal">Dorsal</option><option value="Espalda media">Espalda media</option><option value="Lumbar">Lumbar</option><option value="Trapecio">Trapecio</option></optgroup>'
+      +'<optgroup label="Pierna"><option value="Cuádriceps">Cuádriceps</option><option value="Isquio">Isquio</option><option value="Glúteos">Glúteos</option><option value="Gemelos">Gemelos</option></optgroup>'
+      +'<optgroup label="Hombros"><option value="Hombro ant.">Hombro ant.</option><option value="Hombro lat.">Hombro lat.</option><option value="Hombro post.">Hombro post.</option></optgroup>'
+      +'<optgroup label="Brazos"><option value="Bíceps">Bíceps</option><option value="Tríceps">Tríceps</option></optgroup>'
+      +'<optgroup label="Core"><option value="Abdomen">Abdomen</option><option value="Oblicuos">Oblicuos</option><option value="Core">Core</option></optgroup>'
+      +'<option value="Cardio">Cardio</option>';
     return '<div style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--border)">'
       +'<div class="flex-between mb12">'
       +'<input type="text" value="'+d.nombre+'" style="background:transparent;border:none;color:var(--accent);font-family:Bebas Neue;font-size:20px;letter-spacing:2px;outline:none;width:200px"'
