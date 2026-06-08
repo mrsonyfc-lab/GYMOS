@@ -4375,136 +4375,149 @@ let _workoutIdx = 0;
 function startWorkoutMode(){
   const rut = rutinas.find(r=>r.id===currentUser?.rutinaId);
   if(!rut){showToast('No tenés una rutina asignada','error');return;}
+  if(!rut.dias||!rut.dias.length){showToast('La rutina no tiene días','error');return;}
 
-  // Aplanar todos los ejercicios de todos los días
-  _workoutEjercicios = [];
-  rut.dias.forEach(d=>{
-    d.ejercicios.forEach(ex=>{
-      const e = EJERCICIOS.find(x=>x.id===ex.exId);
-      if(e) _workoutEjercicios.push({...ex, nombre:e.nombre, musculo:e.musculo, img:e.img});
-    });
-  });
-
-  if(!_workoutEjercicios.length){showToast('La rutina no tiene ejercicios','error');return;}
-  _workoutIdx = 0;
-  _workoutSeconds = 0;
-
-  // Crear overlay
+  // Mostrar selector de día
   const overlay = document.createElement('div');
   overlay.id = 'workoutOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;overflow:hidden';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;overflow-y:auto';
   document.body.appendChild(overlay);
 
-  // Arrancar timer
+  overlay.innerHTML = `
+    <div style="background:var(--surface);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1">
+      <div style="font-family:'Bebas Neue';font-size:24px;letter-spacing:2px;color:var(--accent)">¿Qué día entrenás?</div>
+      <button onclick="cerrarWorkout()" style="background:transparent;border:none;color:var(--muted2);font-size:24px;cursor:pointer;padding:4px 8px">✕</button>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+      ${rut.dias.map((d,di)=>{
+        const cant = d.ejercicios.filter(ex=>EJERCICIOS.find(e=>e.id===ex.exId)).length;
+        const musculos = [...new Set(d.ejercicios.map(ex=>{const e=EJERCICIOS.find(x=>x.id===ex.exId);return e?e.musculo:null;}).filter(Boolean))].slice(0,3);
+        return \`<button onclick="iniciarDia(\${di})" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:left;cursor:pointer;width:100%;transition:border-color .2s"
+          onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-family:'Bebas Neue';font-size:22px;color:var(--accent);letter-spacing:2px">\${d.nombre}</div>
+            <div style="background:var(--surface2);border-radius:8px;padding:4px 10px;font-size:12px;color:var(--muted2)">\${cant} ejercicios</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            \${musculos.map(m=>\`<span style="background:rgba(232,255,0,.08);border:1px solid rgba(232,255,0,.2);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--accent)">\${m}</span>\`).join('')}
+          </div>
+        </button>\`;
+      }).join('')}
+    </div>`;
+}
+
+function iniciarDia(di){
+  const rut = rutinas.find(r=>r.id===currentUser?.rutinaId);
+  const dia = rut.dias[di];
+  _workoutEjercicios = dia.ejercicios.map(ex=>{
+    const e=EJERCICIOS.find(x=>x.id===ex.exId);
+    if(!e) return null;
+    return {...ex, nombre:e.nombre, musculo:e.musculo, img:e.img};
+  }).filter(Boolean);
+
+  if(!_workoutEjercicios.length){showToast('Este día no tiene ejercicios','error');return;}
+  _workoutIdx = 0;
+  _workoutSeconds = 0;
+  if(_workoutTimer) clearInterval(_workoutTimer);
   _workoutTimer = setInterval(()=>{
     _workoutSeconds++;
-    const el = document.getElementById('workoutCronometro');
-    if(el) el.textContent = formatWorkoutTime(_workoutSeconds);
-  }, 1000);
-
+    const el=document.getElementById('workoutCronometro');
+    if(el) el.textContent=formatWorkoutTime(_workoutSeconds);
+  },1000);
   renderWorkoutSlide();
 }
 
 function formatWorkoutTime(s){
-  const m = Math.floor(s/60);
-  const ss = s%60;
+  const m=Math.floor(s/60), ss=s%60;
   return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');
 }
 
 function renderWorkoutSlide(){
-  const overlay = document.getElementById('workoutOverlay');
+  const overlay=document.getElementById('workoutOverlay');
   if(!overlay) return;
-  const ex = _workoutEjercicios[_workoutIdx];
-  const total = _workoutEjercicios.length;
-  const pct = Math.round((_workoutIdx/total)*100);
+  const ex=_workoutEjercicios[_workoutIdx];
+  const total=_workoutEjercicios.length;
+  const pct=Math.round((_workoutIdx/total)*100);
 
-  overlay.innerHTML = `
-    <div style="background:var(--surface);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
+  overlay.style.overflowY='hidden';
+  overlay.innerHTML=`
+    <div style="background:var(--surface);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
       <div>
-        <div style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase">Entrenamiento</div>
-        <div id="workoutCronometro" style="font-family:'Bebas Neue';font-size:28px;color:var(--accent);letter-spacing:2px">${formatWorkoutTime(_workoutSeconds)}</div>
+        <div style="font-size:10px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase">Entrenando</div>
+        <div id="workoutCronometro" style="font-family:'Bebas Neue';font-size:26px;color:var(--accent);letter-spacing:2px;line-height:1">${formatWorkoutTime(_workoutSeconds)}</div>
       </div>
       <div style="text-align:center">
-        <div style="font-size:13px;color:var(--muted2)">${_workoutIdx+1} / ${total}</div>
-        <div style="width:120px;height:4px;background:var(--border);border-radius:2px;margin-top:6px">
-          <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:2px;transition:width .3s"></div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:4px">${_workoutIdx+1} / ${total}</div>
+        <div style="width:100px;height:5px;background:var(--border);border-radius:3px">
+          <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:3px;transition:width .3s"></div>
         </div>
       </div>
-      <button onclick="cerrarWorkout()" style="background:transparent;border:none;color:var(--muted2);font-size:22px;cursor:pointer;padding:8px">✕</button>
+      <button onclick="cerrarWorkout()" style="background:transparent;border:none;color:var(--muted2);font-size:20px;cursor:pointer;padding:4px 8px">✕</button>
     </div>
 
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:24px">
-      ${ex.img ? `<img src="${ex.img}" style="width:200px;height:200px;object-fit:cover;border-radius:16px;border:2px solid var(--border)" onerror="this.style.display='none'">` : '<div style="width:200px;height:200px;background:var(--surface);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:64px">💪</div>'}
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:16px;gap:12px;overflow-y:auto">
+      ${ex.img?`<img src="${ex.img}" style="width:140px;height:140px;object-fit:cover;border-radius:14px;border:2px solid var(--border);flex-shrink:0" onerror="this.style.display='none'">`
+               :`<div style="width:140px;height:140px;background:var(--surface);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:56px;flex-shrink:0">💪</div>`}
       
       <div style="text-align:center">
-        <div style="font-family:'Bebas Neue';font-size:36px;letter-spacing:2px;color:var(--text)">${ex.nombre}</div>
-        <div style="font-size:14px;color:var(--muted2);margin-top:4px">${ex.musculo}</div>
+        <div style="font-family:'Bebas Neue';font-size:30px;letter-spacing:2px;color:var(--text);line-height:1.1">${ex.nombre}</div>
+        <div style="font-size:13px;color:var(--muted2);margin-top:4px">${ex.musculo}</div>
       </div>
 
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 40px;text-align:center">
-        <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Series</div>
-        <div style="font-family:'Bebas Neue';font-size:48px;color:var(--accent);letter-spacing:3px">${ex.series||'—'}</div>
-        ${ex.notas ? `<div style="font-size:12px;color:var(--muted2);margin-top:8px">📝 ${ex.notas}</div>` : ''}
+      <div style="background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:16px 32px;text-align:center;width:100%">
+        <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Series</div>
+        <div style="font-family:'Bebas Neue';font-size:44px;color:var(--accent);letter-spacing:3px;line-height:1">${ex.series||'—'}</div>
+        ${ex.notas?`<div style="font-size:12px;color:var(--muted2);margin-top:6px;border-top:1px solid var(--border);padding-top:8px">📝 ${ex.notas}</div>`:''}
       </div>
     </div>
 
-    <div style="padding:20px 24px;display:flex;gap:12px;border-top:1px solid var(--border)">
+    <div style="padding:16px;display:flex;gap:10px;border-top:1px solid var(--border);background:var(--bg)">
       <button onclick="workoutPrev()" 
-        style="flex:1;padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;font-family:inherit;cursor:pointer;${_workoutIdx===0?'opacity:.3;pointer-events:none':''}">
+        style="flex:1;padding:18px 0;border-radius:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;font-family:inherit;cursor:pointer;font-weight:600;${_workoutIdx===0?'opacity:.3;pointer-events:none':''}">
         ← Anterior
       </button>
       <button onclick="workoutNext()" 
-        style="flex:2;padding:16px;border-radius:12px;border:none;background:var(--accent);color:#000;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">
-        ${_workoutIdx===total-1 ? '🏁 Finalizar' : 'Siguiente →'}
+        style="flex:2;padding:18px 0;border-radius:14px;border:none;background:var(--accent);color:#000;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer">
+        ${_workoutIdx===total-1?'🏁 Finalizar':'Siguiente →'}
       </button>
     </div>`;
 }
 
 function workoutNext(){
-  if(_workoutIdx >= _workoutEjercicios.length-1){
-    finalizarWorkout();
-  } else {
-    _workoutIdx++;
-    renderWorkoutSlide();
-  }
+  if(_workoutIdx>=_workoutEjercicios.length-1) finalizarWorkout();
+  else{_workoutIdx++;renderWorkoutSlide();}
 }
-
 function workoutPrev(){
-  if(_workoutIdx > 0){
-    _workoutIdx--;
-    renderWorkoutSlide();
-  }
+  if(_workoutIdx>0){_workoutIdx--;renderWorkoutSlide();}
 }
-
 function cerrarWorkout(){
   if(_workoutTimer) clearInterval(_workoutTimer);
-  const ov = document.getElementById('workoutOverlay');
+  const ov=document.getElementById('workoutOverlay');
   if(ov) ov.remove();
 }
-
 function finalizarWorkout(){
   if(_workoutTimer) clearInterval(_workoutTimer);
-  const tiempo = formatWorkoutTime(_workoutSeconds);
-  const total = _workoutEjercicios.length;
-  const overlay = document.getElementById('workoutOverlay');
+  const tiempo=formatWorkoutTime(_workoutSeconds);
+  const total=_workoutEjercicios.length;
+  const overlay=document.getElementById('workoutOverlay');
   if(!overlay) return;
-
-  overlay.innerHTML = `
-    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;gap:20px">
-      <div style="font-size:80px">🏆</div>
-      <div style="font-family:'Bebas Neue';font-size:42px;letter-spacing:3px;color:var(--accent)">¡Entrenamiento completado!</div>
-      <div style="display:flex;gap:24px;margin-top:8px">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 28px">
-          <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px">Tiempo</div>
-          <div style="font-family:'Bebas Neue';font-size:36px;color:var(--accent)">${tiempo}</div>
+  overlay.style.overflowY='auto';
+  overlay.innerHTML=`
+    <div style="min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;gap:20px">
+      <div style="font-size:72px">🏆</div>
+      <div style="font-family:'Bebas Neue';font-size:36px;letter-spacing:3px;color:var(--accent)">¡Entrenamiento completado!</div>
+      <div style="display:flex;gap:16px;margin-top:8px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 24px">
+          <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px">Tiempo</div>
+          <div style="font-family:'Bebas Neue';font-size:34px;color:var(--accent)">${tiempo}</div>
         </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 28px">
-          <div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px">Ejercicios</div>
-          <div style="font-family:'Bebas Neue';font-size:36px;color:var(--accent)">${total}</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 24px">
+          <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px">Ejercicios</div>
+          <div style="font-family:'Bebas Neue';font-size:34px;color:var(--accent)">${total}</div>
         </div>
       </div>
-      <div style="color:var(--muted2);font-size:14px;margin-top:8px">¡Excelente trabajo! Seguí así 💪</div>
-      <button onclick="cerrarWorkout()" style="margin-top:16px;padding:16px 40px;border-radius:12px;border:none;background:var(--accent);color:#000;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer">
+      <div style="color:var(--muted2);font-size:14px">¡Excelente trabajo! Seguí así 💪</div>
+      <button onclick="cerrarWorkout()" style="margin-top:8px;padding:18px 40px;border-radius:14px;border:none;background:var(--accent);color:#000;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;width:100%">
         Volver a mi rutina
       </button>
     </div>`;
