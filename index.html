@@ -871,6 +871,53 @@ canvas.sparkline{display:block}
       <div id="historialAsistencia" style="padding:16px"></div>
     </div>
   </div>
+
+  <!-- Calendario de días cerrados -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <span class="card-title">📅 Calendario del Gimnasio</span>
+      <button class="btn btn-accent btn-sm" onclick="abrirModalDiaCerrado()">+ Agregar cierre</button>
+    </div>
+    <div class="card-body" style="padding:16px">
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:16px">
+        Los días marcados como cerrados no afectan la racha de asistencia de los alumnos. Los domingos tampoco cuentan.
+      </div>
+      <div id="diasCerradosList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal agregar día cerrado -->
+<div class="modal-overlay" id="modalDiaCerrado">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title">Agregar día cerrado</span>
+      <button class="modal-close" onclick="closeModal('modalDiaCerrado')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">FECHA</label>
+        <input type="date" id="dcFecha" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">TIPO</label>
+        <select id="dcTipo" class="form-input">
+          <option value="cierre">Cierre programado</option>
+          <option value="feriado">Feriado</option>
+          <option value="emergencia">Emergencia</option>
+          <option value="vacaciones">Vacaciones</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">MOTIVO (opcional)</label>
+        <input type="text" id="dcMotivo" class="form-input" placeholder="Ej: Feriado nacional, Refacción...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalDiaCerrado')">Cancelar</button>
+      <button class="btn btn-accent" onclick="guardarDiaCerrado()">Guardar</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══ RUTINAS ══ -->
@@ -2116,15 +2163,18 @@ function filterAlumnos(v){renderAlumnos(v)}
 function filterAlumnoEstado(v){filterEstadoVal=v;renderAlumnos()}
 
 function calcRacha(alumnoId){
-  let racha=0;
-  for(let i=0;i<60;i++){
-    const d=pd(i);
-    if(asistencias.find(a=>a.alumnoId===alumnoId&&a.fecha===d))racha++;
-    else if(i>0)break;
+  var atts=asistencias.filter(function(x){return x.alumnoId===alumnoId;}).map(function(x){return x.fecha;});
+  var racha=0;
+  var d=new Date(today);
+  for(var i=0;i<365;i++){
+    var ds=d.toISOString().split('T')[0];
+    if(esDiaCerrado(ds)){d.setDate(d.getDate()-1);continue;}
+    if(atts.includes(ds)) racha++;
+    else if(ds<todayStr) break;
+    d.setDate(d.getDate()-1);
   }
   return racha;
 }
-
 function openNewAlumno(){
   editingAlumnoId=null;
   document.getElementById('modalAlumnoTitle').textContent='Nuevo Alumno';
@@ -2347,6 +2397,100 @@ function populateRutinaSelect(selId,selected){
 // ══════════════════════════════════════════════
 // ASISTENCIA
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// CALENDARIO DÍAS CERRADOS
+// ══════════════════════════════════════════════
+var diasCerrados = [];
+
+async function loadDiasCerrados(){
+  try{
+    var res = await sb.from('dias_cerrados').select('*').order('fecha',{ascending:false});
+    diasCerrados = res.data||[];
+  }catch(e){ diasCerrados=[]; }
+  renderDiasCerrados();
+}
+
+function esDiaCerrado(fechaStr){
+  // Domingo = cerrado siempre
+  var d = new Date(fechaStr+'T12:00');
+  if(d.getDay()===0) return true;
+  return diasCerrados.some(dc=>dc.fecha===fechaStr);
+}
+
+function renderDiasCerrados(){
+  var el = document.getElementById('diasCerradosList');
+  if(!el) return;
+  var proximos = diasCerrados.filter(d=>d.fecha>=todayStr).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  var pasados = diasCerrados.filter(d=>d.fecha<todayStr).sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,5);
+
+  var tipoColors = {cierre:'var(--accent)',feriado:'var(--info)',emergencia:'var(--danger)',vacaciones:'var(--success)'};
+  var tipoLabels = {cierre:'Cierre','feriado':'Feriado',emergencia:'Emergencia',vacaciones:'Vacaciones'};
+
+  function rowHTML(d){
+    var fecha = new Date(d.fecha+'T12:00');
+    var label = fecha.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var color = tipoColors[d.tipo]||'var(--muted2)';
+    var tipo = tipoLabels[d.tipo]||d.tipo;
+    var esPasado = d.fecha<todayStr;
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;background:var(--surface2);margin-bottom:6px;opacity:'+(esPasado?.6:1)+'">'
+      +'<div style="flex:1">'
+      +'<div style="font-size:13px;font-weight:600;text-transform:capitalize">'+label+'</div>'
+      +(d.motivo?'<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+d.motivo+'</div>':'')
+      +'</div>'
+      +'<span style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid;border-color:'+color+';color:'+color+'">'+tipo+'</span>'
+      +'<button onclick="eliminarDiaCerrado(''+d.id+'')" style="background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:4px">✕</button>'
+      +'</div>';
+  }
+
+  var html = '';
+  if(proximos.length){
+    html += '<div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Próximos cierres</div>';
+    html += proximos.map(rowHTML).join('');
+  }
+  if(pasados.length){
+    html += '<div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">Últimos 5 cierres pasados</div>';
+    html += pasados.map(rowHTML).join('');
+  }
+  if(!proximos.length&&!pasados.length){
+    html = '<div style="text-align:center;padding:24px;color:var(--muted2);font-size:13px">No hay días cerrados registrados.<br>Los domingos se excluyen automáticamente.</div>';
+  }
+  el.innerHTML = html;
+}
+
+function abrirModalDiaCerrado(){
+  document.getElementById('dcFecha').value = todayStr;
+  document.getElementById('dcTipo').value = 'cierre';
+  document.getElementById('dcMotivo').value = '';
+  openModal('modalDiaCerrado');
+}
+
+async function guardarDiaCerrado(){
+  var fecha = document.getElementById('dcFecha').value;
+  var tipo = document.getElementById('dcTipo').value;
+  var motivo = document.getElementById('dcMotivo').value.trim();
+  if(!fecha){showToast('Seleccioná una fecha','error');return;}
+  try{
+    var{error}=await sb.from('dias_cerrados').insert({fecha,tipo,motivo:motivo||null,created_by:currentUser.id});
+    if(error) throw error;
+    showToast('Día cerrado guardado ✓','success');
+    closeModal('modalDiaCerrado');
+    await loadDiasCerrados();
+  }catch(e){
+    if(e.code==='23505') showToast('Esa fecha ya está registrada','error');
+    else showToast('Error: '+e.message,'error');
+  }
+}
+
+async function eliminarDiaCerrado(id){
+  if(!confirm('¿Eliminar este día cerrado?')) return;
+  try{
+    var{error}=await sb.from('dias_cerrados').delete().eq('id',id);
+    if(error) throw error;
+    showToast('Eliminado ✓','success');
+    await loadDiasCerrados();
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
 function renderAsistencia(){
   const active=alumnos.filter(a=>a.estado==='activo');
   document.getElementById('attendanceList').innerHTML=`
@@ -2413,7 +2557,7 @@ async function marcarAsistenciaDirecta(alumnoId){
     const rowEl=document.getElementById('attrow_'+alumnoId);
     const aObj=alumnos.find(x=>x.id===alumnoId);
     if(rowEl&&aObj){rowEl.outerHTML=renderAttRow(aObj);}
-    else{const page=document.getElementById('page-asistencia');if(page?.classList.contains('active'))renderAsistencia();}
+    else{const page=document.getElementById('page-asistencia');if(page?.classList.contains('active'))renderAsistencia();loadDiasCerrados();}
     if(document.getElementById('page-dashboard')?.classList.contains('active'))renderDashboard();
   }catch(err){showToast('Error al registrar asistencia: '+err.message,'error');}
 }
