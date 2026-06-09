@@ -2498,29 +2498,73 @@ function renderCalGrid(){
     +header+cells+'</div>';
 }
 
+function calAgregarDia(btn){
+  var fecha = btn.getAttribute('data-adddate');
+  closeCalModal();
+  document.getElementById('dcFecha').value = fecha;
+  document.getElementById('dcTipo').value = 'cierre';
+  document.getElementById('dcMotivo').value = '';
+  openModal('modalDiaCerrado');
+}
+
+function calEliminarDia(btn){
+  var id = btn.getAttribute('data-delid');
+  eliminarDiaCerrado(id);
+  closeCalModal();
+}
+
 function calDayClick(dateStr){
   var d = new Date(dateStr+'T12:00');
   var dow = d.getDay();
   var fechaLabel = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   fechaLabel = fechaLabel.charAt(0).toUpperCase()+fechaLabel.slice(1);
 
-  if(dow===0){showToast('Domingo — '+fechaLabel+' (cerrado automático)','info');return;}
-
   var dc = diasCerrados.find(function(x){return x.fecha===dateStr;});
   var tipoLabels = {cierre:'Cierre programado',feriado:'Feriado',emergencia:'Emergencia',vacaciones:'Vacaciones'};
+  var tipoEmojis = {cierre:'🔒',feriado:'🎉',emergencia:'🚨',vacaciones:'🏖️'};
 
-  // Cumpleaños ese día
   var cumples = alumnos.filter(function(a){
     if(!a.nacimiento) return false;
-    var nb = a.nacimiento.slice(5); // MM-DD
-    return dateStr.slice(5)===nb;
+    return dateStr.slice(5)===a.nacimiento.slice(5);
   });
 
-  var msg = fechaLabel;
-  if(dc) msg += ' — '+( tipoLabels[dc.tipo]||dc.tipo )+(dc.motivo?' ('+dc.motivo+')':'');
-  if(cumples.length) msg += ' 🎂 '+cumples.map(function(a){return a.nombre.split(' ')[0];}).join(', ');
+  // Build modal content
+  var icon = dow===0?'📅':(dc?(tipoEmojis[dc.tipo]||'🔒'):(cumples.length?'🎂':'📅'));
+  var lines = '<div style="font-size:14px;font-weight:600;margin-bottom:12px">'+fechaLabel+'</div>';
 
-  showToast(msg, dc?'error': cumples.length?'success':'info');
+  if(dow===0){
+    lines += '<div style="color:var(--muted2);font-size:13px">Domingo — cerrado automáticamente</div>';
+  } else if(dc){
+    lines += '<div style="margin-bottom:8px"><span style="background:rgba(255,59,48,.15);color:var(--danger);border-radius:6px;padding:3px 10px;font-size:12px">'+(tipoLabels[dc.tipo]||dc.tipo)+'</span></div>';
+    if(dc.motivo) lines += '<div style="color:var(--muted2);font-size:13px">'+dc.motivo+'</div>';
+        lines += '<button data-delid="'+dc.id+'" onclick="calEliminarDia(this)" style="margin-top:16px;width:100%;padding:10px;border-radius:8px;border:1px solid var(--danger);background:transparent;color:var(--danger);cursor:pointer;font-size:13px">🗑️ Eliminar este cierre</button>';
+  } else {
+    lines += '<div style="color:var(--muted2);font-size:13px;margin-bottom:12px">Día hábil</div>';
+        lines += '<button data-adddate="'+dateStr+'" onclick="calAgregarDia(this)" style="width:100%;padding:10px;border-radius:8px;border:none;background:var(--accent);color:#000;cursor:pointer;font-size:13px;font-weight:700">+ Marcar como cerrado</button>';
+  }
+
+  if(cumples.length){
+    lines += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);color:var(--success);font-size:13px">🎂 Cumpleaños: '+cumples.map(function(a){return a.nombre;}).join(', ')+'</div>';
+  }
+
+  // Show modal
+  var existing = document.getElementById('calDayModal');
+  if(existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'calDayModal';
+  modal.className = 'modal-overlay open';
+  modal.innerHTML = '<div class="modal" style="max-width:360px">'
+    +'<div class="modal-header"><span class="modal-title">'+icon+' Detalle del día</span>'
+    +'<button class="modal-close" onclick="closeCalModal()">×</button></div>'
+    +'<div class="modal-body" style="padding:20px">'+lines+'</div>'
+    +'</div>';
+  modal.addEventListener('click', function(e){if(e.target===modal) closeCalModal();});
+  document.body.appendChild(modal);
+}
+
+function closeCalModal(){
+  var m = document.getElementById('calDayModal');
+  if(m) m.remove();
 }
 
 function renderDiasCerrados(){
