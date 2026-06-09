@@ -2027,7 +2027,7 @@ function navigateTo(pageId){
   // close mobile sidebar
   document.getElementById('sidebar').classList.remove('mobile-open');
   const renders={
-    'dashboard':renderDashboard,'alumnos':renderAlumnos,'asistencia':renderAsistencia,
+    'dashboard':renderDashboard,'alumnos':renderAlumnos,'asistencia':function(){renderAsistencia();loadDiasCerrados();},
     'rutinas':renderRutinas,'ejercicios':()=>renderEjercicios('todos'),'pagos':renderPagos,
     'nutricion':renderNutricion,'configuracion':renderConfiguracion,
     'home-alumno':renderHomeAlumno,'mi-rutina':renderMiRutina,'mapa-muscular':renderMapaMuscular,'mi-nutricion':renderMiNutricion,'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,'mis-logros':renderMisLogros,
