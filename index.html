@@ -715,7 +715,14 @@ canvas.sparkline{display:block}
 <link rel="apple-touch-icon" href="https://gymos-gamma.vercel.app/icon-512.png">
 <link rel="icon" type="image/png" sizes="512x512" href="https://gymos-gamma.vercel.app/icon-512.png">
 <link rel="shortcut icon" href="https://gymos-gamma.vercel.app/icon-512.png">
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js");</script>
+<script>
+// Unregister any old service workers
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(r){r.unregister();});
+  });
+}
+</script>
 </head>
 <body>
 
