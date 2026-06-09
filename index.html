@@ -4225,6 +4225,7 @@ function renderNutricion(){
       </select>
       <span style="font-size:13px;color:var(--muted2)">Plan nutricional del alumno</span>
       <button class="btn btn-ghost btn-sm" onclick="calcularCaloriasAlumno()" title="Calcular calorías según datos del alumno">⚡ Calcular</button>
+      <button class="btn btn-ghost btn-sm" onclick="limpiarNutricionPlan()" style="color:var(--danger);border-color:var(--danger)">🗑️ Limpiar plan</button>
       <button class="btn btn-accent btn-sm" onclick="saveNutricionPlan()">💾 Guardar plan</button>
     </div>
 
@@ -4602,19 +4603,31 @@ function aplicarCalculo(kcal,p,c,g){
   showToast('Plan actualizado con el cálculo ✓','success');
 }
 
+async function limpiarNutricionPlan(){
+  const id=nutricionAlumnoSeleccionado;
+  if(!id){showToast('Seleccioná un alumno','error');return;}
+  if(!confirm('¿Limpiar todo el plan nutricional de este alumno?')) return;
+  nutricionPlanes[id]={kcal:2200,proteina:200,carbos:240,grasas:70,comidas:[
+    {icono:'🌅',nombre:'Desayuno',hora:'07:00',descripcion:'',calorias:0},
+    {icono:'☀️',nombre:'Almuerzo',hora:'12:30',descripcion:'',calorias:0},
+    {icono:'🌙',nombre:'Cena',hora:'19:00',descripcion:'',calorias:0},
+    {icono:'🍎',nombre:'Snack',hora:'16:00',descripcion:'',calorias:0},
+  ]};
+  showLoadingOverlay('Limpiando plan...');
+  try{
+    const{error}=await sb.from('perfiles').update({plan_nutricion:null}).eq('id',id);
+    if(error) throw error;
+  }catch(e){}
+  hideLoadingOverlay();
+  showToast('Plan limpiado ✓','success');
+  renderNutricion();
+}
+
 async function saveNutricionPlan(){
   const id=nutricionAlumnoSeleccionado;
   if(!id){showToast('Seleccioná un alumno','error');return;}
   syncNutFromDOM();
-  // Actualizar valores del form antes de guardar
-  const p={
-    kcal:parseInt(document.getElementById('nutKcal')?.value)||2200,
-    proteina:parseInt(document.getElementById('nutProt')?.value)||200,
-    carbos:parseInt(document.getElementById('nutCarb')?.value)||240,
-    grasas:parseInt(document.getElementById('nutGras')?.value)||70,
-  };
   initNutPlan();
-  Object.assign(nutricionPlanes[id],p);
   showLoadingOverlay('Guardando plan...');
   try{
     const{error}=await sb.from('perfiles').update({
