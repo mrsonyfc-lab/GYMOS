@@ -1,4 +1,4 @@
-const CACHE = 'gymos-v1';
+const CACHE = 'gymos-v3';
 const OFFLINE = ['/'];
 
 self.addEventListener('install', e => {
