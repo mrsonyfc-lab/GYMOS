@@ -874,6 +874,7 @@ canvas.sparkline{display:block}
         <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,59,48,.3);border:1px solid rgba(255,59,48,.6)"></div><span style="font-size:11px;color:var(--muted2)">Cerrado</span></div>
         <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,.06)"></div><span style="font-size:11px;color:var(--muted2)">Domingo</span></div>
         <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(232,255,0,.15);border:1px solid rgba(232,255,0,.4)"></div><span style="font-size:11px;color:var(--muted2)">Hoy</span></div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:rgba(0,200,83,.15);border:1px solid rgba(0,200,83,.3)"></div><span style="font-size:11px;color:var(--muted2)">🎂 Cumpleaños</span></div>
       </div>
       <div id="calGrid"></div>
       <div id="diasCerradosList" style="margin-top:16px"></div>
@@ -2469,35 +2470,57 @@ function renderCalGrid(){
     var dc = diasCerrados.find(function(x){return x.fecha===dateStr;});
     var tipoEmoji = dc ? ({cierre:'🔒',feriado:'🎉',emergencia:'🚨',vacaciones:'🏖️'}[dc.tipo]||'🔒') : '';
 
+    // Cumpleaños ese día
+    var cumpleanos = alumnos.filter(function(a){
+      if(!a.nacimiento) return false;
+      return dateStr.slice(5)===a.nacimiento.slice(5);
+    });
+    var hasBday = cumpleanos.length>0;
+    var bdayNames = hasBday?cumpleanos.map(function(a){return a.nombre.split(' ')[0];}).join(', '):'';
+
     var bg='', border='', color='', title='';
-    if(isClosed){bg='rgba(255,59,48,.2)';border='1px solid rgba(255,59,48,.5)';color='var(--danger)';title=dc?.motivo||dc?.tipo||'Cerrado';}
+    if(isClosed){bg='rgba(255,59,48,.2)';border='1px solid rgba(255,59,48,.5)';color='var(--danger)';title=(dc&&dc.motivo?dc.motivo:(dc&&dc.tipo?dc.tipo:'Cerrado'));}
     else if(isSun){bg='rgba(255,255,255,.04)';color='var(--muted2)';}
+    if(hasBday&&!isClosed){bg='rgba(0,200,83,.1)';border='1px solid rgba(0,200,83,.3)';}
     if(isToday){border='2px solid var(--accent)';bg=bg||'rgba(232,255,0,.1)';}
+    if(hasBday) title=(title?title+' | ':'')+' 🎂 '+bdayNames;
+
+    var emoji = tipoEmoji || (hasBday?'🎂':'');
 
     cells += '<div onclick="calDayClick(\"'+dateStr+'\")" title="'+title+'" '
-      +'style="text-align:center;padding:6px 2px;border-radius:8px;cursor:pointer;position:relative;'
-      +'background:'+bg+';border:'+(border||'1px solid transparent')+';color:'+(color||'var(--text)')+';">'
+      +'style="text-align:center;padding:6px 2px;border-radius:8px;cursor:pointer;'
+      +'background:'+bg+';border:'+(border||'1px solid transparent')+';color:'+(color||'var(--text)')+'">'
       +'<div style="font-size:13px;font-weight:'+(isToday?700:400)+'">'+d+'</div>'
-      +(tipoEmoji?'<div style="font-size:9px;line-height:1">'+tipoEmoji+'</div>':'')
+      +(emoji?'<div style="font-size:9px;line-height:1.2">'+emoji+'</div>':'')
       +'</div>';
   }
-
   el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">'
     +header+cells+'</div>';
 }
 
 function calDayClick(dateStr){
   var d = new Date(dateStr+'T12:00');
-  if(d.getDay()===0){showToast('Los domingos se excluyen automáticamente','info');return;}
-  var existing = diasCerrados.find(function(x){return x.fecha===dateStr;});
-  if(existing){
-    if(confirm('¿Eliminar el cierre del '+dateStr+'?')) eliminarDiaCerrado(existing.id);
-    return;
-  }
-  document.getElementById('dcFecha').value = dateStr;
-  document.getElementById('dcTipo').value = 'cierre';
-  document.getElementById('dcMotivo').value = '';
-  openModal('modalDiaCerrado');
+  var dow = d.getDay();
+  var fechaLabel = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  fechaLabel = fechaLabel.charAt(0).toUpperCase()+fechaLabel.slice(1);
+
+  if(dow===0){showToast('Domingo — '+fechaLabel+' (cerrado automático)','info');return;}
+
+  var dc = diasCerrados.find(function(x){return x.fecha===dateStr;});
+  var tipoLabels = {cierre:'Cierre programado',feriado:'Feriado',emergencia:'Emergencia',vacaciones:'Vacaciones'};
+
+  // Cumpleaños ese día
+  var cumples = alumnos.filter(function(a){
+    if(!a.nacimiento) return false;
+    var nb = a.nacimiento.slice(5); // MM-DD
+    return dateStr.slice(5)===nb;
+  });
+
+  var msg = fechaLabel;
+  if(dc) msg += ' — '+( tipoLabels[dc.tipo]||dc.tipo )+(dc.motivo?' ('+dc.motivo+')':'');
+  if(cumples.length) msg += ' 🎂 '+cumples.map(function(a){return a.nombre.split(' ')[0];}).join(', ');
+
+  showToast(msg, dc?'error': cumples.length?'success':'info');
 }
 
 function renderDiasCerrados(){
