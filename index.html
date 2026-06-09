@@ -2417,6 +2417,7 @@ async function loadDiasCerrados(){
     diasCerrados = res.data||[];
   }catch(e){ diasCerrados=[]; }
   renderDiasCerrados();
+  renderCalGrid();
 }
 
 function esDiaCerrado(fechaStr){
