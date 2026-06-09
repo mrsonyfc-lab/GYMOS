@@ -2495,10 +2495,9 @@ function renderCalGrid(){
 
     var emoji = tipoEmoji || (hasBday?'🎂':'');
 
-    cells += '<div onclick="calDayClick(\"'+dateStr+'\")" title="'+title+'" '
+    cells += '<div data-date="'+dateStr+'" onclick="calClick(this)" title="'+title+'" '
       +'style="text-align:center;padding:6px 2px;border-radius:8px;cursor:pointer;'
-      +'background:'+bg+';border:'+(border||'1px solid transparent')+';color:'+(color||'var(--text)')+'">'
-      +'<div style="font-size:13px;font-weight:'+(isToday?700:400)+'">'+d+'</div>'
+      +'background:'+bg+';border:'+(border||'1px solid transparent')+';color:'+(color||'var(--text)')+'">'      +'<div style="font-size:13px;font-weight:'+(isToday?700:400)+'">'+d+'</div>'
       +(emoji?'<div style="font-size:9px;line-height:1.2">'+emoji+'</div>':'')
       +'</div>';
   }
@@ -2519,6 +2518,11 @@ function calEliminarDia(btn){
   var id = btn.getAttribute('data-delid');
   eliminarDiaCerrado(id);
   closeCalModal();
+}
+
+function calClick(el){
+  var date = el.getAttribute('data-date') || el.closest('[data-date]')?.getAttribute('data-date');
+  if(date) calDayClick(date);
 }
 
 function calDayClick(dateStr){
