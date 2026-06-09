@@ -2596,7 +2596,7 @@ function renderDiasCerrados(){
       +(d.motivo?'<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+d.motivo+'</div>':'')
       +'</div>'
       +'<span style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid;border-color:'+color+';color:'+color+'">'+tipo+'</span>'
-      +'<button onclick="eliminarDiaCerrado(\"'+d.id+'\")" style="background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:4px">✕</button>'
+      +'<button data-id="'+d.id+'" onclick="dcEliminar(this)" style="background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:4px">✕</button>'
       +'</div>';
   }
 
@@ -2637,6 +2637,11 @@ async function guardarDiaCerrado(){
     if(e.code==='23505') showToast('Esa fecha ya está registrada','error');
     else showToast('Error: '+e.message,'error');
   }
+}
+
+function dcEliminar(btn){
+  var id = btn.getAttribute('data-id');
+  eliminarDiaCerrado(id);
 }
 
 async function eliminarDiaCerrado(id){
