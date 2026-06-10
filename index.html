@@ -1705,14 +1705,24 @@ async function dbSaveAlumno(data, editingId){
   if(!editingId){
     // Crear cuenta en Supabase Auth con usuario@gymapp.local
     const authEmail = data.usuario+'@gymapp.local';
-    const{data:authData,error:authError}=await sb.auth.admin
-      ? await sb.auth.signUp({email:authEmail,password:data.pass,options:{data:{nombre:data.nombre,rol:'alumno'}}})
-      : await sb.auth.signUp({email:authEmail,password:data.pass,options:{data:{nombre:data.nombre,rol:'alumno'}}});
-    // Usar la API de admin para crear sin confirmación de email
-    // Como no tenemos service_role acá, usamos signUp y luego insertamos perfil manual
+    // Guardar sesión actual del admin antes de crear el nuevo usuario
+    const adminSessionBefore = await sb.auth.getSession();
+    const adminToken = adminSessionBefore?.data?.session?.access_token;
+    const adminRefresh = adminSessionBefore?.data?.session?.refresh_token;
+
+    const{data:authData,error:authError}=await sb.auth.signUp({
+      email:authEmail,
+      password:data.pass,
+      options:{data:{nombre:data.nombre,rol:'alumno'}}
+    });
     if(authError)throw authError;
     const uid=authData.user?.id;
     if(!uid)throw new Error('No se pudo obtener el ID del usuario creado');
+
+    // Restaurar sesión del admin si Supabase la pisó con el signUp
+    if(adminToken && adminRefresh){
+      await sb.auth.setSession({access_token:adminToken, refresh_token:adminRefresh});
+    }
     // Guardar perfil en tabla perfiles
     const row={
       id:uid,
