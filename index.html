@@ -1495,7 +1495,47 @@ const today = new Date();
 const todayStr = today.toISOString().split('T')[0];
 
 // Detectar QR en URL al cargar (antes del login)
-window.addEventListener('load', ()=>{ if(typeof verificarQREnURL==='function') verificarQREnURL(); });
+window.addEventListener('load', async ()=>{
+  if(typeof verificarQREnURL==='function') verificarQREnURL();
+  // Auto-login si hay sesión activa
+  try{
+    const{data}=await sb.auth.getSession();
+    if(data?.session?.user){
+      showLoadingOverlay('Cargando...');
+      const{data:perfil}=await sb.from('perfiles').select('*').eq('id',data.session.user.id).single();
+      if(perfil){
+        const rol=perfil.rol||'alumno';
+        currentUser={
+          id:perfil.id,
+          nombre:perfil.nombre||data.session.user.email,
+          role:rol==='admin'?'admin':'student',
+          avatar:(perfil.nombre||'U')[0].toUpperCase(),
+          rutinaId:perfil.rutina_id||'',
+          email:data.session.user.email,
+          peso:perfil.peso||0,altura:perfil.altura||0,
+          prs:{},historialMedidas:[],
+          estado:perfil.estado||'activo',
+          nacimiento:perfil.nacimiento||'',
+          cambioRutina:perfil.cambio_rutina||'',
+        };
+        await cargarDatosIniciales();
+        if(currentUser.role!=='admin'){
+          const meCompleto=alumnos.find(a=>a.id===currentUser.id);
+          if(meCompleto)currentUser={...currentUser,...meCompleto};
+        }
+        hideLoadingOverlay();
+        startApp();
+        return;
+      }
+      hideLoadingOverlay();
+    }
+  }catch(e){console.log('No session',e);}
+  // Cargar email recordado
+  try{
+    const saved=localStorage.getItem('gymos_email');
+    if(saved&&document.getElementById('loginUser')) document.getElementById('loginUser').value=saved;
+  }catch(e){}
+});
 
 function pd(n){const d=new Date(today);d.setDate(d.getDate()-n);return d.toISOString().split('T')[0]}
 function addDays(str,n){const d=new Date(str+'T12:00');d.setDate(d.getDate()+n);return d.toISOString().split('T')[0]}
@@ -1508,7 +1548,14 @@ function daysUntil(str){if(!str)return null;const d=new Date(str+'T12:00');retur
 // ══════════════════════════════════════════════
 const SUPABASE_URL  = 'https://xtatvuuvmlfrcgldjvbp.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0YXR2dXV2bWxmcmNnbGRqdmJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MTkyODQsImV4cCI6MjA5NDE5NTI4NH0.K9HewJPO7eiJjdEeHri9eqapmMEROmVUZAD41a-HMTQ';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+    storage: window.localStorage,
+  }
+});
 
 // ── GYM CONFIG (local + DB) ──────────────────
 let gymConfig = {nombre1:'GYM',nombre2:'OS',accent:'#e8ff00'};
