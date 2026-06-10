@@ -1198,8 +1198,11 @@ if("serviceWorker" in navigator){
         <div class="form-group"><label>Email</label><input type="email" id="fEmail" placeholder="juan@mail.com" /></div>
         <div class="form-group"><label>Fecha de nacimiento</label><input type="date" id="fNacimiento" /></div>
         <div class="form-group"><label>Fecha de inicio</label><input type="date" id="fInicio" /></div>
-        <div class="form-group"><label>Rutina asignada</label><select id="fRutina"><option value="">Sin rutina</option></select></div>
         <div class="form-group"><label>Estado</label><select id="fEstado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select></div>
+        <div class="form-group"><label>Rutina asignada</label><select id="fRutina"><option value="">Sin rutina</option></select></div>
+        <div class="form-group"><label>Cuota mensual ($)</label><input type="number" id="fCuota" placeholder="28000" /></div>
+        <div class="form-group"><label>📅 Inicio de rutina</label><input type="date" id="fInicioRutina" /></div>
+        <div class="form-group"><label>⏰ Vencimiento de rutina</label><input type="date" id="fCambioRutina2" /></div>
         <div class="form-group"><label>Cuota mensual ($)</label><input type="number" id="fCuota" placeholder="5000" /></div>
       </div>
     </div>
@@ -1294,7 +1297,7 @@ if("serviceWorker" in navigator){
     <!-- Tab 2: Notas -->
     <div id="alumnoTab2" style="display:none">
       <div class="form-group mb16"><label>Notas privadas del entrenador</label><textarea id="fNotas" style="min-height:120px" placeholder="Observaciones, comportamiento, progreso subjetivo..."></textarea></div>
-      <div class="form-group"><label>Fecha próximo cambio de rutina</label><input type="date" id="fCambioRutina" /></div>
+
     </div>
   </div>
   <div class="modal-footer">
@@ -2194,7 +2197,7 @@ function calcRacha(alumnoId){
 function openNewAlumno(){
   editingAlumnoId=null;
   document.getElementById('modalAlumnoTitle').textContent='Nuevo Alumno';
-  ['fNombre','fUsuario','fPass','fTel','fEmail','fNotas','fCambioRutina'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['fNombre','fUsuario','fPass','fTel','fEmail','fNotas','fCambioRutina2','fInicioRutina'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   lesionesTemp=[];renderLesionesTemp();
   ['fPeso','fAltura','fCuota'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('fEstado').value='activo';
@@ -2223,7 +2226,9 @@ function editAlumno(id){
   document.getElementById('fAltura').value=a.altura||'';
   loadLesionesEnForm(a.lesiones||'[]');
   document.getElementById('fNotas').value=a.notas||'';
-  document.getElementById('fCambioRutina').value=a.cambioRutina||'';
+  document.getElementById('fCambioRutina2').value=a.cambioRutina||'';
+  document.getElementById('fInicioRutina').value=a.inicioRutina||'';
+  if(document.getElementById('fCuota')) document.getElementById('fCuota').value=a.cuota||'';
   if(document.getElementById('fSexo'))document.getElementById('fSexo').value=a.sexo||'';
   if(document.getElementById('fObjetivo'))document.getElementById('fObjetivo').value=a.objetivo||'';
   if(document.getElementById('fNivel'))document.getElementById('fNivel').value=a.nivel||'Principiante';
@@ -2252,7 +2257,9 @@ async function saveAlumno(){
     altura:parseFloat(document.getElementById('fAltura').value)||0,
     lesiones:document.getElementById('fLesiones').value||'[]',
     notas:document.getElementById('fNotas').value,
-    cambioRutina:document.getElementById('fCambioRutina').value,
+    cambioRutina:document.getElementById('fCambioRutina2')?.value||document.getElementById('fCambioRutina')?.value||'',
+    inicioRutina:document.getElementById('fInicioRutina')?.value||'',
+    cuota:document.getElementById('fCuota')?.value||'',
     sexo:document.getElementById('fSexo')?.value||'',
     objetivo:document.getElementById('fObjetivo')?.value||'',
     nivel:document.getElementById('fNivel')?.value||'Principiante',
