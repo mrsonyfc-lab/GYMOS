@@ -2079,12 +2079,15 @@ function renderDashboard(){
   const activos=alumnos.filter(a=>a.estado==='activo');
   const vencidos=pagos.filter(p=>{const d=daysUntil(p.vencimiento);return d!==null&&d<0});
   const proxVenc=pagos.filter(p=>{const d=daysUntil(p.vencimiento);return d!==null&&d>=0&&d<=7});
+  const rutinasVencenPronto=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d>=0&&d<=7;}).length;
+  const rutinasVencidas=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d<0;}).length;
+  const totalReloj=proxVenc.length+rutinasVencenPronto;
   document.getElementById('dashStats').innerHTML=`
     <div class="stat-card c-yellow"><span class="stat-icon">👥</span><div class="stat-num c-yellow">${activos.length}</div><div class="stat-label">Alumnos activos</div></div>
     <div class="stat-card c-green"><span class="stat-icon">✅</span><div class="stat-num c-green">${hoy.length}</div><div class="stat-label">Asistencias hoy</div></div>
     <div class="stat-card c-orange"><span class="stat-icon">📋</span><div class="stat-num c-orange">${rutinas.length}</div><div class="stat-label">Rutinas</div></div>
     <div class="stat-card c-red"><span class="stat-icon">💳</span><div class="stat-num c-red">${vencidos.length}</div><div class="stat-label">Pagos vencidos</div></div>
-    <div class="stat-card c-blue"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${proxVenc.length}</div><div class="stat-label">Vencen pronto</div></div>
+    <div class="stat-card c-blue"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${totalReloj}</div><div class="stat-label">Vencen pronto</div></div>
   `;
   setTimeout(()=>drawDashChart(),60);
   const alerts=[];
