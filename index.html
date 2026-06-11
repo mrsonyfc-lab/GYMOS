@@ -1071,6 +1071,20 @@ if("serviceWorker" in navigator){
       </div>
     </div>
   </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-header"><span class="card-title">🤖 Inteligencia Artificial</span></div>
+    <div class="card-body">
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.6">
+        Ingresá tu API key de Anthropic para habilitar el análisis de fotos de platos, generación de planes nutricionales con IA y consultas nutricionales.<br>
+        <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">Obtener API key →</a>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>API Key de Anthropic</label>
+        <input type="password" id="cfgAnthropicKey" placeholder="sk-ant-..." style="width:100%;font-family:monospace;font-size:13px"/>
+      </div>
+      <button class="btn btn-accent" onclick="saveAnthropicKey()">Guardar API key</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══ HOME ALUMNO ══ -->
@@ -1558,7 +1572,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 });
 
 // ── GYM CONFIG (local + DB) ──────────────────
-let gymConfig = {nombre1:'GYM',nombre2:'OS',accent:'#e8ff00'};
+let gymConfig = {nombre1:'GYM',nombre2:'OS',accent:'#e8ff00',anthropic_key:''};
 try{const _s=localStorage.getItem('gymOsConfig');if(_s){gymConfig={...gymConfig,...JSON.parse(_s)};}}catch(e){}
 
 // ── CACHE EN MEMORIA (se llena desde Supabase al iniciar) ───
@@ -1629,6 +1643,7 @@ async function cargarDatosIniciales(){
       gymConfig.nombre1=cfData.nombre1||'GYM';
       gymConfig.nombre2=cfData.nombre2||'OS';
       gymConfig.accent =cfData.accent ||'#e8ff00';
+      gymConfig.anthropic_key=cfData.anthropic_key||'';
       applyGymName(); applyAccent(gymConfig.accent);
     }
 
@@ -1900,7 +1915,7 @@ async function dbMarkAllRead(){
 // ── CRUD GYM CONFIG ─────────────────────────────
 async function dbSaveGymConfig(){
   await sb.from('gym_config').upsert({
-    id:1,nombre1:gymConfig.nombre1,nombre2:gymConfig.nombre2,accent:gymConfig.accent
+    id:1,nombre1:gymConfig.nombre1,nombre2:gymConfig.nombre2,accent:gymConfig.accent,anthropic_key:gymConfig.anthropic_key||''
   },{onConflict:'id'});
   try{localStorage.setItem('gymOsConfig',JSON.stringify(gymConfig));}catch(e){}
 }
@@ -4292,6 +4307,7 @@ function renderNutricion(){
       </select>
       <span style="font-size:13px;color:var(--muted2)">Plan nutricional del alumno</span>
       <button class="btn btn-ghost btn-sm" onclick="calcularCaloriasAlumno()" title="Calcular calorías según datos del alumno">⚡ Calcular</button>
+      <button class="btn btn-ghost btn-sm" onclick="generarPlanConIA()" title="Generar plan completo con Inteligencia Artificial" style="color:var(--accent);border-color:var(--accent)">✨ Plan IA</button>
       <button class="btn btn-ghost btn-sm" onclick="limpiarNutricionPlan()" style="color:var(--danger);border-color:var(--danger)">🗑️ Limpiar plan</button>
       <button class="btn btn-accent btn-sm" onclick="saveNutricionPlan()">💾 Guardar plan</button>
     </div>
@@ -5008,7 +5024,11 @@ function renderMiNutricion(){
     <div class="card mb16">
       <div class="card-header">
         <span class="card-title">📝 Lo que comí hoy</span>
-        <button class="btn btn-accent btn-sm" onclick="abrirBuscadorAlumno()">+ Agregar alimento</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="abrirAnalisisFoto()" style="color:var(--accent);border-color:var(--accent)">📷 Foto del plato</button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirConsultaIA()" style="color:var(--info);border-color:var(--info)">💬 Consultar IA</button>
+          <button class="btn btn-accent btn-sm" onclick="abrirBuscadorAlumno()">+ Agregar alimento</button>
+        </div>
       </div>
       <div class="card-body" style="padding:0" id="miRegistroList">
         ${reg.items.length ? reg.items.map((item,i)=>`
@@ -5139,6 +5159,284 @@ function eliminarAlimentoRegistro(idx){
 }
 
 // ══════════════════════════════════════════════
+// NUTRICIÓN IA
+// ══════════════════════════════════════════════
+
+async function llamarClaudeIA(systemPrompt, userContent, isVision){
+  const key = gymConfig.anthropic_key;
+  if(!key){ showToast('Configurá la API key de IA en ⚙️ Configuración','error'); return null; }
+  const msgContent = isVision ? userContent : [{ type:'text', text: userContent }];
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model:'claude-opus-4-5',
+        max_tokens:1500,
+        system: systemPrompt,
+        messages:[{ role:'user', content: msgContent }]
+      })
+    });
+    if(!resp.ok){ const err=await resp.json(); throw new Error(err.error?.message||resp.statusText); }
+    const data = await resp.json();
+    return data.content?.[0]?.text || null;
+  }catch(e){
+    showToast('Error IA: '+e.message,'error');
+    console.error('Claude API error:',e);
+    return null;
+  }
+}
+
+// ── Admin: Generar plan completo con IA ──────────
+async function generarPlanConIA(){
+  if(!nutricionAlumnoSeleccionado){ showToast('Seleccioná un alumno','error'); return; }
+  const a = alumnos.find(x=>x.id===nutricionAlumnoSeleccionado);
+  if(!a){ showToast('Alumno no encontrado','error'); return; }
+  if(!a.peso||!a.altura){ showToast('El alumno necesita peso y altura en su perfil','error'); return; }
+
+  const hoy = new Date();
+  const nac = new Date(a.nacimiento+'T12:00');
+  let edad = hoy.getFullYear()-nac.getFullYear();
+  if(hoy<new Date(hoy.getFullYear(),nac.getMonth(),nac.getDate())) edad--;
+
+  const system = 'Sos un nutricionista deportivo argentino. Respondés SOLO en JSON válido, sin texto adicional, sin markdown, sin explicaciones. El JSON debe tener exactamente esta estructura: {"kcal":NUMBER,"proteina":NUMBER,"carbos":NUMBER,"grasas":NUMBER,"comidas":[{"icono":"EMOJI","nombre":"STRING","hora":"HH:MM","descripcion":"STRING","calorias":NUMBER}],"resumen":"STRING corto de 1 oración"}. Las comidas deben incluir alimentos típicos argentinos, ser específicas (no genéricas), y la descripción debe detallar alimentos y porciones. Generá entre 4 y 5 comidas.';
+
+  const user = 'Alumno: '+a.nombre+'. Sexo: '+(a.sexo==='M'?'masculino':'femenino')+'. Edad: '+edad+' años. Peso: '+a.peso+'kg. Altura: '+a.altura+'cm. Objetivo: '+(a.objetivo||'salud general')+'. Nivel de entrenamiento: '+(a.nivel||'Principiante')+(a.lesiones?' Lesiones/consideraciones: '+a.lesiones:'')+'. Generá un plan nutricional diario completo y personalizado.';
+
+  showLoadingOverlay('✨ La IA está generando el plan...');
+  const resp = await llamarClaudeIA(system, user, false);
+  hideLoadingOverlay();
+  if(!resp) return;
+
+  try{
+    const clean = resp.replace(/```json|```/g,'').trim();
+    const plan = JSON.parse(clean);
+    if(!plan.kcal||!plan.comidas?.length) throw new Error('Estructura inválida');
+
+    // Mostrar preview antes de aplicar
+    const overlay = document.createElement('div');
+    overlay.className='modal-overlay open';
+    overlay.innerHTML = '<div class="modal" style="max-width:500px">'
+      + '<div class="modal-header"><span class="modal-title">✨ Plan generado por IA</span>'
+      + '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'
+      + '<div class="modal-body" style="padding:20px">'
+      + '<div style="background:var(--surface2);border:1px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:16px">'
+      + '<div style="font-family:\'Bebas Neue\';font-size:36px;color:var(--accent)">'+plan.kcal+' <span style="font-size:14px;color:var(--muted2)">kcal/día</span></div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">'
+      + ['Proteína '+plan.proteina+'g','Carbos '+plan.carbos+'g','Grasas '+plan.grasas+'g'].map(function(t,i){
+          var c=['var(--info)','var(--accent)','var(--accent2)'][i];
+          return '<div style="background:var(--surface);border-radius:8px;padding:8px;text-align:center;font-size:12px;color:'+c+'">'+t+'</div>';
+        }).join('')
+      + '</div></div>'
+      + '<div style="font-size:13px;color:var(--muted2);margin-bottom:14px;font-style:italic">'+plan.resumen+'</div>'
+      + '<div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:16px">'
+      + plan.comidas.map(function(c){
+          return '<div style="background:var(--surface2);border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px">'
+            + '<span style="font-size:20px">'+c.icono+'</span>'
+            + '<div style="min-width:0;flex:1">'
+            + '<div style="font-size:13px;font-weight:700">'+c.nombre+' <span style="color:var(--muted2);font-size:11px;font-weight:400">'+c.hora+' · '+c.calorias+' kcal</span></div>'
+            + '<div style="font-size:11px;color:var(--muted2);margin-top:3px;line-height:1.5">'+c.descripcion+'</div>'
+            + '</div></div>';
+        }).join('')
+      + '</div>'
+      + '<button class="btn btn-accent" style="width:100%" onclick="aplicarPlanIA('+JSON.stringify(plan).replace(/"/g,'&quot;')+');this.closest(\'.modal-overlay\').remove()">✓ Aplicar este plan</button>'
+      + '<button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="this.closest(\'.modal-overlay\').remove()">Cancelar</button>'
+      + '</div></div>';
+    overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }catch(e){
+    showToast('Error al procesar respuesta de IA','error');
+    console.error('Parse error:',e,resp);
+  }
+}
+
+function aplicarPlanIA(plan){
+  const id = nutricionAlumnoSeleccionado;
+  if(!id) return;
+  nutricionPlanes[id] = plan;
+  renderNutricion();
+  showToast('Plan IA aplicado — recordá guardar ✓','success');
+}
+
+// ── Alumno: Analizar foto del plato ─────────────
+function abrirAnalisisFoto(){
+  const overlay = document.createElement('div');
+  overlay.className='modal-overlay open';
+  overlay.id='analisisFotoOverlay';
+  overlay.innerHTML = '<div class="modal" style="max-width:460px">'
+    + '<div class="modal-header"><span class="modal-title">📷 Analizar foto del plato</span>'
+    + '<button class="modal-close" onclick="document.getElementById(\'analisisFotoOverlay\').remove()">×</button></div>'
+    + '<div class="modal-body" style="padding:20px">'
+    + '<div id="fotoPreviewZone" style="border:2px dashed var(--border2);border-radius:12px;padding:32px;text-align:center;cursor:pointer;margin-bottom:16px;transition:border-color .2s" onclick="document.getElementById(\'inputFotoPlato\').click()" ondragover="event.preventDefault();this.style.borderColor=\'var(--accent)\'" ondragleave="this.style.borderColor=\'var(--border2)\'" ondrop="handleFotoDrop(event)">'
+    + '<div style="font-size:48px;margin-bottom:8px">🍽️</div>'
+    + '<div style="color:var(--muted2);font-size:13px">Tocá para elegir una foto o arrastrá acá</div>'
+    + '<div style="color:var(--muted);font-size:11px;margin-top:4px">Funciona con foto de la cámara o galería</div>'
+    + '</div>'
+    + '<input type="file" id="inputFotoPlato" accept="image/*" capture="environment" style="display:none" onchange="previsualizarFoto(this)">'
+    + '<div id="fotoResultadoIA" style="display:none"></div>'
+    + '<div id="btnAnalizarFoto" style="display:none">'
+    + '<button class="btn btn-accent" style="width:100%" onclick="analizarFotoPlato()">🔍 Analizar con IA</button>'
+    + '</div>'
+    + '</div></div>';
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function handleFotoDrop(e){
+  e.preventDefault();
+  e.currentTarget.style.borderColor='var(--border2)';
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/')){
+    procesarFotoSeleccionada(file);
+  }
+}
+
+function previsualizarFoto(input){
+  const file=input.files[0];
+  if(file) procesarFotoSeleccionada(file);
+}
+
+let _fotoBase64='', _fotoMime='';
+function procesarFotoSeleccionada(file){
+  _fotoMime=file.type;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    _fotoBase64=e.target.result.split(',')[1];
+    const zone=document.getElementById('fotoPreviewZone');
+    if(zone) zone.innerHTML='<img src="'+e.target.result+'" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain"/>';
+    const btn=document.getElementById('btnAnalizarFoto');
+    if(btn) btn.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analizarFotoPlato(){
+  if(!_fotoBase64){ showToast('Primero seleccioná una foto','error'); return; }
+  const res=document.getElementById('fotoResultadoIA');
+  const btn=document.getElementById('btnAnalizarFoto');
+  if(res) res.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted2)"><div style="font-size:28px;animation:spin .8s linear infinite;display:inline-block">⚙️</div><div style="margin-top:8px;font-size:13px">Analizando tu plato...</div></div>';
+  if(res) res.style.display='block';
+  if(btn) btn.style.display='none';
+
+  const plan = nutricionPlanes[currentUser?.id];
+  const a = alumnos.find(x=>x.id===currentUser?.id);
+
+  var systemVision = 'Sos un nutricionista deportivo argentino. Analizás fotos de platos de comida. Respondés SOLO en JSON válido sin texto adicional ni markdown. Estructura exacta: {"alimentos":[{"nombre":"STRING","cantidad":"STRING","kcal":NUMBER,"p":NUMBER,"c":NUMBER,"g":NUMBER}],"kcal_total":NUMBER,"p_total":NUMBER,"c_total":NUMBER,"g_total":NUMBER,"feedback":"STRING de 1-2 oraciones","adecuado_objetivo":true_o_false}. Los valores de macros son en gramos.';
+  var userVision = 'Analizá este plato de comida e identificá todos los alimentos visibles con sus macronutrientes estimados.';
+  if(a&&a.objetivo) userVision+=' El objetivo del alumno es: '+a.objetivo+'.';
+  if(plan) userVision+=' Su objetivo calórico diario es '+plan.kcal+' kcal.';
+
+  const msgContent=[
+    {type:'image',source:{type:'base64',media_type:_fotoMime,data:_fotoBase64}},
+    {type:'text',text:userVision}
+  ];
+
+  const resp = await llamarClaudeIA(systemVision, msgContent, true);
+  if(!resp){ if(res) res.innerHTML=''; if(btn) btn.style.display='block'; return; }
+
+  try{
+    const clean=resp.replace(/```json|```/g,'').trim();
+    const data=JSON.parse(clean);
+    if(!data.alimentos||!data.kcal_total) throw new Error('bad');
+
+    var html='<div style="margin-bottom:14px">';
+    data.alimentos.forEach(function(item){
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px">'
+        +'<div><div style="font-size:13px;font-weight:600">'+item.nombre+'</div>'
+        +'<div style="font-size:11px;color:var(--muted2)">'+item.cantidad+' · P:'+item.p+'g C:'+item.c+'g G:'+item.g+'g</div></div>'
+        +'<span style="font-family:\'Bebas Neue\';font-size:16px;color:var(--accent)">'+item.kcal+' kcal</span></div>';
+    });
+    html+='</div>';
+    html+='<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:14px">'
+      +'<div style="font-family:\'Bebas Neue\';font-size:28px;color:var(--accent)">'+data.kcal_total+' <span style="font-size:12px;color:var(--muted2)">kcal totales</span></div>'
+      +'<div style="font-size:12px;color:var(--muted2);margin-top:4px">P:'+data.p_total+'g · C:'+data.c_total+'g · G:'+data.g_total+'g</div>'
+      +'</div>';
+    html+='<div style="background:rgba(var(--accent-rgb),.06);border:1px solid rgba(var(--accent-rgb),.15);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted2);line-height:1.6">'
+      +'💡 '+data.feedback+'</div>';
+    html+='<button class="btn btn-accent" style="width:100%" onclick="agregarFotoAlRegistro('+JSON.stringify(data).replace(/"/g,'&quot;')+')">✓ Agregar al registro de hoy</button>';
+
+    if(res) res.innerHTML=html;
+  }catch(e){
+    if(res) res.innerHTML='<div style="color:var(--danger);font-size:13px;padding:10px">No se pudo procesar la respuesta. Intentá con otra foto.</div>';
+    if(btn) btn.style.display='block';
+    console.error('Vision parse error:',e,resp);
+  }
+}
+
+function agregarFotoAlRegistro(data){
+  const reg=getMiRegistroDiario();
+  const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  data.alimentos.forEach(function(item){
+    reg.items.push({nombre:item.nombre+' ('+item.cantidad+')',kcal:item.kcal,p:item.p,c:item.c,g:item.g,hora:hora});
+    reg.kcal=(reg.kcal||0)+item.kcal;
+    reg.p=(reg.p||0)+item.p;
+    reg.c=(reg.c||0)+item.c;
+    reg.g=(reg.g||0)+item.g;
+  });
+  saveMiRegistroDiario(reg);
+  document.getElementById('analisisFotoOverlay')?.remove();
+  showToast('Plato agregado al registro ✓','success');
+  renderMiNutricion();
+}
+
+// ── Alumno: Consultar IA (feedback/sugerencias) ──
+function abrirConsultaIA(){
+  const plan=nutricionPlanes[currentUser?.id];
+  const reg=getMiRegistroDiario();
+  const a=alumnos.find(x=>x.id===currentUser?.id);
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay open';
+  overlay.id='consultaIAOverlay';
+
+  var sugerencias=[
+    '¿Qué debería comer esta noche?',
+    'Analizá lo que comí hoy',
+    '¿Qué snack puedo comer antes de entrenar?',
+    'Sugerí desayunos para mi objetivo',
+    '¿Estoy comiendo suficiente proteína?'
+  ];
+
+  overlay.innerHTML='<div class="modal" style="max-width:480px">'
+    +'<div class="modal-header"><span class="modal-title">💬 Consultar IA nutricional</span>'
+    +'<button class="modal-close" onclick="document.getElementById(\'consultaIAOverlay\').remove()">×</button></div>'
+    +'<div class="modal-body" style="padding:16px">'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'
+    +sugerencias.map(function(s){
+      return '<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="document.getElementById(\'inputConsultaIA\').value=\''+s.replace(/'/g,"\\'")+'\'">'+s+'</button>';
+    }).join('')
+    +'</div>'
+    +'<textarea id="inputConsultaIA" class="search-input" style="width:100%;min-height:80px;resize:vertical;line-height:1.5;box-sizing:border-box" placeholder="Escribí tu consulta nutricional..."></textarea>'
+    +'<div id="respuestaIANutricion" style="display:none;margin-top:12px;background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;color:var(--muted2);line-height:1.7;white-space:pre-wrap"></div>'
+    +'<button class="btn btn-accent" style="width:100%;margin-top:12px" onclick="enviarConsultaIA()">✨ Consultar</button>'
+    +'</div></div>';
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  setTimeout(function(){ document.getElementById('inputConsultaIA')?.focus(); },100);
+}
+
+async function enviarConsultaIA(){
+  const pregunta=(document.getElementById('inputConsultaIA')?.value||'').trim();
+  if(!pregunta){ showToast('Escribí tu consulta','error'); return; }
+  const respDiv=document.getElementById('respuestaIANutricion');
+  if(respDiv){ respDiv.style.display='block'; respDiv.innerHTML='⚙️ Pensando...'; }
+
+  const plan=nutricionPlanes[currentUser?.id];
+  const reg=getMiRegistroDiario();
+  const a=alumnos.find(x=>x.id===currentUser?.id);
+
+  var ctx='';
+  if(a) ctx+='Alumno: '+a.nombre+'. Objetivo: '+(a.objetivo||'salud general')+'. Peso: '+a.peso+'kg.';
+  if(plan) ctx+=' Plan calórico: '+plan.kcal+' kcal/día (P:'+plan.proteina+'g C:'+plan.carbos+'g G:'+plan.grasas+'g).';
+  if(reg&&reg.items&&reg.items.length) ctx+=' Hoy ya comió '+reg.kcal+' kcal: '+reg.items.map(function(i){return i.nombre;}).join(', ')+'.';
+
+  var system='Sos un nutricionista deportivo argentino, amigable y práctico. Usás términos argentinos. Respondés de forma concisa y útil, máximo 3 párrafos. No usés markdown ni asteriscos.';
+  var user=ctx+'\n\nPregunta del alumno: '+pregunta;
+
+  const resp=await llamarClaudeIA(system,user,false);
+  if(respDiv) respDiv.innerHTML=resp||'No se pudo obtener respuesta.';
+}
+
+// ══════════════════════════════════════════════
 // MAPA MUSCULAR
 // ══════════════════════════════════════════════
 
@@ -5239,6 +5537,58 @@ function marcarEjercicioCompletado(exId){
   const key='ejercicios_completados_'+currentUser?.id+'_'+todayStr;
   const lista=JSON.parse(localStorage.getItem(key)||'[]');
   if(!lista.includes(exId)){ lista.push(exId); localStorage.setItem(key,JSON.stringify(lista)); }
+}
+
+function openRegistroFisico(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const rfFecha=document.getElementById('rfFecha');
+  if(rfFecha) rfFecha.value=hoy;
+  // Pre-fill with current weight if available
+  const a=alumnos.find(x=>x.id===currentUser?.id);
+  if(a&&a.peso){ const el=document.getElementById('rfPeso'); if(el&&!el.value) el.value=a.peso; }
+  openModal('modalFisico');
+}
+
+async function saveRegistroFisico(){
+  const peso=parseFloat(document.getElementById('rfPeso')?.value)||0;
+  const grasa=parseFloat(document.getElementById('rfGrasa')?.value)||0;
+  const pecho=parseFloat(document.getElementById('rfPecho')?.value)||0;
+  const cintura=parseFloat(document.getElementById('rfCintura')?.value)||0;
+  const cadera=parseFloat(document.getElementById('rfCadera')?.value)||0;
+  const brazo=parseFloat(document.getElementById('rfBrazo')?.value)||0;
+  const muslo=parseFloat(document.getElementById('rfMuslo')?.value)||0;
+  const fecha=document.getElementById('rfFecha')?.value||new Date().toISOString().split('T')[0];
+  if(!peso&&!grasa&&!pecho){ showToast('Ingresá al menos una medida','error'); return; }
+  const medida={fecha,peso,grasa,pecho,cintura,cadera,brazo,muslo};
+  try{
+    showLoadingOverlay('Guardando medidas...');
+    const{error}=await sb.from('medidas_fisicas').insert({
+      alumno_id:currentUser.id,fecha,peso:peso||null,grasa_corporal:grasa||null,
+      pecho:pecho||null,cintura:cintura||null,cadera:cadera||null,brazo:brazo||null,muslo:muslo||null
+    });
+    hideLoadingOverlay();
+    if(error) throw error;
+    closeModal('modalFisico');
+    showToast('Medidas guardadas ✓','success');
+    // Update local weight on profile if changed
+    if(peso){
+      const idx=alumnos.findIndex(x=>x.id===currentUser.id);
+      if(idx>=0){ alumnos[idx].peso=peso; }
+    }
+  }catch(e){
+    hideLoadingOverlay();
+    // Silently save to localStorage as fallback
+    try{
+      const key='medidas_'+currentUser.id;
+      const existing=JSON.parse(localStorage.getItem(key)||'[]');
+      existing.push(medida);
+      localStorage.setItem(key,JSON.stringify(existing));
+      closeModal('modalFisico');
+      showToast('Medidas guardadas localmente ✓','success');
+    }catch(le){
+      showToast('Error al guardar medidas','error');
+    }
+  }
 }
 
 function renderMiProgreso(){
@@ -5664,6 +6014,8 @@ function renderConfiguracion(){
   document.getElementById('prevNombre1').textContent=gymConfig.nombre1;
   document.getElementById('prevNombre2').textContent=gymConfig.nombre2;
   applyAccent(gymConfig.accent);
+  const keyInput=document.getElementById('cfgAnthropicKey');
+  if(keyInput) keyInput.value=gymConfig.anthropic_key||'';
 }
 
 function saveConfig(){
@@ -5683,6 +6035,16 @@ function saveAdminPass(){
   gymConfig.adminPass=p1;dbSaveGymConfig();
   document.getElementById('cfgPass1').value='';document.getElementById('cfgPass2').value='';
   showToast('Contraseña actualizada ✓','success');
+}
+
+function saveAnthropicKey(){
+  if(currentUser?.role!=='admin'){showToast('Solo admins pueden hacer esto','error');return;}
+  const k=(document.getElementById('cfgAnthropicKey')?.value||'').trim();
+  if(!k){showToast('Ingresá la API key','error');return;}
+  if(!k.startsWith('sk-ant-')){showToast('La key debe empezar con sk-ant-','error');return;}
+  gymConfig.anthropic_key=k;
+  dbSaveGymConfig();
+  showToast('API key guardada ✓','success');
 }
 
 function setAccent(color){
