@@ -5610,6 +5610,7 @@ function abrirAnalisisFoto(){
     + '<input type="file" id="inputFotoGaleria" accept="image/*" style="display:none" onchange="previsualizarFoto(this)">'
     + '<div id="fotoResultadoIA" style="display:none"></div>'
     + '<div id="btnAnalizarFoto" style="display:none">'
+    + '<input type="text" id="fotoDescripcion" class="search-input" style="width:100%;margin-bottom:10px;box-sizing:border-box" placeholder="Descripción opcional (ej: milanesa con puré, medialunas...)"/>'
     + '<button class="btn btn-accent" style="width:100%" onclick="analizarFotoPlato()">🔍 Analizar con IA</button>'
     + '</div>'
     + '</div></div>';
@@ -5658,6 +5659,8 @@ async function analizarFotoPlato(){
 
   var systemVision = 'Sos un nutricionista deportivo argentino. Analizás fotos de platos de comida. Respondés SOLO en JSON válido sin texto adicional ni markdown. Estructura exacta: {"alimentos":[{"nombre":"STRING","cantidad":"STRING","kcal":NUMBER,"p":NUMBER,"c":NUMBER,"g":NUMBER}],"kcal_total":NUMBER,"p_total":NUMBER,"c_total":NUMBER,"g_total":NUMBER,"feedback":"STRING de 1-2 oraciones","adecuado_objetivo":true_o_false}. Los valores de macros son en gramos.';
   var userVision = 'Analizá este plato de comida e identificá todos los alimentos visibles con sus macronutrientes estimados.';
+  const descInput = (document.getElementById('fotoDescripcion')?.value||'').trim();
+  if(descInput) userVision += ' El alumno describió el plato como: "'+descInput+'". Usá esa info para ser más preciso.';
   if(a&&a.objetivo) userVision+=' El objetivo del alumno es: '+a.objetivo+'.';
   if(plan) userVision+=' Su objetivo calórico diario es '+plan.kcal+' kcal.';
 
