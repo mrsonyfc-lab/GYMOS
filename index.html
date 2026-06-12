@@ -130,10 +130,171 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .user-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm)}
 .u-avatar{
   width:34px;height:34px;border-radius:50%;background:var(--accent);color:#000;
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;
+  overflow:hidden;position:relative;
 }
-.u-name{font-size:13px;font-weight:600}
-.u-role{font-size:11px;color:var(--muted2)}
+.u-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+/* ── PERFIL CARD ── */
+.perfil-card{
+  border-radius:20px;padding:28px 20px;text-align:center;position:relative;overflow:hidden;
+  margin-bottom:20px;
+}
+/* Fondos */
+.bg-carbono{background:linear-gradient(145deg,#0a0a0a,#1a1a1a);}
+.bg-acero{background:linear-gradient(145deg,#1c1c2e,#2d2d44);}
+.bg-neon-yellow{background:linear-gradient(145deg,#0d0d00,#1a1a00);}
+.bg-neon-blue{background:linear-gradient(145deg,#000d1a,#001a33);}
+.bg-llamas{background:linear-gradient(145deg,#1a0500,#2d0a00);}
+.bg-espacio{background:linear-gradient(145deg,#000008,#050015);}
+.bg-montanas{background:linear-gradient(145deg,#0a0d0a,#101810);}
+.bg-industrial{background:linear-gradient(145deg,#0d0d0d,#1a1414);}
+.bg-anime{background:linear-gradient(145deg,#0d001a,#1a0033);}
+.bg-cyberpunk{background:linear-gradient(145deg,#0d0d00,#00001a);}
+
+/* ── AVATAR WRAPPER (marcos + efectos) ── */
+.av-wrap{position:relative;display:inline-block;margin-bottom:12px;}
+.av-img{
+  width:96px;height:96px;border-radius:50%;object-fit:cover;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue';font-size:42px;position:relative;z-index:2;overflow:hidden;
+  background:var(--accent);color:#000;
+}
+.av-img img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+/* MARCOS */
+.marco-none .av-img{border:3px solid rgba(255,255,255,.1);}
+.marco-basico .av-img{border:3px solid #888;}
+.marco-fitness .av-img{border:3px solid #4caf50;box-shadow:0 0 12px rgba(76,175,80,.5);}
+.marco-elite .av-img{border:3px solid #4a9eff;box-shadow:0 0 14px rgba(74,158,255,.55);}
+.marco-gladiador .av-img{border:3px solid #c084fc;box-shadow:0 0 16px rgba(192,132,252,.6);}
+.marco-legendario .av-img{border:3px solid var(--accent);box-shadow:0 0 20px rgba(232,255,0,.7);}
+.marco-fundador .av-img{
+  border:3px solid transparent;
+  background-clip:padding-box;
+  box-shadow:0 0 0 3px gold,0 0 24px rgba(255,215,0,.8);
+}
+/* marcos con gradiente animado */
+.marco-elite-anim .av-img{
+  border:3px solid transparent;
+  position:relative;
+}
+.marco-elite-anim .av-img::before{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(#4a9eff,#c084fc,#4a9eff);
+  z-index:-1;animation:spin-marco 3s linear infinite;
+}
+.marco-gladiador-anim .av-img{
+  border:3px solid transparent;position:relative;
+}
+.marco-gladiador-anim .av-img::before{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(#c084fc,#e8ff00,#c084fc);
+  z-index:-1;animation:spin-marco 2s linear infinite;
+}
+@keyframes spin-marco{to{transform:rotate(360deg)}}
+
+/* EFECTOS */
+.efecto-wrap{position:absolute;inset:0;border-radius:50%;pointer-events:none;overflow:visible;z-index:3;}
+
+/* Llamas */
+@keyframes flame-rise{0%{transform:translateY(0) scaleX(1);opacity:.9}50%{transform:translateY(-14px) scaleX(.8);opacity:.5}100%{transform:translateY(-24px) scaleX(.6);opacity:0}}
+.efecto-llamas .efecto-wrap::before,.efecto-llamas .efecto-wrap::after{
+  content:'🔥';position:absolute;font-size:18px;animation:flame-rise 1s ease-in-out infinite;
+}
+.efecto-llamas .efecto-wrap::before{bottom:-4px;left:8px;animation-delay:0s;}
+.efecto-llamas .efecto-wrap::after{bottom:-4px;right:8px;animation-delay:.5s;}
+
+/* Rayos */
+@keyframes bolt-flash{0%,90%{opacity:0;transform:scale(.8)}95%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(.8)}}
+.efecto-rayos .efecto-wrap::before,.efecto-rayos .efecto-wrap::after{
+  content:'⚡';position:absolute;font-size:16px;animation:bolt-flash .8s ease-in-out infinite;
+}
+.efecto-rayos .efecto-wrap::before{top:2px;left:-6px;animation-delay:0s;}
+.efecto-rayos .efecto-wrap::after{top:2px;right:-6px;animation-delay:.4s;}
+
+/* Nieve */
+@keyframes snow-fall{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(20px) rotate(180deg);opacity:0}}
+.efecto-nieve .efecto-wrap::before,.efecto-nieve .efecto-wrap::after{
+  content:'❄️';position:absolute;font-size:14px;animation:snow-fall 1.5s ease-in-out infinite;
+}
+.efecto-nieve .efecto-wrap::before{top:-8px;left:18px;animation-delay:0s;}
+.efecto-nieve .efecto-wrap::after{top:-8px;right:18px;animation-delay:.7s;}
+
+/* Energía azul */
+@keyframes pulse-ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.35);opacity:0}}
+.efecto-energia::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:2px solid #4a9eff;animation:pulse-ring 1.2s ease-out infinite;
+  pointer-events:none;z-index:3;
+}
+
+/* Velocidad */
+@keyframes speed-lines{0%{opacity:0;transform:scaleX(0)}50%{opacity:.7}100%{opacity:0;transform:scaleX(1.2)}}
+.efecto-velocidad .efecto-wrap::before{
+  content:'💨';position:absolute;font-size:18px;left:-12px;top:35px;
+  animation:speed-lines .7s ease-in-out infinite;
+}
+
+/* Partículas */
+@keyframes sparkle{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}}
+.efecto-particulas .efecto-wrap::before,.efecto-particulas .efecto-wrap::after{
+  content:'✨';position:absolute;font-size:14px;animation:sparkle 1.5s ease-in-out infinite;
+}
+.efecto-particulas .efecto-wrap::before{top:-6px;left:6px;}
+.efecto-particulas .efecto-wrap::after{bottom:-6px;right:6px;animation-delay:.75s;}
+
+/* Nebulosa */
+@keyframes nebula-glow{0%,100%{box-shadow:0 0 20px 6px rgba(138,43,226,.4)}50%{box-shadow:0 0 32px 12px rgba(75,0,130,.6)}}
+.efecto-nebulosa .av-img{animation:nebula-glow 2s ease-in-out infinite;}
+
+/* Corona */
+.efecto-corona .efecto-wrap::before{
+  content:'👑';position:absolute;font-size:20px;top:-18px;left:50%;transform:translateX(-50%);
+  animation:sparkle 2s ease-in-out infinite;
+}
+
+/* Diamantes */
+@keyframes diamond-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.efecto-diamantes .efecto-wrap::before,.efecto-diamantes .efecto-wrap::after{
+  content:'💎';position:absolute;font-size:13px;animation:diamond-float 1.8s ease-in-out infinite;
+}
+.efecto-diamantes .efecto-wrap::before{top:0;left:-10px;animation-delay:0s;}
+.efecto-diamantes .efecto-wrap::after{top:0;right:-10px;animation-delay:.9s;}
+
+/* Meteoritos */
+@keyframes meteor{0%{opacity:0;transform:translate(-20px,-20px) rotate(45deg)}100%{opacity:1;transform:translate(0,0) rotate(45deg)}}
+.efecto-meteoritos .efecto-wrap::before{
+  content:'☄️';position:absolute;font-size:16px;top:-10px;right:-4px;
+  animation:meteor .6s ease-in-out infinite alternate;
+}
+
+/* Efecto fundador especial */
+@keyframes founder-aura{
+  0%,100%{box-shadow:0 0 16px 4px rgba(255,215,0,.5),0 0 32px 8px rgba(255,165,0,.3)}
+  50%{box-shadow:0 0 24px 8px rgba(255,215,0,.8),0 0 48px 16px rgba(255,165,0,.5)}
+}
+.efecto-fundador .av-img{animation:founder-aura 2s ease-in-out infinite;}
+.efecto-fundador .efecto-wrap::before{
+  content:'✨';position:absolute;font-size:16px;top:-8px;left:50%;transform:translateX(-50%);
+  animation:sparkle 1.5s ease-in-out infinite;
+}
+
+/* Tarjeta insignias */
+.insignia-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;padding:4px 10px;font-size:12px;
+}
+/* Selector items en editor */
+.psel-item{
+  cursor:pointer;border:2px solid var(--border2);border-radius:10px;padding:10px 8px;
+  text-align:center;font-size:12px;transition:all .2s;
+}
+.psel-item:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),.06);}
+.psel-item.selected{border-color:var(--accent);background:rgba(var(--accent-rgb),.12);color:var(--accent);}
+.psel-item.locked{opacity:.4;cursor:not-allowed;}
+@keyframes spin{to{transform:rotate(360deg)}}
 .btn-logout{
   width:100%;padding:9px;background:transparent;border:1px solid var(--border);
   color:var(--muted2);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;
@@ -1175,6 +1336,17 @@ if("serviceWorker" in navigator){
   <div id="misLogrosContainer"></div>
 </div>
 
+<!-- ══ MI PERFIL ══ -->
+<div class="page" id="page-mi-perfil">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-title">Mi <span>Perfil</span></div>
+      <div class="page-sub">Personalizá tu identidad en el gym</div>
+    </div>
+  </div>
+  <div id="miPerfilContainer"></div>
+</div>
+
 <!-- ══ MAPA MUSCULAR ══ -->
 <div class="page" id="page-mapa-muscular">
   <div class="page-header">
@@ -1711,6 +1883,8 @@ function mapPerfil(r){
     cambioRutina:r.cambio_rutina||'',objetivo:r.objetivo||'',
     nivel:r.nivel||'Principiante',sexo:r.sexo||'',lesiones:r.lesiones||'',
     notas:r.notas_privadas||'',peso:r.peso||0,altura:r.altura||0,
+    avatarUrl:r.avatar_url||'',
+    perfilConfig:r.perfil_config||{},
     historialMedidas:[],prs:{}};
 }
 function mapAsistencia(r){
@@ -2315,6 +2489,8 @@ async function doLogin(){
     prs:{},historialMedidas:[],
     estado:perfil.estado||'activo',
     nacimiento:perfil.nacimiento||'',
+    avatarUrl:perfil.avatar_url||'',
+    perfilConfig:perfil.perfil_config||{},
   };
   await cargarDatosIniciales();
   // Enriquecer currentUser con datos cargados
@@ -2353,6 +2529,7 @@ function startApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('sideAvatar').textContent=currentUser.avatar;
+  updateSidebarAvatar();
   document.getElementById('sideName').textContent=currentUser.nombre;
   document.getElementById('sideRoleBadge').textContent=currentUser.role==='admin'?'Administrador':'Alumno';
   document.getElementById('sideRoleTxt').textContent=currentUser.role==='admin'?'Administrador':'Alumno';
@@ -2397,6 +2574,7 @@ function buildStudentNav(){
     {id:'mi-progreso',icon:'📈',label:'Mi Progreso'},
     {id:'mi-asistencia',icon:'📅',label:'Mi Asistencia'},
     {id:'mis-logros',icon:'🏆',label:'Mis Logros'},
+    {id:'mi-perfil',icon:'🎨',label:'Mi Perfil'},
   ];
   renderNav(nav);
 }
@@ -2423,7 +2601,7 @@ function navigateTo(pageId){
     'dashboard':renderDashboard,'alumnos':renderAlumnos,'asistencia':function(){renderAsistencia();loadDiasCerrados();},
     'rutinas':renderRutinas,'ejercicios':()=>renderEjercicios('todos'),'pagos':renderPagos,
     'nutricion':renderNutricion,'configuracion':renderConfiguracion,
-    'home-alumno':renderHomeAlumno,'mi-rutina':renderMiRutina,'mapa-muscular':renderMapaMuscular,'mi-nutricion':renderMiNutricion,'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,'mis-logros':renderMisLogros,
+    'home-alumno':renderHomeAlumno,'mi-rutina':renderMiRutina,'mapa-muscular':renderMapaMuscular,'mi-nutricion':renderMiNutricion,'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,'mis-logros':renderMisLogros,'mi-perfil':renderMiPerfil,
     'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,
 
   };
@@ -2444,8 +2622,8 @@ function buildMobileBottomNav(){
       {id:'asistencia',icon:'✅',label:'Asistencia'},{id:'pagos',icon:'💳',label:'Pagos'},
       {id:'configuracion',icon:'⚙️',label:'Config'}]
     :[{id:'home-alumno',icon:'🏠',label:'Inicio'},{id:'mi-rutina',icon:'📋',label:'Rutina'},
-      {id:'mapa-muscular',icon:'💪',label:'Músculos'},{id:'mi-nutricion',icon:'🥗',label:'Nutrición'},
-      {id:'mis-logros',icon:'🏆',label:'Logros'}];
+      {id:'mi-nutricion',icon:'🥗',label:'Nutrición'},{id:'mis-logros',icon:'🏆',label:'Logros'},
+      {id:'mi-perfil',icon:'🎨',label:'Perfil'}];
   nav.innerHTML=items.map(i=>`
     <div class="mbn-item" id="mbn-${i.id}" onclick="navigateTo('${i.id}');updateMobileNav('${i.id}')">
       <span class="mbn-icon">${i.icon}</span>${i.label}
@@ -5065,7 +5243,9 @@ function renderHomeAlumno(){
 
   document.getElementById('welcomeBanner').innerHTML=`
     <div class="welcome-banner">
-      <div class="welcome-av">${a.nombre[0]}</div>
+      <div class="welcome-av" onclick="navigateTo('mi-perfil')" style="cursor:pointer;overflow:hidden">
+        ${a.avatarUrl?'<img src="'+a.avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':a.nombre[0]}
+      </div>
       <div>
         <div class="welcome-title">¡Hola, <span>${a.nombre.split(' ')[0]}</span>! 💪</div>
         <div class="welcome-sub">${rut?'Rutina: '+rut.nombre:'Sin rutina asignada — hablá con tu profe'}</div>
@@ -5775,6 +5955,318 @@ async function enviarConsultaIA(){
 }
 
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// MI PERFIL — SISTEMA DE PERSONALIZACIÓN
+// ══════════════════════════════════════════════
+
+const MARCOS_DEFS = [
+  {id:'marco-none',      label:'Sin marco',      req:null,            preview:'border:3px solid rgba(255,255,255,.1)'},
+  {id:'marco-basico',    label:'Básico',          req:null,            preview:'border:3px solid #888'},
+  {id:'marco-fitness',   label:'Fitness',         req:{tipo:'nivel',v:10}, preview:'border:3px solid #4caf50;box-shadow:0 0 10px rgba(76,175,80,.5)'},
+  {id:'marco-elite',     label:'Elite',           req:{tipo:'nivel',v:25}, preview:'border:3px solid #4a9eff;box-shadow:0 0 10px rgba(74,158,255,.5)'},
+  {id:'marco-elite-anim',label:'Elite Giratorio', req:{tipo:'nivel',v:25}, preview:'border:3px solid #4a9eff'},
+  {id:'marco-gladiador', label:'Gladiador',       req:{tipo:'nivel',v:50}, preview:'border:3px solid #c084fc;box-shadow:0 0 12px rgba(192,132,252,.6)'},
+  {id:'marco-gladiador-anim',label:'Gladiador Anim.',req:{tipo:'nivel',v:50},preview:'border:3px solid #c084fc'},
+  {id:'marco-legendario',label:'Legendario',      req:{tipo:'nivel',v:100},preview:'border:3px solid #e8ff00;box-shadow:0 0 16px rgba(232,255,0,.7)'},
+  {id:'marco-fundador',  label:'Fundador ⭐',     req:{tipo:'logro',v:'t_fundador'}, preview:'box-shadow:0 0 0 3px gold,0 0 20px rgba(255,215,0,.8)'},
+];
+
+const EFECTOS_DEFS = [
+  {id:'',              label:'Sin efecto',  req:null},
+  {id:'efecto-llamas', label:'🔥 Llamas',   req:{tipo:'nivel',v:5}},
+  {id:'efecto-rayos',  label:'⚡ Rayos',    req:{tipo:'nivel',v:10}},
+  {id:'efecto-nieve',  label:'❄️ Nieve',    req:{tipo:'nivel',v:5}},
+  {id:'efecto-energia',label:'🌊 Energía',  req:{tipo:'nivel',v:15}},
+  {id:'efecto-velocidad',label:'💨 Velocidad',req:{tipo:'nivel',v:10}},
+  {id:'efecto-particulas',label:'🌟 Partículas',req:{tipo:'nivel',v:20}},
+  {id:'efecto-nebulosa',label:'🌌 Nebulosa', req:{tipo:'nivel',v:30}},
+  {id:'efecto-corona', label:'👑 Corona',   req:{tipo:'nivel',v:50}},
+  {id:'efecto-diamantes',label:'💎 Diamantes',req:{tipo:'nivel',v:40}},
+  {id:'efecto-meteoritos',label:'☄️ Meteoritos',req:{tipo:'nivel',v:25}},
+  {id:'efecto-fundador',label:'✨ Aura Fundador',req:{tipo:'logro',v:'t_fundador'}},
+];
+
+const FONDOS_DEFS = [
+  {id:'bg-carbono',    label:'Negro Carbono', req:null},
+  {id:'bg-acero',      label:'Acero Cepillado',req:null},
+  {id:'bg-neon-yellow',label:'Neón Amarillo', req:{tipo:'nivel',v:10}},
+  {id:'bg-neon-blue',  label:'Neón Azul',     req:{tipo:'nivel',v:10}},
+  {id:'bg-llamas',     label:'Llamas',        req:{tipo:'nivel',v:20}},
+  {id:'bg-espacio',    label:'Espacio',       req:{tipo:'nivel',v:15}},
+  {id:'bg-montanas',   label:'Montañas',      req:null},
+  {id:'bg-industrial', label:'Industrial',    req:null},
+  {id:'bg-anime',      label:'Modo Anime',    req:{tipo:'nivel',v:30}},
+  {id:'bg-cyberpunk',  label:'Cyberpunk',     req:{tipo:'nivel',v:25}},
+];
+
+const INSIGNIAS_DEFS = [
+  {id:'ins_fundador',   icon:'🚀', label:'Fundador 2026',    req:{tipo:'logro',v:'t_fundador'}},
+  {id:'ins_100atts',    icon:'💯', label:'100 Asistencias',  req:{tipo:'logro',v:'a_centurion'}},
+  {id:'ins_500atts',    icon:'🏛️', label:'500 Asistencias',  req:{tipo:'logro',v:'a_veterano'}},
+  {id:'ins_racha30',    icon:'🔥', label:'Racha 30 días',    req:{tipo:'logro',v:'a_maquina'}},
+  {id:'ins_racha90',    icon:'⚡', label:'Racha 90 días',    req:{tipo:'logro',v:'a_imparable'}},
+  {id:'ins_nivel50',    icon:'👑', label:'Nivel 50',         req:{tipo:'nivel',v:50}},
+  {id:'ins_nivel25',    icon:'⚔️', label:'Nivel 25',         req:{tipo:'nivel',v:25}},
+  {id:'ins_guerrero',   icon:'💪', label:'Señor del Hierro', req:{tipo:'logro',v:'f_10pr'}},
+  {id:'ins_campe',      icon:'🏆', label:'Maestro Entreno',  req:{tipo:'logro',v:'r_100'}},
+  {id:'ins_temporada',  icon:'🌟', label:'Campeón Temporada',req:{tipo:'logro',v:'t_guerrero_inv'}},
+];
+
+function perfilReqOk(req, nivel, logrosIds){
+  if(!req) return true;
+  if(req.tipo==='nivel') return nivel>=req.v;
+  if(req.tipo==='logro') return logrosIds.includes(req.v);
+  return false;
+}
+
+function buildAvatarHTML(cfg, avatarUrl, nombre, size){
+  size = size||96;
+  const inner = avatarUrl
+    ? '<img src="'+avatarUrl+'" alt="avatar" style="width:'+size+'px;height:'+size+'px;object-fit:cover;border-radius:50%">'
+    : '<span style="font-family:\'Bebas Neue\';font-size:'+(size*0.42)+'px">'+(nombre||'?')[0].toUpperCase()+'</span>';
+  const marco = cfg.marco||'marco-basico';
+  const efecto = cfg.efecto||'';
+  const efWrap = efecto ? '<div class="efecto-wrap"></div>' : '';
+  return '<div class="av-wrap '+marco+' '+(efecto||'')+'" style="width:'+(size+16)+'px;height:'+(size+16)+'px;display:inline-flex;align-items:center;justify-content:center">'
+    +'<div class="av-img" style="width:'+size+'px;height:'+size+'px">'+inner+'</div>'
+    +efWrap
+    +'</div>';
+}
+
+function updateSidebarAvatar(){
+  const el = document.getElementById('sideAvatar');
+  if(!el) return;
+  const a = currentUser;
+  if(!a) return;
+  if(a.avatarUrl){
+    el.innerHTML = '<img src="'+a.avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  } else {
+    el.textContent = a.avatar||a.nombre[0];
+  }
+}
+
+function renderMiPerfil(){
+  const c = document.getElementById('miPerfilContainer');
+  if(!c) return;
+  const a = currentUser;
+  if(!a){ c.innerHTML=''; return; }
+
+  const logrosIds = getLogrosAlumno(a.id);
+  const xp = calcXP(a.id);
+  const nivel = calcNivelFromXP(xp);
+  const titulo = getTitulo(nivel, logrosIds.includes('t_fundador'));
+  const racha = calcRacha(a.id);
+  const atts = asistencias.filter(x=>x.alumnoId===a.id).length;
+  const cfg = Object.assign({marco:'marco-basico',efecto:'',fondo:'bg-carbono',insignias:[]}, a.perfilConfig||{});
+
+  // Insignias activas (max 3)
+  const insActivas = (cfg.insignias||[]).slice(0,3).map(id=>{
+    return INSIGNIAS_DEFS.find(x=>x.id===id);
+  }).filter(Boolean);
+
+  function renderTarjeta(){
+    return '<div class="perfil-card '+cfg.fondo+'" id="perfilCardPreview">'
+      +'<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.5));border-radius:20px;pointer-events:none"></div>'
+      +'<div style="position:relative;z-index:1">'
+      +buildAvatarHTML(cfg, a.avatarUrl, a.nombre, 88)
+      +'<div style="margin-top:10px;font-family:\'Bebas Neue\';font-size:26px;letter-spacing:.05em">'+a.nombre+'</div>'
+      +'<div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.08em;margin-bottom:6px">'+titulo+'</div>'
+      +'<div style="display:flex;justify-content:center;gap:16px;margin-bottom:12px">'
+      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:var(--accent)">'+nivel+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">NIVEL</div></div>'
+      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:#4a9eff">'+atts+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">ASIST.</div></div>'
+      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:#ff6b35">'+racha+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">RACHA</div></div>'
+      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:#c084fc">'+logrosIds.length+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">LOGROS</div></div>'
+      +'</div>'
+      +(insActivas.length?'<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap">'
+        +insActivas.map(i=>'<span class="insignia-badge">'+i.icon+' '+i.label+'</span>').join('')
+        +'</div>':'')
+      +'</div></div>';
+  }
+
+  function renderEditor(){
+    function selectorGrid(defs, currentVal, onChange, tipo){
+      return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px">'
+        +defs.map(function(d){
+          const ok = perfilReqOk(d.req, nivel, logrosIds);
+          const sel = currentVal===d.id?'selected':'';
+          const lock = ok?'':'locked';
+          const lockIcon = ok?'':'🔒 ';
+          const reqTxt = d.req
+            ? (d.req.tipo==='nivel'?'Niv.'+d.req.v:(d.req.tipo==='logro'?'Logro req.':''))
+            : '';
+          return '<div class="psel-item '+sel+' '+lock+'" '
+            +(ok?'onclick="window._perfilTmp.'+tipo+'=\''+d.id+'\';window._reRenderPerfil()"':'title="Requiere '+reqTxt+'"')+'>'
+            +(tipo==='fondo'?'<div style="width:100%;height:28px;border-radius:6px;margin-bottom:4px;'+getBgPreview(d.id)+'"></div>':'')
+            +lockIcon+d.label
+            +(d.req&&!ok?'<div style="font-size:9px;color:var(--muted);margin-top:2px">'+reqTxt+'</div>':'')
+            +'</div>';
+        }).join('')
+        +'</div>';
+    }
+
+    // Insignias editor (toggle, max 3)
+    function insGrid(){
+      const ins = cfg.insignias||[];
+      return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">'
+        +INSIGNIAS_DEFS.map(function(d){
+          const ok = perfilReqOk(d.req, nivel, logrosIds);
+          const active = ins.includes(d.id);
+          const lock = ok?'':'locked';
+          return '<div class="psel-item '+(active?'selected':'')+' '+lock+'" '
+            +(ok?'onclick="window._toggleInsignia(\''+d.id+'\')"':'title="No desbloqueado"')+'>'
+            +d.icon+' '+d.label
+            +(active?'<div style="font-size:10px;color:var(--accent);margin-top:2px">✓ Activa</div>':'')
+            +(!ok?'<div style="font-size:9px;color:var(--muted)">🔒</div>':'')
+            +'</div>';
+        }).join('')
+        +'</div>';
+    }
+
+    return '<div class="card" style="margin-bottom:16px">'
+      +'<div class="card-header"><span class="card-title">📷 Foto de perfil</span></div>'
+      +'<div class="card-body">'
+      +'<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'
+      +buildAvatarHTML(cfg, a.avatarUrl, a.nombre, 64)
+      +'<div>'
+      +'<button class="btn btn-accent btn-sm" onclick="document.getElementById(\'inputAvatarFile\').click()">📷 Cambiar foto</button>'
+      +(a.avatarUrl?'<button class="btn btn-ghost btn-sm" style="color:var(--danger);margin-left:8px" onclick="eliminarFotoPerfil()">✕ Eliminar</button>':'')
+      +'<div style="font-size:11px;color:var(--muted2);margin-top:6px">JPG, PNG o WEBP · Recomendado 500×500px</div>'
+      +'</div></div>'
+      +'<input type="file" id="inputAvatarFile" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewYSubirAvatar(this)">'
+      +'<div id="avatarUploadStatus"></div>'
+      +'</div></div>'
+
+      +'<div class="card" style="margin-bottom:16px">'
+      +'<div class="card-header"><span class="card-title">🖼️ Marco</span></div>'
+      +'<div class="card-body">'+selectorGrid(MARCOS_DEFS, cfg.marco, null, 'marco')+'</div></div>'
+
+      +'<div class="card" style="margin-bottom:16px">'
+      +'<div class="card-header"><span class="card-title">✨ Efecto animado</span></div>'
+      +'<div class="card-body">'+selectorGrid(EFECTOS_DEFS, cfg.efecto||'', null, 'efecto')+'</div></div>'
+
+      +'<div class="card" style="margin-bottom:16px">'
+      +'<div class="card-header"><span class="card-title">🎨 Fondo de tarjeta</span></div>'
+      +'<div class="card-body">'+selectorGrid(FONDOS_DEFS, cfg.fondo||'bg-carbono', null, 'fondo')+'</div></div>'
+
+      +'<div class="card" style="margin-bottom:16px">'
+      +'<div class="card-header"><span class="card-title">🏅 Insignias (máx. 3 visibles)</span></div>'
+      +'<div class="card-body">'+insGrid()+'</div></div>'
+
+      +'<button class="btn btn-accent" style="width:100%;margin-bottom:32px" onclick="guardarPerfilConfig()">💾 Guardar perfil</button>';
+  }
+
+  function getBgPreview(id){
+    const map={
+      'bg-carbono':'background:linear-gradient(135deg,#111,#222)',
+      'bg-acero':'background:linear-gradient(135deg,#1c1c2e,#2d2d44)',
+      'bg-neon-yellow':'background:linear-gradient(135deg,#1a1a00,#333300)',
+      'bg-neon-blue':'background:linear-gradient(135deg,#000d1a,#001a33)',
+      'bg-llamas':'background:linear-gradient(135deg,#2d0a00,#4a1000)',
+      'bg-espacio':'background:linear-gradient(135deg,#000008,#050015)',
+      'bg-montanas':'background:linear-gradient(135deg,#0a0d0a,#101810)',
+      'bg-industrial':'background:linear-gradient(135deg,#0d0d0d,#1a1414)',
+      'bg-anime':'background:linear-gradient(135deg,#0d001a,#1a0033)',
+      'bg-cyberpunk':'background:linear-gradient(135deg,#0d0d00,#00001a)',
+    };
+    return map[id]||'background:#222';
+  }
+
+  // tmp config for live preview
+  window._perfilTmp = Object.assign({}, cfg);
+
+  window._reRenderPerfil = function(){
+    Object.assign(cfg, window._perfilTmp);
+    a.perfilConfig = Object.assign({}, cfg);
+    const wrap = document.getElementById('perfilCardWrap');
+    if(wrap) wrap.innerHTML = renderTarjeta();
+    // re-run editor selectors highlight
+    document.querySelectorAll('.psel-item.selected').forEach(el=>el.classList.remove('selected'));
+    // re-render whole page to refresh selections
+    renderMiPerfil();
+  };
+
+  window._toggleInsignia = function(id){
+    const ins = cfg.insignias||[];
+    const idx = ins.indexOf(id);
+    if(idx>=0){ ins.splice(idx,1); }
+    else if(ins.length<3){ ins.push(id); }
+    else { showToast('Máximo 3 insignias activas','error'); return; }
+    cfg.insignias = ins;
+    a.perfilConfig = Object.assign({}, cfg);
+    renderMiPerfil();
+  };
+
+  c.innerHTML = '<div id="perfilCardWrap">'+renderTarjeta()+'</div>'+renderEditor();
+}
+
+async function previewYSubirAvatar(input){
+  const file = input.files[0];
+  if(!file) return;
+  const status = document.getElementById('avatarUploadStatus');
+  if(status) status.innerHTML = '<div style="font-size:12px;color:var(--muted2);margin-top:8px">⚙️ Subiendo foto...</div>';
+
+  // Redimensionar a 500x500 con canvas
+  try{
+    const bmp = await createImageBitmap(file);
+    const canvas = document.createElement('canvas');
+    canvas.width=500; canvas.height=500;
+    const ctx = canvas.getContext('2d');
+    // Crop centrado
+    const s = Math.min(bmp.width,bmp.height);
+    const sx = (bmp.width-s)/2, sy = (bmp.height-s)/2;
+    ctx.drawImage(bmp, sx,sy,s,s, 0,0,500,500);
+    const blob = await new Promise(res=>canvas.toBlob(res,'image/jpeg',.88));
+
+    const ext = 'jpg';
+    const path = currentUser.id+'/avatar.'+ext;
+    const {error:upErr} = await sb.storage.from('avatares').upload(path, blob, {upsert:true, contentType:'image/jpeg'});
+    if(upErr) throw upErr;
+
+    const {data:urlData} = sb.storage.from('avatares').getPublicUrl(path);
+    const url = urlData.publicUrl+'?t='+Date.now();
+
+    // Guardar en perfiles
+    await sb.from('perfiles').update({avatar_url:url}).eq('id',currentUser.id);
+    currentUser.avatarUrl = url;
+
+    // Actualizar alumno en array local
+    const idx = alumnos.findIndex(x=>x.id===currentUser.id);
+    if(idx>=0) alumnos[idx].avatarUrl = url;
+
+    updateSidebarAvatar();
+    if(status) status.innerHTML = '<div style="font-size:12px;color:var(--accent);margin-top:8px">✓ Foto actualizada</div>';
+    setTimeout(()=>renderMiPerfil(), 400);
+  }catch(e){
+    if(status) status.innerHTML = '<div style="font-size:12px;color:var(--danger);margin-top:8px">Error: '+e.message+'</div>';
+    console.error('Avatar upload error:',e);
+  }
+}
+
+async function eliminarFotoPerfil(){
+  if(!confirm('¿Eliminar tu foto de perfil?')) return;
+  try{
+    await sb.storage.from('avatares').remove([currentUser.id+'/avatar.jpg']);
+    await sb.from('perfiles').update({avatar_url:null}).eq('id',currentUser.id);
+    currentUser.avatarUrl='';
+    const idx=alumnos.findIndex(x=>x.id===currentUser.id);
+    if(idx>=0) alumnos[idx].avatarUrl='';
+    updateSidebarAvatar();
+    renderMiPerfil();
+    showToast('Foto eliminada','success');
+  }catch(e){ showToast('Error al eliminar foto','error'); }
+}
+
+async function guardarPerfilConfig(){
+  const cfg = currentUser.perfilConfig||{};
+  try{
+    await sb.from('perfiles').update({perfil_config:cfg}).eq('id',currentUser.id);
+    const idx=alumnos.findIndex(x=>x.id===currentUser.id);
+    if(idx>=0) alumnos[idx].perfilConfig=cfg;
+    updateSidebarAvatar();
+    showToast('Perfil guardado ✓','success');
+  }catch(e){ showToast('Error al guardar: '+e.message,'error'); }
+}
+
 // MAPA MUSCULAR
 // ══════════════════════════════════════════════
 
