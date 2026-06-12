@@ -3747,8 +3747,8 @@ async function ejecutarGenerarRutinaIA(){
 
   const system = 'Sos un entrenador personal argentino experto. Respondés SOLO en JSON válido, sin texto adicional, sin markdown. '
     +'Estructura exacta: {"nombre":"STRING","descripcion":"STRING","dias":[{"nombre":"STRING","ejercicios":[{"exId":"STRING","series":"STRING","notas":"STRING"}]}]}. '
-    +'exId debe ser exactamente uno de los IDs provistos. series en formato "3x10" o "3x8-12". notas cortas en español. '
-    +'Usá variedad de ejercicios, progresión lógica dentro del día (compuestos primero), y adaptá al nivel y objetivo.';
+    +'exId debe ser exactamente uno de los IDs provistos. series en formato "3x10" o "3x8-12". notas MUY cortas (máx 4 palabras). '
+    +'Usá variedad de ejercicios, progresión lógica dentro del día (compuestos primero), y adaptá al nivel y objetivo. Máximo 6 ejercicios por día.';
 
   const user = 'Creá una rutina de '+dias+' días por semana.\n'
     +'Objetivo: '+objetivo+'.\nNivel: '+nivel+'.\n'
@@ -5949,7 +5949,7 @@ async function llamarClaudeIA(systemPrompt, userContent, isVision){
       headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-opus-4-5',
-        max_tokens:1500,
+        max_tokens:4000,
         system: systemPrompt,
         messages:[{ role:'user', content: msgContent }]
       })
