@@ -6248,42 +6248,48 @@ function iniciarCropper(){
   const zoomSlider = document.getElementById('cropZoom');
   if(!zone||!img) return;
 
-  let state = {x:0, y:0, zoom:1, dragging:false, lastX:0, lastY:0, natW:0, natH:0};
+  const ZONE = 260; // px del círculo en pantalla
+  let state = {x:0, y:0, zoom:1, dragging:false, lastX:0, lastY:0, natW:0, natH:0, minZoom:1};
 
-  img.onload = function(){
+  function initState(){
     state.natW = img.naturalWidth;
     state.natH = img.naturalHeight;
-    // Fit image to fill circle at zoom=1
-    const zoneSize = 260;
-    const fitScale = zoneSize / Math.min(state.natW, state.natH);
-    state.zoom = fitScale;
-    zoomSlider.min = fitScale;
-    zoomSlider.max = fitScale * 4;
-    zoomSlider.step = fitScale * 0.01;
-    zoomSlider.value = fitScale;
-    centerImg(state, zoneSize);
-    applyTransform(img, state);
-  };
-  if(img.complete && img.naturalWidth) img.onload();
-
-  function centerImg(s, zoneSize){
-    s.x = (zoneSize - s.natW * s.zoom) / 2;
-    s.y = (zoneSize - s.natH * s.zoom) / 2;
+    if(!state.natW || !state.natH) return;
+    // zoom mínimo: la imagen llena el círculo
+    const minZ = ZONE / Math.min(state.natW, state.natH);
+    state.minZoom = minZ;
+    state.zoom = minZ;
+    zoomSlider.min   = minZ;
+    zoomSlider.max   = minZ * 4;
+    zoomSlider.step  = minZ * 0.01;
+    zoomSlider.value = minZ;
+    // centrar
+    state.x = (ZONE - state.natW * state.zoom) / 2;
+    state.y = (ZONE - state.natH * state.zoom) / 2;
+    clamp(state);
+    applyTransform();
   }
 
-  function applyTransform(img, s){
-    img.style.width  = (s.natW * s.zoom)+'px';
-    img.style.height = (s.natH * s.zoom)+'px';
-    img.style.left   = s.x+'px';
-    img.style.top    = s.y+'px';
+  function applyTransform(){
+    img.style.width  = (state.natW * state.zoom) + 'px';
+    img.style.height = (state.natH * state.zoom) + 'px';
+    img.style.left   = state.x + 'px';
+    img.style.top    = state.y + 'px';
   }
 
-  function clamp(s, zoneSize){
+  function clamp(s){
     const w = s.natW * s.zoom, h = s.natH * s.zoom;
     if(s.x > 0) s.x = 0;
     if(s.y > 0) s.y = 0;
-    if(s.x + w < zoneSize) s.x = zoneSize - w;
-    if(s.y + h < zoneSize) s.y = zoneSize - h;
+    if(s.x + w < ZONE) s.x = ZONE - w;
+    if(s.y + h < ZONE) s.y = ZONE - h;
+  }
+
+  // Esperar que cargue — usar ambos métodos para mayor compatibilidad
+  if(img.complete && img.naturalWidth > 0){
+    initState();
+  } else {
+    img.onload = initState;
   }
 
   // Mouse
@@ -6296,19 +6302,18 @@ function iniciarCropper(){
     state.x += e.clientX - state.lastX;
     state.y += e.clientY - state.lastY;
     state.lastX=e.clientX; state.lastY=e.clientY;
-    clamp(state,260); applyTransform(img,state);
+    clamp(state); applyTransform();
   });
   window.addEventListener('mouseup', ()=>{ state.dragging=false; zone.style.cursor='grab'; });
 
   // Touch
-  let lastTouchDist=0, lastTouchX=0, lastTouchY=0, touches=0;
+  let lastTouchDist=0, lastTouchX=0, lastTouchY=0;
   zone.addEventListener('touchstart', e=>{
     e.preventDefault();
-    touches=e.touches.length;
-    if(touches===1){
+    if(e.touches.length===1){
       state.dragging=true;
       lastTouchX=e.touches[0].clientX; lastTouchY=e.touches[0].clientY;
-    } else if(touches===2){
+    } else if(e.touches.length===2){
       state.dragging=false;
       lastTouchDist=Math.hypot(
         e.touches[0].clientX-e.touches[1].clientX,
@@ -6322,18 +6327,22 @@ function iniciarCropper(){
       const dx=e.touches[0].clientX-lastTouchX, dy=e.touches[0].clientY-lastTouchY;
       state.x+=dx; state.y+=dy;
       lastTouchX=e.touches[0].clientX; lastTouchY=e.touches[0].clientY;
-      clamp(state,260); applyTransform(img,state);
+      clamp(state); applyTransform();
     } else if(e.touches.length===2){
       const dist=Math.hypot(
         e.touches[0].clientX-e.touches[1].clientX,
         e.touches[0].clientY-e.touches[1].clientY
       );
-      const delta=dist-lastTouchDist;
-      const minZ=parseFloat(zoomSlider.min);
-      state.zoom=Math.max(minZ, Math.min(parseFloat(zoomSlider.max), state.zoom+delta*0.005));
-      zoomSlider.value=state.zoom;
-      lastTouchDist=dist;
-      clamp(state,260); applyTransform(img,state);
+      const ratio = dist / lastTouchDist;
+      const newZoom = Math.max(state.minZoom, Math.min(parseFloat(zoomSlider.max), state.zoom * ratio));
+      // zoom hacia el centro del círculo
+      const cx=ZONE/2, cy=ZONE/2;
+      state.x = cx - (cx - state.x) * (newZoom / state.zoom);
+      state.y = cy - (cy - state.y) * (newZoom / state.zoom);
+      state.zoom = newZoom;
+      zoomSlider.value = newZoom;
+      lastTouchDist = dist;
+      clamp(state); applyTransform();
     }
   },{passive:false});
   zone.addEventListener('touchend', ()=>{ state.dragging=false; });
@@ -6341,43 +6350,51 @@ function iniciarCropper(){
   // Wheel zoom
   zone.addEventListener('wheel', e=>{
     e.preventDefault();
-    const minZ=parseFloat(zoomSlider.min);
-    state.zoom=Math.max(minZ, Math.min(parseFloat(zoomSlider.max), state.zoom - e.deltaY*0.001));
-    zoomSlider.value=state.zoom;
-    clamp(state,260); applyTransform(img,state);
+    const delta = e.deltaY > 0 ? -0.05 : 0.05;
+    const newZoom = Math.max(state.minZoom, Math.min(parseFloat(zoomSlider.max), state.zoom + state.minZoom * delta * 10));
+    const cx=ZONE/2, cy=ZONE/2;
+    state.x = cx - (cx - state.x) * (newZoom / state.zoom);
+    state.y = cy - (cy - state.y) * (newZoom / state.zoom);
+    state.zoom = newZoom;
+    zoomSlider.value = newZoom;
+    clamp(state); applyTransform();
   },{passive:false});
 
   // Slider zoom
   zoomSlider.addEventListener('input', ()=>{
-    const oldZoom=state.zoom;
-    state.zoom=parseFloat(zoomSlider.value);
-    // Zoom hacia el centro
-    const cx=130, cy=130;
-    state.x = cx - (cx-state.x)*(state.zoom/oldZoom);
-    state.y = cy - (cy-state.y)*(state.zoom/oldZoom);
-    clamp(state,260); applyTransform(img,state);
+    const newZoom = parseFloat(zoomSlider.value);
+    const cx=ZONE/2, cy=ZONE/2;
+    state.x = cx - (cx - state.x) * (newZoom / state.zoom);
+    state.y = cy - (cy - state.y) * (newZoom / state.zoom);
+    state.zoom = newZoom;
+    clamp(state); applyTransform();
   });
 
-  // Store state ref for confirmarCrop
   window._cropState = state;
   window._cropImg   = img;
+  window._cropZone  = ZONE;
 }
 
 async function confirmarCrop(mime){
   const state = window._cropState;
   const img   = window._cropImg;
+  const ZONE  = window._cropZone || 260;
   if(!state||!img) return;
 
-  const canvas = document.createElement('canvas');
-  canvas.width=500; canvas.height=500;
-  const ctx = canvas.getContext('2d');
+  // Escala: el canvas final es 500px, la zona visible es ZONE px
+  // state.x, state.y son offsets de la imagen dentro de la zona (en px de pantalla)
+  // Para obtener qué parte de la imagen original cae en el círculo:
+  // origen en imagen original = -state.x / state.zoom, -state.y / state.zoom
+  // tamaño del recorte en imagen original = ZONE / state.zoom
+  const OUTPUT = 500;
+  const srcX = -state.x / state.zoom;
+  const srcY = -state.y / state.zoom;
+  const srcSize = ZONE / state.zoom;
 
-  // The zone is 260px = 500px output → scale = 500/260
-  const scale = 500/260;
-  ctx.drawImage(img,
-    -state.x*scale, -state.y*scale,
-    state.natW*state.zoom*scale, state.natH*state.zoom*scale
-  );
+  const canvas = document.createElement('canvas');
+  canvas.width = OUTPUT; canvas.height = OUTPUT;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, srcX, srcY, srcSize, srcSize, 0, 0, OUTPUT, OUTPUT);
 
   document.getElementById('cropperOverlay')?.remove();
 
