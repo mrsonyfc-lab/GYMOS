@@ -59,8 +59,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   box-shadow:var(--shadow-lg),0 0 0 1px rgba(232,255,0,.04);
   animation:slideUp .5s cubic-bezier(.4,0,.2,1)
 }
-@keyframes logro-in{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-@keyframes logro-out{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(20px)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
 .login-logo{font-family:'Bebas Neue';font-size:52px;letter-spacing:5px;color:var(--accent);line-height:1}
 .login-logo span{color:var(--accent2)}
@@ -130,171 +128,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .user-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm)}
 .u-avatar{
   width:34px;height:34px;border-radius:50%;background:var(--accent);color:#000;
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;
-  overflow:hidden;position:relative;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0
 }
-.u-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-
-/* ── PERFIL CARD ── */
-.perfil-card{
-  border-radius:20px;padding:28px 20px;text-align:center;position:relative;overflow:hidden;
-  margin-bottom:20px;
-}
-/* Fondos */
-.bg-carbono{background:linear-gradient(145deg,#0a0a0a,#1a1a1a);}
-.bg-acero{background:linear-gradient(145deg,#1c1c2e,#2d2d44);}
-.bg-neon-yellow{background:linear-gradient(145deg,#0d0d00,#1a1a00);}
-.bg-neon-blue{background:linear-gradient(145deg,#000d1a,#001a33);}
-.bg-llamas{background:linear-gradient(145deg,#1a0500,#2d0a00);}
-.bg-espacio{background:linear-gradient(145deg,#000008,#050015);}
-.bg-montanas{background:linear-gradient(145deg,#0a0d0a,#101810);}
-.bg-industrial{background:linear-gradient(145deg,#0d0d0d,#1a1414);}
-.bg-anime{background:linear-gradient(145deg,#0d001a,#1a0033);}
-.bg-cyberpunk{background:linear-gradient(145deg,#0d0d00,#00001a);}
-
-/* ── AVATAR WRAPPER (marcos + efectos) ── */
-.av-wrap{position:relative;display:inline-block;margin-bottom:12px;}
-.av-img{
-  width:96px;height:96px;border-radius:50%;object-fit:cover;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue';font-size:42px;position:relative;z-index:2;overflow:hidden;
-  background:var(--accent);color:#000;
-}
-.av-img img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-
-/* MARCOS */
-.marco-none .av-img{border:3px solid rgba(255,255,255,.1);}
-.marco-basico .av-img{border:3px solid #888;}
-.marco-fitness .av-img{border:3px solid #4caf50;box-shadow:0 0 12px rgba(76,175,80,.5);}
-.marco-elite .av-img{border:3px solid #4a9eff;box-shadow:0 0 14px rgba(74,158,255,.55);}
-.marco-gladiador .av-img{border:3px solid #c084fc;box-shadow:0 0 16px rgba(192,132,252,.6);}
-.marco-legendario .av-img{border:3px solid var(--accent);box-shadow:0 0 20px rgba(232,255,0,.7);}
-.marco-fundador .av-img{
-  border:3px solid transparent;
-  background-clip:padding-box;
-  box-shadow:0 0 0 3px gold,0 0 24px rgba(255,215,0,.8);
-}
-/* marcos con gradiente animado */
-.marco-elite-anim .av-img{
-  border:3px solid transparent;
-  position:relative;
-}
-.marco-elite-anim .av-img::before{
-  content:'';position:absolute;inset:-3px;border-radius:50%;
-  background:conic-gradient(#4a9eff,#c084fc,#4a9eff);
-  z-index:-1;animation:spin-marco 3s linear infinite;
-}
-.marco-gladiador-anim .av-img{
-  border:3px solid transparent;position:relative;
-}
-.marco-gladiador-anim .av-img::before{
-  content:'';position:absolute;inset:-3px;border-radius:50%;
-  background:conic-gradient(#c084fc,#e8ff00,#c084fc);
-  z-index:-1;animation:spin-marco 2s linear infinite;
-}
-@keyframes spin-marco{to{transform:rotate(360deg)}}
-
-/* EFECTOS */
-.efecto-wrap{position:absolute;inset:0;border-radius:50%;pointer-events:none;overflow:visible;z-index:3;}
-
-/* Llamas */
-@keyframes flame-rise{0%{transform:translateY(0) scaleX(1);opacity:.9}50%{transform:translateY(-14px) scaleX(.8);opacity:.5}100%{transform:translateY(-24px) scaleX(.6);opacity:0}}
-.efecto-llamas .efecto-wrap::before,.efecto-llamas .efecto-wrap::after{
-  content:'🔥';position:absolute;font-size:18px;animation:flame-rise 1s ease-in-out infinite;
-}
-.efecto-llamas .efecto-wrap::before{bottom:-4px;left:8px;animation-delay:0s;}
-.efecto-llamas .efecto-wrap::after{bottom:-4px;right:8px;animation-delay:.5s;}
-
-/* Rayos */
-@keyframes bolt-flash{0%,90%{opacity:0;transform:scale(.8)}95%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(.8)}}
-.efecto-rayos .efecto-wrap::before,.efecto-rayos .efecto-wrap::after{
-  content:'⚡';position:absolute;font-size:16px;animation:bolt-flash .8s ease-in-out infinite;
-}
-.efecto-rayos .efecto-wrap::before{top:2px;left:-6px;animation-delay:0s;}
-.efecto-rayos .efecto-wrap::after{top:2px;right:-6px;animation-delay:.4s;}
-
-/* Nieve */
-@keyframes snow-fall{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(20px) rotate(180deg);opacity:0}}
-.efecto-nieve .efecto-wrap::before,.efecto-nieve .efecto-wrap::after{
-  content:'❄️';position:absolute;font-size:14px;animation:snow-fall 1.5s ease-in-out infinite;
-}
-.efecto-nieve .efecto-wrap::before{top:-8px;left:18px;animation-delay:0s;}
-.efecto-nieve .efecto-wrap::after{top:-8px;right:18px;animation-delay:.7s;}
-
-/* Energía azul */
-@keyframes pulse-ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.35);opacity:0}}
-.efecto-energia::after{
-  content:'';position:absolute;inset:-6px;border-radius:50%;
-  border:2px solid #4a9eff;animation:pulse-ring 1.2s ease-out infinite;
-  pointer-events:none;z-index:3;
-}
-
-/* Velocidad */
-@keyframes speed-lines{0%{opacity:0;transform:scaleX(0)}50%{opacity:.7}100%{opacity:0;transform:scaleX(1.2)}}
-.efecto-velocidad .efecto-wrap::before{
-  content:'💨';position:absolute;font-size:18px;left:-12px;top:35px;
-  animation:speed-lines .7s ease-in-out infinite;
-}
-
-/* Partículas */
-@keyframes sparkle{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}}
-.efecto-particulas .efecto-wrap::before,.efecto-particulas .efecto-wrap::after{
-  content:'✨';position:absolute;font-size:14px;animation:sparkle 1.5s ease-in-out infinite;
-}
-.efecto-particulas .efecto-wrap::before{top:-6px;left:6px;}
-.efecto-particulas .efecto-wrap::after{bottom:-6px;right:6px;animation-delay:.75s;}
-
-/* Nebulosa */
-@keyframes nebula-glow{0%,100%{box-shadow:0 0 20px 6px rgba(138,43,226,.4)}50%{box-shadow:0 0 32px 12px rgba(75,0,130,.6)}}
-.efecto-nebulosa .av-img{animation:nebula-glow 2s ease-in-out infinite;}
-
-/* Corona */
-.efecto-corona .efecto-wrap::before{
-  content:'👑';position:absolute;font-size:20px;top:-18px;left:50%;transform:translateX(-50%);
-  animation:sparkle 2s ease-in-out infinite;
-}
-
-/* Diamantes */
-@keyframes diamond-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.efecto-diamantes .efecto-wrap::before,.efecto-diamantes .efecto-wrap::after{
-  content:'💎';position:absolute;font-size:13px;animation:diamond-float 1.8s ease-in-out infinite;
-}
-.efecto-diamantes .efecto-wrap::before{top:0;left:-10px;animation-delay:0s;}
-.efecto-diamantes .efecto-wrap::after{top:0;right:-10px;animation-delay:.9s;}
-
-/* Meteoritos */
-@keyframes meteor{0%{opacity:0;transform:translate(-20px,-20px) rotate(45deg)}100%{opacity:1;transform:translate(0,0) rotate(45deg)}}
-.efecto-meteoritos .efecto-wrap::before{
-  content:'☄️';position:absolute;font-size:16px;top:-10px;right:-4px;
-  animation:meteor .6s ease-in-out infinite alternate;
-}
-
-/* Efecto fundador especial */
-@keyframes founder-aura{
-  0%,100%{box-shadow:0 0 16px 4px rgba(255,215,0,.5),0 0 32px 8px rgba(255,165,0,.3)}
-  50%{box-shadow:0 0 24px 8px rgba(255,215,0,.8),0 0 48px 16px rgba(255,165,0,.5)}
-}
-.efecto-fundador .av-img{animation:founder-aura 2s ease-in-out infinite;}
-.efecto-fundador .efecto-wrap::before{
-  content:'✨';position:absolute;font-size:16px;top:-8px;left:50%;transform:translateX(-50%);
-  animation:sparkle 1.5s ease-in-out infinite;
-}
-
-/* Tarjeta insignias */
-.insignia-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  border-radius:20px;padding:4px 10px;font-size:12px;
-}
-/* Selector items en editor */
-.psel-item{
-  cursor:pointer;border:2px solid var(--border2);border-radius:10px;padding:10px 8px;
-  text-align:center;font-size:12px;transition:all .2s;
-}
-.psel-item:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),.06);}
-.psel-item.selected{border-color:var(--accent);background:rgba(var(--accent-rgb),.12);color:var(--accent);}
-.psel-item.locked{opacity:.4;cursor:not-allowed;}
-@keyframes spin{to{transform:rotate(360deg)}}
+.u-name{font-size:13px;font-weight:600}
+.u-role{font-size:11px;color:var(--muted2)}
 .btn-logout{
   width:100%;padding:9px;background:transparent;border:1px solid var(--border);
   color:var(--muted2);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;
@@ -1234,20 +1071,6 @@ if("serviceWorker" in navigator){
       </div>
     </div>
   </div>
-  <div class="card" style="margin-top:16px">
-    <div class="card-header"><span class="card-title">🤖 Inteligencia Artificial</span></div>
-    <div class="card-body">
-      <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;line-height:1.6">
-        Ingresá tu API key de Anthropic para habilitar el análisis de fotos de platos, generación de planes nutricionales con IA y consultas nutricionales.<br>
-        <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">Obtener API key →</a>
-      </div>
-      <div class="form-group" style="margin-bottom:12px">
-        <label>API Key de Anthropic</label>
-        <input type="password" id="cfgAnthropicKey" placeholder="sk-ant-..." style="width:100%;font-family:monospace;font-size:13px"/>
-      </div>
-      <button class="btn btn-accent" onclick="saveAnthropicKey()">Guardar API key</button>
-    </div>
-  </div>
 </div>
 
 <!-- ══ HOME ALUMNO ══ -->
@@ -1334,17 +1157,6 @@ if("serviceWorker" in navigator){
     </div>
   </div>
   <div id="misLogrosContainer"></div>
-</div>
-
-<!-- ══ MI PERFIL ══ -->
-<div class="page" id="page-mi-perfil">
-  <div class="page-header">
-    <div class="ph-left">
-      <div class="page-title">Mi <span>Perfil</span></div>
-      <div class="page-sub">Personalizá tu identidad en el gym</div>
-    </div>
-  </div>
-  <div id="miPerfilContainer"></div>
 </div>
 
 <!-- ══ MAPA MUSCULAR ══ -->
@@ -1524,8 +1336,6 @@ if("serviceWorker" in navigator){
   </div>
   <div class="modal-footer">
     <button class="btn btn-ghost" onclick="closeModal('modalRutina')">Cancelar</button>
-    <button class="btn btn-ghost" style="color:var(--info);border-color:var(--info)" onclick="mejorarRutinaConIA()" title="La IA analiza la rutina actual y sugiere mejoras">🔧 Mejorar con IA</button>
-    <button class="btn btn-ghost" style="color:var(--accent);border-color:var(--accent)" onclick="abrirGeneradorRutinaIA()" title="Genera una rutina completa desde cero con IA">✨ Generar con IA</button>
     <button class="btn btn-accent" onclick="saveRutina()">Guardar Rutina</button>
   </div>
 </div>
@@ -1748,7 +1558,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 });
 
 // ── GYM CONFIG (local + DB) ──────────────────
-let gymConfig = {nombre1:'GYM',nombre2:'OS',accent:'#e8ff00',anthropic_key:''};
+let gymConfig = {nombre1:'GYM',nombre2:'OS',accent:'#e8ff00'};
 try{const _s=localStorage.getItem('gymOsConfig');if(_s){gymConfig={...gymConfig,...JSON.parse(_s)};}}catch(e){}
 
 // ── CACHE EN MEMORIA (se llena desde Supabase al iniciar) ───
@@ -1819,7 +1629,6 @@ async function cargarDatosIniciales(){
       gymConfig.nombre1=cfData.nombre1||'GYM';
       gymConfig.nombre2=cfData.nombre2||'OS';
       gymConfig.accent =cfData.accent ||'#e8ff00';
-      gymConfig.anthropic_key=cfData.anthropic_key||'';
       applyGymName(); applyAccent(gymConfig.accent);
     }
 
@@ -1837,17 +1646,6 @@ async function cargarDatosIniciales(){
         const key=r.alumno_id+'_'+r.ejercicio_id;
         if(!pesoRegistros[key])pesoRegistros[key]=[];
         pesoRegistros[key].push({fecha:r.fecha,peso:r.peso,reps:r.reps,series:r.series});
-      });
-      // Cargar logros del alumno
-      const {data:lgData}=await sb.from('logros_alumnos').select('*').eq('alumno_id',currentUser.id);
-      logrosAlumno[currentUser.id]=(lgData||[]).map(r=>r.logro_id);
-    } else {
-      // Admin: cargar todos los logros para poder mostrarlos en fichas
-      const {data:lgData}=await sb.from('logros_alumnos').select('*');
-      logrosAlumno={};
-      (lgData||[]).forEach(r=>{
-        if(!logrosAlumno[r.alumno_id])logrosAlumno[r.alumno_id]=[];
-        logrosAlumno[r.alumno_id].push(r.logro_id);
       });
     }
 
@@ -1885,8 +1683,6 @@ function mapPerfil(r){
     cambioRutina:r.cambio_rutina||'',objetivo:r.objetivo||'',
     nivel:r.nivel||'Principiante',sexo:r.sexo||'',lesiones:r.lesiones||'',
     notas:r.notas_privadas||'',peso:r.peso||0,altura:r.altura||0,
-    avatarUrl:r.avatar_url||'',
-    perfilConfig:r.perfil_config||{},
     historialMedidas:[],prs:{}};
 }
 function mapAsistencia(r){
@@ -2104,7 +1900,7 @@ async function dbMarkAllRead(){
 // ── CRUD GYM CONFIG ─────────────────────────────
 async function dbSaveGymConfig(){
   await sb.from('gym_config').upsert({
-    id:1,nombre1:gymConfig.nombre1,nombre2:gymConfig.nombre2,accent:gymConfig.accent,anthropic_key:gymConfig.anthropic_key||''
+    id:1,nombre1:gymConfig.nombre1,nombre2:gymConfig.nombre2,accent:gymConfig.accent
   },{onConflict:'id'});
   try{localStorage.setItem('gymOsConfig',JSON.stringify(gymConfig));}catch(e){}
 }
@@ -2134,316 +1930,15 @@ function hideLoadingOverlay(){
   if(el)el.style.display='none';
 }
 
-// ══════════════════════════════════════════════
-// SISTEMA DE LOGROS COMPLETO
-// ══════════════════════════════════════════════
-// Rarezas: comun | raro | epico | legendario | mitico
-const RAREZA_CFG = {
-  comun:     {label:'Común',     color:'#aaaaaa', glow:'rgba(170,170,170,.25)', badge:'⚪'},
-  raro:      {label:'Raro',      color:'#4caf50', glow:'rgba(76,175,80,.3)',    badge:'🟢'},
-  epico:     {label:'Épico',     color:'#4a9eff', glow:'rgba(74,158,255,.3)',   badge:'🔵'},
-  legendario:{label:'Legendario',color:'#c084fc', glow:'rgba(192,132,252,.3)', badge:'🟣'},
-  mitico:    {label:'Mítico',    color:'#e8ff00', glow:'rgba(232,255,0,.3)',    badge:'🟡'},
-};
-const RAREZA_XP = {comun:10, raro:25, epico:50, legendario:100, mitico:200};
-
+// -- LOGROS / GAMIFICATION --
 const LOGROS_DEFS = [
-  // ── ASISTENCIA ──────────────────────────────
-  {id:'a_primer_paso',    cat:'asistencia', icon:'🏅', nombre:'Primer Paso',         desc:'Primera asistencia registrada.',       rareza:'comun',     auto:true,  req:(atts,racha)=>atts>=1},
-  {id:'a_semana',         cat:'asistencia', icon:'📅', nombre:'Constancia Semanal',  desc:'7 días consecutivos.',                 rareza:'comun',     auto:true,  req:(atts,racha)=>racha>=7},
-  {id:'a_maquina',        cat:'asistencia', icon:'🔥', nombre:'Máquina de Entrenar', desc:'30 días consecutivos.',                rareza:'raro',      auto:true,  req:(atts,racha)=>racha>=30},
-  {id:'a_imparable',      cat:'asistencia', icon:'⚡', nombre:'Imparable',           desc:'90 días consecutivos.',                rareza:'epico',     auto:true,  req:(atts,racha)=>racha>=90},
-  {id:'a_leyenda',        cat:'asistencia', icon:'👑', nombre:'Leyenda Viviente',    desc:'365 días consecutivos.',               rareza:'mitico',    auto:true,  req:(atts,racha)=>racha>=365},
-  {id:'a_centurion',      cat:'asistencia', icon:'💯', nombre:'Centurión',           desc:'100 asistencias totales.',             rareza:'raro',      auto:true,  req:(atts)=>atts>=100},
-  {id:'a_veterano',       cat:'asistencia', icon:'🏛️', nombre:'Veterano',            desc:'500 asistencias totales.',             rareza:'legendario',auto:true,  req:(atts)=>atts>=500},
-  {id:'a_madrugador',     cat:'asistencia', icon:'🌅', nombre:'Madrugador',          desc:'Entrenar antes de las 08:00.',         rareza:'comun',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.horaMin<800},
-  {id:'a_nocturno',       cat:'asistencia', icon:'🌙', nombre:'Guerrero Nocturno',   desc:'Entrenar después de las 21:00.',       rareza:'comun',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.horaMax>=2100},
-  {id:'a_mes_perfecto',   cat:'asistencia', icon:'⭐', nombre:'Mes Perfecto',        desc:'Un mes sin faltar ningún día hábil.',  rareza:'epico',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.mesPerfecto},
-  // ── FUERZA ──────────────────────────────────
-  {id:'f_primer_pr',      cat:'fuerza',     icon:'🏋️', nombre:'Primer Récord',       desc:'Conseguir tu primer PR.',              rareza:'comun',     auto:true,  req:(atts,racha,a)=>a&&Object.keys(a.prs||{}).length>=1},
-  {id:'f_mejorar',        cat:'fuerza',     icon:'💪', nombre:'Más Fuerte que Ayer', desc:'Mejorar una marca personal.',          rareza:'raro',      auto:true,  req:(atts,racha,a)=>a&&Object.keys(a.prs||{}).length>=1},
-  {id:'f_10pr',           cat:'fuerza',     icon:'⚡', nombre:'Señor del Hierro',    desc:'10 PRs conseguidos.',                  rareza:'epico',     auto:true,  req:(atts,racha,a)=>a&&Object.keys(a.prs||{}).length>=10},
-  {id:'f_50pr',           cat:'fuerza',     icon:'👑', nombre:'Rey de la Fuerza',    desc:'50 PRs conseguidos.',                  rareza:'legendario',auto:true,  req:(atts,racha,a)=>a&&Object.keys(a.prs||{}).length>=50},
-  // ── NUTRICIÓN ───────────────────────────────
-  {id:'n_primer_plan',    cat:'nutricion',  icon:'🥗', nombre:'Primer Plan',         desc:'Completar el primer plan nutricional.',rareza:'comun',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.tienePlan},
-  {id:'n_7dias',          cat:'nutricion',  icon:'🍗', nombre:'Alimentación Constante',desc:'Cumplir objetivos 7 días.',          rareza:'comun',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.diasNutri>=7},
-  {id:'n_30dias',         cat:'nutricion',  icon:'🥩', nombre:'Nutrición de Acero',  desc:'Cumplir objetivos 30 días.',           rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.diasNutri>=30},
-  {id:'n_90dias',         cat:'nutricion',  icon:'👨‍🍳', nombre:'Maestro de la Nutrición',desc:'Cumplir objetivos 90 días.',       rareza:'epico',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.diasNutri>=90},
-  // ── PROGRESO FÍSICO ─────────────────────────
-  {id:'p_primera_foto',   cat:'progreso',   icon:'📸', nombre:'Primera Evolución',   desc:'Subir la primera foto de progreso.',   rareza:'comun',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.tieneFotos},
-  {id:'p_3meses',         cat:'progreso',   icon:'📏', nombre:'Transformación Visible',desc:'Progreso registrado 3 meses.',       rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.mesesProgreso>=3},
-  {id:'p_6meses',         cat:'progreso',   icon:'🔥', nombre:'Renacido',            desc:'Progreso mantenido 6 meses.',          rareza:'epico',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.mesesProgreso>=6},
-  {id:'p_12meses',        cat:'progreso',   icon:'🚀', nombre:'Transformación Legendaria',desc:'12 meses de progreso.',           rareza:'mitico',    auto:true,  req:(atts,racha,a,extra)=>extra&&extra.mesesProgreso>=12},
-  // ── RUTINAS ─────────────────────────────────
-  {id:'r_primera',        cat:'rutinas',    icon:'📚', nombre:'Primera Rutina',      desc:'Completar la primera rutina.',         rareza:'comun',     auto:true,  req:(atts)=>atts>=1},
-  {id:'r_10',             cat:'rutinas',    icon:'🔄', nombre:'Disciplina',          desc:'Completar 10 rutinas.',                rareza:'raro',      auto:true,  req:(atts)=>atts>=10},
-  {id:'r_50',             cat:'rutinas',    icon:'🎖️', nombre:'Especialista',        desc:'Completar 50 rutinas.',                rareza:'epico',     auto:true,  req:(atts)=>atts>=50},
-  {id:'r_100',            cat:'rutinas',    icon:'🏆', nombre:'Maestro del Entrenamiento',desc:'100 rutinas completadas.',        rareza:'legendario',auto:true,  req:(atts)=>atts>=100},
-  // ── EXPLORACIÓN ─────────────────────────────
-  {id:'e_cuerpo_completo',cat:'exploracion',icon:'🧩', nombre:'Cuerpo Completo',     desc:'Entrenar todos los grupos musculares.',rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.gruposMusc>=8},
-  {id:'e_conquistador',   cat:'exploracion',icon:'⚔️', nombre:'Conquistador',        desc:'Una semana trabajando todos los grupos.',rareza:'epico',   auto:true,  req:(atts,racha,a,extra)=>extra&&extra.gruposMuscSemana>=8},
-  {id:'e_dominio',        cat:'exploracion',icon:'🌎', nombre:'Dominio Total',       desc:'Un mes entero trabajando todos los grupos.',rareza:'legendario',auto:true,req:(atts,racha,a,extra)=>extra&&extra.gruposMuscMes>=8},
-  // ── ESPECIALES ──────────────────────────────
-  {id:'s_cumple',         cat:'especiales', icon:'🎂', nombre:'Cumpleañero Fitness', desc:'Entrenar en tu cumpleaños.',           rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.entrenaEnCumple},
-  {id:'s_sobreviviente',  cat:'especiales', icon:'🧟', nombre:'Sobreviviente',       desc:'Volver después de 30 días sin asistir.',rareza:'epico',    auto:true,  req:(atts,racha,a,extra)=>extra&&extra.vueltaLarga},
-  {id:'s_cafe',           cat:'especiales', icon:'☕', nombre:'Café y Hierro',       desc:'Entrenar antes de las 06:00.',         rareza:'epico',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.horaMin<600},
-  {id:'s_espiritu',       cat:'especiales', icon:'🎄', nombre:'Espíritu Fitness',    desc:'Entrenar en Navidad o Año Nuevo.',     rareza:'legendario',auto:true,  req:(atts,racha,a,extra)=>extra&&extra.entrenaFiesta},
-  // ── NIVELES ─────────────────────────────────
-  {id:'lv_10',            cat:'nivel',      icon:'🎖️', nombre:'Nivel 10',            desc:'Alcanzar nivel 10.',                   rareza:'comun',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.nivel>=10},
-  {id:'lv_25',            cat:'nivel',      icon:'⚔️', nombre:'Nivel 25',            desc:'Alcanzar nivel 25.',                   rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.nivel>=25},
-  {id:'lv_50',            cat:'nivel',      icon:'👑', nombre:'Nivel 50',            desc:'Alcanzar nivel 50.',                   rareza:'epico',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.nivel>=50},
-  {id:'lv_100',           cat:'nivel',      icon:'💎', nombre:'Nivel 100',           desc:'Alcanzar nivel 100.',                  rareza:'mitico',    auto:true,  req:(atts,racha,a,extra)=>extra&&extra.nivel>=100},
-  // ── TEMPORADA: FUNDADORES 2026 ──────────────
-  {id:'t_fundador',       cat:'temporada',  icon:'🚀', nombre:'Fundador GymOS',      desc:'Estuviste aquí antes que todos.',      rareza:'mitico',    auto:false, req:()=>false, titulo:'FUNDADOR', temporada:'Fundadores 2026'},
-  // ── TEMPORADA: INVIERNO 2026 ────────────────
-  {id:'t_guerrero_inv',   cat:'temporada',  icon:'❄️', nombre:'Guerrero del Invierno',desc:'20 entrenamientos en invierno.',      rareza:'epico',     auto:true,  req:(atts,racha,a,extra)=>extra&&extra.attsTempInvierno>=20, temporada:'Invierno 2026'},
-  {id:'t_hielo',          cat:'temporada',  icon:'🧊', nombre:'Corazón de Hielo',    desc:'Racha de 30 días en invierno.',        rareza:'legendario',auto:true,  req:(atts,racha,a,extra)=>extra&&extra.rachaTempInvierno>=30, temporada:'Invierno 2026'},
-  // ── TEMPORADA: PRIMAVERA 2026 ───────────────
-  {id:'t_renacer',        cat:'temporada',  icon:'🌸', nombre:'Renacer de Primavera',desc:'15 días en temporada de primavera.',   rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.attsTempPrimavera>=15, temporada:'Primavera 2026'},
-  {id:'t_florecimiento',  cat:'temporada',  icon:'🌺', nombre:'Florecimiento Total', desc:'Todos los entrenamientos de temporada.',rareza:'legendario',auto:true, req:(atts,racha,a,extra)=>extra&&extra.attsTempPrimavera>=20, temporada:'Primavera 2026'},
-  // ── TEMPORADA: VERANO 2026 ──────────────────
-  {id:'t_operacion_ver',  cat:'temporada',  icon:'☀️', nombre:'Operación Verano',    desc:'25 entrenamientos en verano.',         rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.attsTempVerano>=25, temporada:'Verano 2026'},
-  {id:'t_bestia_ver',     cat:'temporada',  icon:'🏖️', nombre:'Bestia del Verano',   desc:'Asistencia perfecta toda la temporada.',rareza:'mitico',  auto:true,  req:(atts,racha,a,extra)=>extra&&extra.attsTempVerano>=30, temporada:'Verano 2026'},
-  // ── TEMPORADA: OTOÑO 2026 ───────────────────
-  {id:'t_hoja',           cat:'temporada',  icon:'🍂', nombre:'Hoja de Acero',       desc:'20 entrenamientos en otoño.',          rareza:'raro',      auto:true,  req:(atts,racha,a,extra)=>extra&&extra.attsTempOtonio>=20, temporada:'Otoño 2026'},
-  {id:'t_espiritu_inq',   cat:'temporada',  icon:'⚔️', nombre:'Espíritu Inquebrantable',desc:'Sin faltar toda la temporada.',     rareza:'legendario',auto:true,  req:(atts,racha,a,extra)=>extra&&extra.attsTempOtonio>=25, temporada:'Otoño 2026'},
+  {id:'l1',icon:'🔥',nombre:'Primera semana',desc:'7 días entrenando',req:dias=>dias>=7},
+  {id:'l2',icon:'💪',nombre:'Un mes sólido',desc:'30 asistencias',req:dias=>dias>=30},
+  {id:'l3',icon:'🦁',nombre:'León del gimnasio',desc:'100 asistencias',req:dias=>dias>=100},
+  {id:'l4',icon:'⚡',nombre:'Racha de fuego',desc:'7 días consecutivos',req:(d,racha)=>racha>=7},
+  {id:'l5',icon:'🏆',nombre:'Récord personal',desc:'Superaste un PR',req:(d,r,a)=>a&&Object.keys(a.prs||{}).length>0},
+  {id:'l6',icon:'📅',nombre:'Constante',desc:'3 meses activo',req:dias=>dias>=90},
 ];
-
-// Títulos desbloqueables por XP/nivel
-const TITULOS = [
-  {desde:0,   titulo:'Novato'},
-  {desde:5,   titulo:'Guerrero'},
-  {desde:10,  titulo:'Veterano'},
-  {desde:20,  titulo:'Titán'},
-  {desde:35,  titulo:'Gladiador'},
-  {desde:50,  titulo:'Maestro del Hierro'},
-  {desde:75,  titulo:'Leyenda'},
-  {desde:100, titulo:'Rey del Gym'},
-];
-
-function getTitulo(nivel, logrosFundador){
-  if(logrosFundador) return 'FUNDADOR';
-  for(let i=TITULOS.length-1;i>=0;i--){
-    if(nivel>=TITULOS[i].desde) return TITULOS[i].titulo;
-  }
-  return 'Novato';
-}
-
-// Variable global de logros cargados desde Supabase
-let logrosAlumno = {}; // { alumnoId: ['logro_id1','logro_id2',...] }
-
-function getLogrosAlumno(alumnoId){
-  return logrosAlumno[alumnoId]||[];
-}
-
-// Calcula datos extra necesarios para evaluar logros
-function calcExtrasLogros(alumnoId){
-  const attsAlumno = asistencias.filter(x=>x.alumnoId===alumnoId);
-  const alumno = alumnos.find(x=>x.id===alumnoId)||currentUser;
-  const horas = attsAlumno.map(a=>{
-    const h=parseInt((a.hora||'00:00').replace(':',''));
-    return h;
-  }).filter(h=>!isNaN(h));
-  const horaMin = horas.length?Math.min(...horas):9999;
-  const horaMax = horas.length?Math.max(...horas):0;
-
-  // PRs
-  const prsCount = Object.keys(alumno?.prs||{}).length;
-  // Verificar desde pesoRegistros si no está en prs
-  const pesoKeys = Object.keys(pesoRegistros).filter(k=>k.startsWith(alumnoId+'_'));
-  const totalPRs = Math.max(prsCount, pesoKeys.length);
-
-  // Nivel actual
-  const xp = calcXP(alumnoId);
-  const nivel = calcNivelFromXP(xp);
-
-  // Plan nutricional
-  const tienePlan = !!(nutricionPlanes[alumnoId]?.kcal);
-
-  // Mes perfecto (este mes, todos los días hábiles con asistencia)
-  const hoy = new Date();
-  const mesActual = hoy.toISOString().slice(0,7);
-  const attsEsteMes = attsAlumno.filter(a=>a.fecha.startsWith(mesActual));
-  const diasHabilesEsteMes = Array.from({length:hoy.getDate()},(_,i)=>{
-    const d=new Date(hoy.getFullYear(),hoy.getMonth(),i+1);
-    return d.getDay()!==0; // no domingos
-  }).filter(Boolean).length;
-  const mesPerfecto = diasHabilesEsteMes>0 && attsEsteMes.length>=diasHabilesEsteMes;
-
-  // Cumpleaños
-  const fechaNac = alumno?.nacimiento||'';
-  let entrenaEnCumple = false;
-  if(fechaNac){
-    const cumpleMD = fechaNac.slice(5); // MM-DD
-    entrenaEnCumple = attsAlumno.some(a=>a.fecha.slice(5)===cumpleMD);
-  }
-
-  // Navidad / Año Nuevo
-  const entrenaFiesta = attsAlumno.some(a=>a.fecha.endsWith('-12-25')||a.fecha.endsWith('-01-01'));
-
-  // Vuelta larga (volvió después de 30 días sin ir)
-  let vueltaLarga = false;
-  if(attsAlumno.length>=2){
-    const sorted = [...attsAlumno].sort((a,b)=>a.fecha.localeCompare(b.fecha));
-    for(let i=1;i<sorted.length;i++){
-      const diff=(new Date(sorted[i].fecha)-new Date(sorted[i-1].fecha))/86400000;
-      if(diff>=30){vueltaLarga=true;break;}
-    }
-  }
-
-  // Temporadas (por fechas argentinas)
-  const TEMPORADAS = {
-    'Invierno 2026':  {desde:'2026-06-21',hasta:'2026-09-22'},
-    'Primavera 2026': {desde:'2026-09-23',hasta:'2026-12-20'},
-    'Verano 2026':    {desde:'2026-12-21',hasta:'2027-03-19'},
-    'Otoño 2026':     {desde:'2026-03-20',hasta:'2026-06-20'},
-  };
-  function attEnTemporada(nombre){
-    const t=TEMPORADAS[nombre];
-    if(!t)return 0;
-    return attsAlumno.filter(a=>a.fecha>=t.desde&&a.fecha<=t.hasta).length;
-  }
-  function rachaEnTemporada(nombre){
-    const t=TEMPORADAS[nombre];
-    if(!t)return 0;
-    const fechas=attsAlumno.filter(a=>a.fecha>=t.desde&&a.fecha<=t.hasta).map(a=>a.fecha).sort();
-    let max=0,cur=0,prev=null;
-    fechas.forEach(f=>{
-      if(prev){
-        const diff=(new Date(f)-new Date(prev))/86400000;
-        cur = diff===1?cur+1:1;
-      } else cur=1;
-      if(cur>max)max=cur;
-      prev=f;
-    });
-    return max;
-  }
-
-  return {
-    horaMin, horaMax, mesPerfecto, entrenaEnCumple, entrenaFiesta,
-    vueltaLarga, tienePlan, nivel,
-    diasNutri:0, // TODO: implementar tracking días nutrición
-    tieneFotos:false, mesesProgreso:0,
-    gruposMusc:0, gruposMuscSemana:0, gruposMuscMes:0,
-    attsTempInvierno:  attEnTemporada('Invierno 2026'),
-    rachaTempInvierno: rachaEnTemporada('Invierno 2026'),
-    attsTempPrimavera: attEnTemporada('Primavera 2026'),
-    attsTempVerano:    attEnTemporada('Verano 2026'),
-    attsTempOtonio:    attEnTemporada('Otoño 2026'),
-  };
-}
-
-function calcXP(alumnoId){
-  const atts=asistencias.filter(x=>x.alumnoId===alumnoId).length;
-  const racha=calcRacha(alumnoId);
-  const logros=getLogrosAlumno(alumnoId);
-  const xpLogros=logros.reduce((sum,lid)=>{
-    const l=LOGROS_DEFS.find(x=>x.id===lid);
-    return sum+(l?RAREZA_XP[l.rareza]||10:10);
-  },0);
-  return atts*10+racha*5+xpLogros;
-}
-
-function calcNivelFromXP(xp){
-  return Math.max(1,Math.floor(Math.sqrt(xp/10))+1);
-}
-
-// Evalúa y GUARDA en Supabase los logros nuevos
-async function checkYGuardarLogros(alumnoId){
-  if(!alumnoId)return;
-  const alumno = alumnos.find(x=>x.id===alumnoId)||currentUser;
-  if(!alumno)return;
-  const atts = asistencias.filter(x=>x.alumnoId===alumnoId).length;
-  const racha = calcRacha(alumnoId);
-  const extra = calcExtrasLogros(alumnoId);
-  const yaDesbloqueados = new Set(getLogrosAlumno(alumnoId));
-  const nuevos = [];
-
-  LOGROS_DEFS.forEach(l=>{
-    if(!l.auto) return; // solo los manuales los salta
-    if(yaDesbloqueados.has(l.id)) return;
-    try{
-      if(l.req(atts,racha,alumno,extra)) nuevos.push(l);
-    }catch(e){}
-  });
-
-  if(!nuevos.length) return;
-
-  // Guardar en Supabase
-  try{
-    await sb.from('logros_alumnos').insert(
-      nuevos.map(l=>({
-        alumno_id:alumnoId,
-        logro_id:l.id,
-        temporada:l.temporada||null
-      }))
-    );
-    // Actualizar cache local
-    if(!logrosAlumno[alumnoId]) logrosAlumno[alumnoId]=[];
-    nuevos.forEach(l=>logrosAlumno[alumnoId].push(l.id));
-    // Celebrar!
-    nuevos.forEach((l,i)=>{
-      setTimeout(()=>mostrarCelebracionLogro(l), i*800);
-    });
-  }catch(e){
-    console.error('Error guardando logros:',e);
-  }
-}
-
-function mostrarCelebracionLogro(logro){
-  const rcfg = RAREZA_CFG[logro.rareza]||RAREZA_CFG.comun;
-  const el = document.createElement('div');
-  el.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--surface2);border:2px solid ${rcfg.color};border-radius:16px;
-    padding:14px 20px;display:flex;align-items:center;gap:12px;z-index:9999;
-    box-shadow:0 0 24px ${rcfg.glow};animation:logro-in .4s ease forwards;
-    max-width:320px;width:90%`;
-  el.innerHTML = `<span style="font-size:32px">${logro.icon}</span>
-    <div>
-      <div style="font-size:10px;font-weight:700;color:${rcfg.color};letter-spacing:.08em">
-        ${rcfg.badge} LOGRO DESBLOQUEADO · ${rcfg.label.toUpperCase()}
-      </div>
-      <div style="font-size:15px;font-weight:700;margin-top:2px">${logro.nombre}</div>
-      <div style="font-size:11px;color:var(--muted2);margin-top:2px">${logro.desc}</div>
-      <div style="font-size:11px;color:${rcfg.color};margin-top:4px;font-weight:600">+${RAREZA_XP[logro.rareza]} XP</div>
-    </div>`;
-  document.body.appendChild(el);
-  setTimeout(()=>{el.style.animation='logro-out .4s ease forwards';setTimeout(()=>el.remove(),400);},4000);
-}
-
-// Otorgar logro manual (solo admin)
-async function otorgarLogroManual(alumnoId, logroId){
-  if(!alumnoId||!logroId)return;
-  const ya = getLogrosAlumno(alumnoId);
-  if(ya.includes(logroId)){showToast('El alumno ya tiene este logro','error');return;}
-  const logro = LOGROS_DEFS.find(l=>l.id===logroId);
-  if(!logro)return;
-  try{
-    await sb.from('logros_alumnos').insert({alumno_id:alumnoId,logro_id:logroId,temporada:logro.temporada||null});
-    if(!logrosAlumno[alumnoId])logrosAlumno[alumnoId]=[];
-    logrosAlumno[alumnoId].push(logroId);
-    showToast('Logro "'+logro.nombre+'" otorgado ✓','success');
-  }catch(e){
-    showToast('Error al otorgar logro','error');
-  }
-}
-
-// Revocar logro manual (solo admin)
-async function revocarLogro(alumnoId, logroId){
-  try{
-    await sb.from('logros_alumnos').delete().eq('alumno_id',alumnoId).eq('logro_id',logroId);
-    logrosAlumno[alumnoId]=(logrosAlumno[alumnoId]||[]).filter(l=>l!==logroId);
-    showToast('Logro revocado','success');
-  }catch(e){
-    showToast('Error al revocar logro','error');
-  }
-}
-
-function checkLogros(a){
-  // Compatibilidad con código viejo — devuelve objetos logro desbloqueados
-  const ids = getLogrosAlumno(a.id);
-  return LOGROS_DEFS.filter(l=>ids.includes(l.id));
-}
 
 // ══════════════════════════════════════════════
 // AUTH
@@ -2491,8 +1986,6 @@ async function doLogin(){
     prs:{},historialMedidas:[],
     estado:perfil.estado||'activo',
     nacimiento:perfil.nacimiento||'',
-    avatarUrl:perfil.avatar_url||'',
-    perfilConfig:perfil.perfil_config||{},
   };
   await cargarDatosIniciales();
   // Enriquecer currentUser con datos cargados
@@ -2531,18 +2024,13 @@ function startApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('sideAvatar').textContent=currentUser.avatar;
-  updateSidebarAvatar();
   document.getElementById('sideName').textContent=currentUser.nombre;
   document.getElementById('sideRoleBadge').textContent=currentUser.role==='admin'?'Administrador':'Alumno';
   document.getElementById('sideRoleTxt').textContent=currentUser.role==='admin'?'Administrador':'Alumno';
   updateNotifBadge();
   buildMobileBottomNav();
   if(currentUser.role==='admin'){buildAdminNav();navigateTo('dashboard');updateMobileNav('dashboard');}
-  if(currentUser.role!=='admin'){
-    buildStudentNav();navigateTo('home-alumno');updateMobileNav('home-alumno');procesarQRPendiente();
-    // Revisar logros al iniciar sesión (sin bloquear)
-    setTimeout(()=>checkYGuardarLogros(currentUser.id),2000);
-  }
+  else{buildStudentNav();navigateTo('home-alumno');updateMobileNav('home-alumno');procesarQRPendiente();}
 }
 
 function buildAdminNav(){
@@ -2576,7 +2064,6 @@ function buildStudentNav(){
     {id:'mi-progreso',icon:'📈',label:'Mi Progreso'},
     {id:'mi-asistencia',icon:'📅',label:'Mi Asistencia'},
     {id:'mis-logros',icon:'🏆',label:'Mis Logros'},
-    {id:'mi-perfil',icon:'🎨',label:'Mi Perfil'},
   ];
   renderNav(nav);
 }
@@ -2603,7 +2090,7 @@ function navigateTo(pageId){
     'dashboard':renderDashboard,'alumnos':renderAlumnos,'asistencia':function(){renderAsistencia();loadDiasCerrados();},
     'rutinas':renderRutinas,'ejercicios':()=>renderEjercicios('todos'),'pagos':renderPagos,
     'nutricion':renderNutricion,'configuracion':renderConfiguracion,
-    'home-alumno':renderHomeAlumno,'mi-rutina':renderMiRutina,'mapa-muscular':renderMapaMuscular,'mi-nutricion':renderMiNutricion,'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,'mis-logros':renderMisLogros,'mi-perfil':renderMiPerfil,
+    'home-alumno':renderHomeAlumno,'mi-rutina':renderMiRutina,'mapa-muscular':renderMapaMuscular,'mi-nutricion':renderMiNutricion,'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,'mis-logros':renderMisLogros,
     'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,
 
   };
@@ -2624,8 +2111,8 @@ function buildMobileBottomNav(){
       {id:'asistencia',icon:'✅',label:'Asistencia'},{id:'pagos',icon:'💳',label:'Pagos'},
       {id:'configuracion',icon:'⚙️',label:'Config'}]
     :[{id:'home-alumno',icon:'🏠',label:'Inicio'},{id:'mi-rutina',icon:'📋',label:'Rutina'},
-      {id:'mi-nutricion',icon:'🥗',label:'Nutrición'},{id:'mis-logros',icon:'🏆',label:'Logros'},
-      {id:'mi-perfil',icon:'🎨',label:'Perfil'}];
+      {id:'mapa-muscular',icon:'💪',label:'Músculos'},{id:'mi-nutricion',icon:'🥗',label:'Nutrición'},
+      {id:'mis-logros',icon:'🏆',label:'Logros'}];
   nav.innerHTML=items.map(i=>`
     <div class="mbn-item" id="mbn-${i.id}" onclick="navigateTo('${i.id}');updateMobileNav('${i.id}')">
       <span class="mbn-icon">${i.icon}</span>${i.label}
@@ -2910,12 +2397,7 @@ function openPerfilAlumno(id){
   const racha=calcRacha(a.id);
   const ultAtt=atts.sort((x,y)=>y.fecha.localeCompare(x.fecha))[0];
   const imc=a.peso&&a.altura?((a.peso/((a.altura/100)**2)).toFixed(1)):'—';
-  const logrosIds=getLogrosAlumno(a.id);
-  const logros=LOGROS_DEFS.filter(l=>logrosIds.includes(l.id));
-  const xpAlumno=calcXP(a.id);
-  const nivelAlumno=calcNivelFromXP(xpAlumno);
-  const tituloAlumno=getTitulo(nivelAlumno, logrosIds.includes('t_fundador'));
-  const esFundador=logrosIds.includes('t_fundador');
+  const logros=checkLogros(a);
 
   // weight history mini chart HTML
   const medHist=a.historialMedidas||[];
@@ -2967,15 +2449,10 @@ function openPerfilAlumno(id){
           </div>`).join(''):'<div style="color:var(--muted2);font-size:13px">Sin PRs registrados</div>'}
       </div>
       <div>
-        <div class="sec-title">Logros · <span style="color:var(--accent)">LVL ${nivelAlumno}</span> · <span style="color:var(--accent);font-size:10px">${tituloAlumno}</span></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
-          ${logros.slice(0,6).map(l=>{const r=RAREZA_CFG[l.rareza]||RAREZA_CFG.comun;return`<div title="${l.desc}" style="background:rgba(255,255,255,.04);border:1px solid ${r.color}50;border-radius:8px;padding:4px 10px;font-size:12px">${l.icon} ${l.nombre}</div>`;}).join('')||'<div style="color:var(--muted2);font-size:13px">Ninguno aún</div>'}
+        <div class="sec-title">Logros desbloqueados</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${logros.map(l=>`<div title="${l.desc}" style="background:rgba(232,255,0,.08);border:1px solid rgba(232,255,0,.2);border-radius:8px;padding:6px 12px;font-size:13px">${l.icon} ${l.nombre}</div>`).join('')||'<div style="color:var(--muted2);font-size:13px">Ninguno aún</div>'}
         </div>
-        <div style="font-size:11px;color:var(--muted2);margin-bottom:8px">${xpAlumno} XP · ${logros.length} logros desbloqueados</div>
-        ${esFundador
-          ? `<div style="background:rgba(232,255,0,.08);border:1px solid rgba(232,255,0,.3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent);font-weight:700;margin-bottom:8px">🚀 FUNDADOR GymOS</div>
-             <button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="revocarLogro('${a.id}','t_fundador');closeModal('modalPerfilAlumno')">✕ Revocar Fundador</button>`
-          : `<button class="btn btn-ghost btn-sm" style="color:var(--accent);border-color:var(--accent)" onclick="otorgarLogroManual('${a.id}','t_fundador');closeModal('modalPerfilAlumno')">🚀 Otorgar Fundador</button>`}
       </div>
     </div>
     ${a.notas?`<div><div class="sec-title">Notas privadas del entrenador</div><div style="background:var(--surface2);border-radius:8px;padding:14px;font-size:13px;color:var(--muted2);line-height:1.7">${a.notas}</div></div>`:''}
@@ -2986,6 +2463,12 @@ function openPerfilAlumno(id){
     </div>
   `;
   openModal('modalPerfilAlumno');
+}
+
+function checkLogros(a){
+  const atts=asistencias.filter(x=>x.alumnoId===a.id).length;
+  const racha=calcRacha(a.id);
+  return LOGROS_DEFS.filter(l=>l.req(atts,racha,a));
 }
 
 function populateRutinaSelect(selId,selected){
@@ -3644,270 +3127,6 @@ async function saveRutina(){
   }catch(err){
     hideLoadingOverlay();
     showToast('Error al guardar: '+err.message,'error');
-  }
-}
-
-// ══════════════════════════════════════════════
-// IA EN RUTINAS
-// ══════════════════════════════════════════════
-
-function getAlumnoAsignadoARutina(){
-  if(!editingRutinaId) return null;
-  return alumnos.find(a=>a.rutinaId===editingRutinaId)||null;
-}
-
-function buildContextoAlumno(alumno){
-  if(!alumno) return 'Sin alumno asignado a esta rutina.';
-  const hoy=new Date();
-  const nac=new Date((alumno.nacimiento||'2000-01-01')+'T12:00');
-  let edad=hoy.getFullYear()-nac.getFullYear();
-  if(hoy<new Date(hoy.getFullYear(),nac.getMonth(),nac.getDate())) edad--;
-  const atts=asistencias.filter(x=>x.alumnoId===alumno.id).length;
-  return 'Alumno: '+alumno.nombre
-    +'. Sexo: '+(alumno.sexo==='M'?'masculino':'femenino')
-    +'. Edad: '+edad+' años'
-    +'. Peso: '+(alumno.peso||'?')+'kg'
-    +'. Altura: '+(alumno.altura||'?')+'cm'
-    +'. Objetivo: '+(alumno.objetivo||'salud general')
-    +'. Nivel: '+(alumno.nivel||'Principiante')
-    +'. Asistencias totales: '+atts
-    +(alumno.lesiones?'. Lesiones/limitaciones: '+alumno.lesiones:'')
-    +'.';
-}
-
-// ── Generador desde cero ─────────────────────
-function abrirGeneradorRutinaIA(){
-  const alumno = getAlumnoAsignadoARutina();
-  const overlay = document.createElement('div');
-  overlay.className='modal-overlay open';
-  overlay.id='generadorIAOverlay';
-
-  const diasOpts=[2,3,4,5,6].map(n=>'<option value="'+n+'"'+(n===3?' selected':'')+'>'+n+' días por semana</option>').join('');
-  const objOpts=['Hipertrofia','Fuerza máxima','Pérdida de grasa','Resistencia','Tonificación','Bienestar general']
-    .map(o=>'<option value="'+o+'">'+o+'</option>').join('');
-  const nivOpts=['Principiante','Intermedio','Avanzado']
-    .map(o=>'<option value="'+o+'"'+(alumno&&alumno.nivel===o?' selected':'')+'>'+o+'</option>').join('');
-
-  overlay.innerHTML='<div class="modal modal-xl">'
-    +'<div class="modal-header"><span class="modal-title">✨ Generar Rutina con IA</span>'
-    +'<button class="modal-close" onclick="document.getElementById(\'generadorIAOverlay\').remove()">×</button></div>'
-    +'<div class="modal-body" style="padding:20px">'
-    +(alumno?'<div style="background:rgba(var(--accent-rgb),.06);border:1px solid rgba(var(--accent-rgb),.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--muted2)">👤 Usando perfil de <strong style="color:var(--text)">'+alumno.nombre+'</strong> · '+alumno.objetivo+' · '+alumno.nivel+'</div>':'<div style="background:rgba(255,165,0,.06);border:1px solid rgba(255,165,0,.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--muted2)">⚠️ Esta rutina no tiene alumno asignado. Podés configurar los parámetros manualmente.</div>')
-    +'<div class="form-grid">'
-    +'<div class="form-group"><label>Días por semana</label><select id="iaDias" class="search-input">'+diasOpts+'</select></div>'
-    +'<div class="form-group"><label>Objetivo</label><select id="iaObjetivo" class="search-input">'+objOpts+'</select></div>'
-    +'<div class="form-group"><label>Nivel</label><select id="iaNivel" class="search-input">'+nivOpts+'</select></div>'
-    +'<div class="form-group"><label>División</label><select id="iaDivision" class="search-input">'
-    +'<option value="auto">Automática (IA decide)</option>'
-    +'<option value="Full Body">Full Body</option>'
-    +'<option value="Tren superior / Tren inferior">Superior / Inferior</option>'
-    +'<option value="Push / Pull / Legs">Push / Pull / Legs</option>'
-    +'<option value="Por grupos musculares">Por grupos musculares</option>'
-    +'</select></div>'
-    +'</div>'
-    +'<div class="form-group" style="margin-top:8px"><label>Indicaciones adicionales (opcional)</label>'
-    +'<textarea id="iaIndicaciones" class="search-input" style="min-height:70px;resize:vertical" placeholder="Ej: sin máquinas, solo mancuernas, evitar sentadillas, incluir cardio al final..."></textarea></div>'
-    +'<div id="iaRutinaPreview" style="display:none;margin-top:16px"></div>'
-    +'</div>'
-    +'<div class="modal-footer">'
-    +'<button class="btn btn-ghost" onclick="document.getElementById(\'generadorIAOverlay\').remove()">Cancelar</button>'
-    +'<button class="btn btn-accent" id="btnGenerarIA" onclick="ejecutarGenerarRutinaIA()">✨ Generar</button>'
-    +'</div></div>';
-
-  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-
-  // Pre-fill objetivo/nivel desde alumno
-  if(alumno){
-    const objSel=document.getElementById('iaObjetivo');
-    const objMap={'perder peso':'Pérdida de grasa','bajar peso':'Pérdida de grasa','ganar músculo':'Hipertrofia',
-      'hipertrofia':'Hipertrofia','fuerza':'Fuerza máxima','tonificar':'Tonificación','resistencia':'Resistencia'};
-    const obj=(alumno.objetivo||'').toLowerCase();
-    for(const[k,v] of Object.entries(objMap)){
-      if(obj.includes(k)){ if(objSel) objSel.value=v; break; }
-    }
-  }
-}
-
-async function ejecutarGenerarRutinaIA(){
-  const dias     = parseInt(document.getElementById('iaDias')?.value||3);
-  const objetivo = document.getElementById('iaObjetivo')?.value||'Hipertrofia';
-  const nivel    = document.getElementById('iaNivel')?.value||'Principiante';
-  const division = document.getElementById('iaDivision')?.value||'auto';
-  const extra    = (document.getElementById('iaIndicaciones')?.value||'').trim();
-  const alumno   = getAlumnoAsignadoARutina();
-
-  const preview  = document.getElementById('iaRutinaPreview');
-  const btn      = document.getElementById('btnGenerarIA');
-  if(btn){ btn.disabled=true; btn.textContent='⚙️ Generando...'; }
-  if(preview){ preview.style.display='block'; preview.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted2)"><div style="font-size:32px;animation:spin .8s linear infinite;display:inline-block">⚙️</div><div style="margin-top:10px">La IA está diseñando tu rutina...</div></div>'; }
-
-  // Armar lista de ejercicios disponibles (solo nombres e ids, resumida)
-  const exResumen = EJERCICIOS.slice(0,200).map(e=>e.id+'|'+e.nombre+'|'+e.musculo).join('\n');
-
-  const system = 'Sos un entrenador personal argentino experto. Respondés SOLO en JSON válido, sin texto adicional, sin markdown. '
-    +'Estructura exacta: {"nombre":"STRING","descripcion":"STRING","dias":[{"nombre":"STRING","ejercicios":[{"exId":"STRING","series":"STRING","notas":"STRING"}]}]}. '
-    +'exId debe ser exactamente uno de los IDs provistos. series en formato "3x10" o "3x8-12". notas MUY cortas (máx 4 palabras). '
-    +'Usá variedad de ejercicios, progresión lógica dentro del día (compuestos primero), y adaptá al nivel y objetivo. Máximo 6 ejercicios por día.';
-
-  const user = 'Creá una rutina de '+dias+' días por semana.\n'
-    +'Objetivo: '+objetivo+'.\nNivel: '+nivel+'.\n'
-    +(division!=='auto'?'División: '+division+'.\n':'')
-    +(extra?'Indicaciones especiales: '+extra+'.\n':'')
-    +(alumno?'Contexto del alumno: '+buildContextoAlumno(alumno)+'\n':'')
-    +'\nEjercicios disponibles (id|nombre|músculo):\n'+exResumen;
-
-  const resp = await llamarClaudeIA(system, user, false);
-  if(btn){ btn.disabled=false; btn.textContent='✨ Generar'; }
-
-  if(!resp){ if(preview) preview.style.display='none'; return; }
-
-  try{
-    const clean=resp.replace(/```json|```/g,'').trim();
-    const rutina=JSON.parse(clean);
-    if(!rutina.dias||!rutina.nombre) throw new Error('Estructura inválida');
-
-    // Validar exIds contra EJERCICIOS
-    let errores=0;
-    rutina.dias.forEach(d=>{
-      d.ejercicios=d.ejercicios.filter(ex=>{
-        const ok=EJERCICIOS.find(e=>e.id===ex.exId);
-        if(!ok) errores++;
-        return !!ok;
-      });
-    });
-
-    // Preview
-    const html='<div style="background:var(--surface2);border:1px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:12px">'
-      +'<div style="font-family:\'Bebas Neue\';font-size:22px;color:var(--accent);margin-bottom:4px">'+rutina.nombre+'</div>'
-      +'<div style="font-size:12px;color:var(--muted2);margin-bottom:12px">'+rutina.descripcion+'</div>'
-      +rutina.dias.map(d=>'<div style="margin-bottom:10px">'
-        +'<div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:6px">'+d.nombre.toUpperCase()+'</div>'
-        +d.ejercicios.map(ex=>{
-          const e=EJERCICIOS.find(x=>x.id===ex.exId);
-          return '<div style="font-size:12px;color:var(--muted2);padding:3px 0;display:flex;justify-content:space-between">'
-            +'<span>• '+(e?e.nombre:'?')+'</span>'
-            +'<span style="color:var(--text);font-weight:600">'+ex.series+'</span></div>';
-        }).join('')
-        +'</div>'
-      ).join('')
-      +(errores?'<div style="font-size:11px;color:var(--danger);margin-top:8px">⚠️ '+errores+' ejercicio(s) no reconocidos fueron omitidos</div>':'')
-      +'</div>'
-      +'<button class="btn btn-accent" style="width:100%" onclick="aplicarRutinaIA(\''+encodeURIComponent(JSON.stringify(rutina))+'\')">✓ Aplicar esta rutina</button>';
-
-    if(preview){ preview.style.display='block'; preview.innerHTML=html; }
-  }catch(e){
-    if(preview) preview.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">No se pudo procesar la respuesta. Intentá de nuevo.</div>';
-    console.error('Rutina IA parse error:',e,resp);
-  }
-}
-
-function aplicarRutinaIA(encoded){
-  try{
-    const rutina=JSON.parse(decodeURIComponent(encoded));
-    document.getElementById('rNombre').value=rutina.nombre;
-    document.getElementById('rDesc').value=rutina.descripcion||'';
-    rutinaDaysData=rutina.dias.map(d=>({nombre:d.nombre,ejercicios:d.ejercicios}));
-    renderRutinaDaysBuilder();
-    document.getElementById('generadorIAOverlay')?.remove();
-    showToast('Rutina IA aplicada — revisá y guardá ✓','success');
-  }catch(e){
-    showToast('Error al aplicar rutina','error');
-  }
-}
-
-// ── Mejorar rutina existente ─────────────────
-async function mejorarRutinaConIA(){
-  if(!rutinaDaysData||!rutinaDaysData.length||!rutinaDaysData[0].ejercicios.length){
-    showToast('Agregá ejercicios a la rutina primero','error'); return;
-  }
-  const alumno = getAlumnoAsignadoARutina();
-
-  // Describir rutina actual
-  const rutinaActual = rutinaDaysData.map(d=>
-    d.nombre+': '+d.ejercicios.map(ex=>{
-      const e=EJERCICIOS.find(x=>x.id===ex.exId);
-      return (e?e.nombre:'?')+' '+ex.series+(ex.notas?' ('+ex.notas+')':'');
-    }).join(', ')
-  ).join('\n');
-
-  const overlay=document.createElement('div');
-  overlay.className='modal-overlay open';
-  overlay.id='mejorarIAOverlay';
-  overlay.innerHTML='<div class="modal" style="max-width:500px">'
-    +'<div class="modal-header"><span class="modal-title">🔧 Mejorar Rutina con IA</span>'
-    +'<button class="modal-close" onclick="document.getElementById(\'mejorarIAOverlay\').remove()">×</button></div>'
-    +'<div class="modal-body" style="padding:20px">'
-    +'<div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted2);max-height:160px;overflow-y:auto;white-space:pre-wrap;line-height:1.6">'+rutinaActual+'</div>'
-    +'<div class="form-group"><label>¿Qué querés mejorar?</label>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'
-    +['Agregar variedad','Mejor progresión','Más volumen','Menos volumen','Adaptar a lesiones','Optimizar para el objetivo','Reordenar ejercicios','Agregar warm-up']
-      .map(s=>'<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="document.getElementById(\'iaMejorarInput\').value+=\''+s+'. \'">'+s+'</button>').join('')
-    +'</div>'
-    +'<textarea id="iaMejorarInput" class="search-input" style="min-height:70px;resize:vertical" placeholder="Describí qué querés cambiar o mejorar..."></textarea></div>'
-    +'<div id="mejorarPreview" style="display:none;margin-top:14px"></div>'
-    +'</div>'
-    +'<div class="modal-footer">'
-    +'<button class="btn btn-ghost" onclick="document.getElementById(\'mejorarIAOverlay\').remove()">Cancelar</button>'
-    +'<button class="btn btn-accent" id="btnMejorarIA" onclick="ejecutarMejorarRutinaIA(\''+encodeURIComponent(rutinaActual)+'\')">🔧 Mejorar</button>'
-    +'</div></div>';
-  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-async function ejecutarMejorarRutinaIA(encodedRutina){
-  const pedido=(document.getElementById('iaMejorarInput')?.value||'').trim()||'Optimizá esta rutina en general.';
-  const rutinaActual=decodeURIComponent(encodedRutina);
-  const alumno=getAlumnoAsignadoARutina();
-
-  const preview=document.getElementById('mejorarPreview');
-  const btn=document.getElementById('btnMejorarIA');
-  if(btn){ btn.disabled=true; btn.textContent='⚙️ Analizando...'; }
-  if(preview){ preview.style.display='block'; preview.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted2)"><div style="font-size:28px;animation:spin .8s linear infinite;display:inline-block">⚙️</div><div style="margin-top:8px;font-size:13px">Analizando y mejorando...</div></div>'; }
-
-  const exResumen=EJERCICIOS.slice(0,200).map(e=>e.id+'|'+e.nombre+'|'+e.musculo).join('\n');
-
-  const system='Sos un entrenador personal argentino experto. Respondés SOLO en JSON válido sin texto adicional ni markdown. '
-    +'Estructura exacta: {"nombre":"STRING","descripcion":"STRING","cambios":["STRING","STRING"],"dias":[{"nombre":"STRING","ejercicios":[{"exId":"STRING","series":"STRING","notas":"STRING"}]}]}. '
-    +'cambios es un array de strings describiendo brevemente qué cambiaste. exId debe ser exactamente uno de los IDs provistos.';
-
-  const user='Tengo esta rutina:\n'+rutinaActual+'\n\n'
-    +'Pedido de mejora: '+pedido+'\n'
-    +(alumno?'Contexto del alumno: '+buildContextoAlumno(alumno)+'\n':'')
-    +'\nEjercicios disponibles (id|nombre|músculo):\n'+exResumen;
-
-  const resp=await llamarClaudeIA(system,user,false);
-  if(btn){ btn.disabled=false; btn.textContent='🔧 Mejorar'; }
-  if(!resp){ if(preview) preview.style.display='none'; return; }
-
-  try{
-    const clean=resp.replace(/```json|```/g,'').trim();
-    const rutina=JSON.parse(clean);
-    if(!rutina.dias) throw new Error('bad');
-
-    // Validar exIds
-    rutina.dias.forEach(d=>{
-      d.ejercicios=d.ejercicios.filter(ex=>EJERCICIOS.find(e=>e.id===ex.exId));
-    });
-
-    const html='<div style="background:var(--surface2);border:1px solid var(--info);border-radius:12px;padding:14px;margin-bottom:10px">'
-      +'<div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:8px">📝 Cambios realizados</div>'
-      +(rutina.cambios||[]).map(c=>'<div style="font-size:12px;color:var(--muted2);padding:2px 0">• '+c+'</div>').join('')
-      +'</div>'
-      +rutina.dias.map(d=>'<div style="margin-bottom:8px">'
-        +'<div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px">'+d.nombre.toUpperCase()+'</div>'
-        +d.ejercicios.map(ex=>{
-          const e=EJERCICIOS.find(x=>x.id===ex.exId);
-          return '<div style="font-size:12px;color:var(--muted2);padding:2px 0;display:flex;justify-content:space-between">'
-            +'<span>• '+(e?e.nombre:'?')+'</span><span style="color:var(--text);font-weight:600">'+ex.series+'</span></div>';
-        }).join('')+'</div>'
-      ).join('')
-      +'<button class="btn btn-accent" style="width:100%;margin-top:10px" onclick="aplicarRutinaIA(\''+encodeURIComponent(JSON.stringify(rutina))+'\');document.getElementById(\'mejorarIAOverlay\').remove()">✓ Aplicar mejoras</button>';
-
-    if(preview) preview.innerHTML=html;
-  }catch(e){
-    if(preview) preview.innerHTML='<div style="color:var(--danger);font-size:13px;padding:10px">No se pudo procesar. Intentá de nuevo.</div>';
-    console.error('Mejorar IA error:',e,resp);
   }
 }
 
@@ -5073,7 +4292,6 @@ function renderNutricion(){
       </select>
       <span style="font-size:13px;color:var(--muted2)">Plan nutricional del alumno</span>
       <button class="btn btn-ghost btn-sm" onclick="calcularCaloriasAlumno()" title="Calcular calorías según datos del alumno">⚡ Calcular</button>
-      <button class="btn btn-ghost btn-sm" onclick="generarPlanConIA()" title="Generar plan completo con Inteligencia Artificial" style="color:var(--accent);border-color:var(--accent)">✨ Plan IA</button>
       <button class="btn btn-ghost btn-sm" onclick="limpiarNutricionPlan()" style="color:var(--danger);border-color:var(--danger)">🗑️ Limpiar plan</button>
       <button class="btn btn-accent btn-sm" onclick="saveNutricionPlan()">💾 Guardar plan</button>
     </div>
@@ -5501,21 +4719,16 @@ function renderHomeAlumno(){
   const atts=asistencias.filter(x=>x.alumnoId===a.id);
   const mes=atts.filter(x=>x.fecha.startsWith(today.toISOString().slice(0,7))).length;
   const racha=calcRacha(a.id);
-  const xp=calcXP(a.id);
-  const nivel=calcNivelFromXP(xp);
-  const logrosIds=getLogrosAlumno(a.id);
-  const logros=LOGROS_DEFS.filter(l=>logrosIds.includes(l.id));
-  const titulo=getTitulo(nivel, logrosIds.includes('t_fundador'));
+  const xp=atts.length*10+racha*5;
+  const nivel=Math.floor(xp/100)+1;
+  const logros=checkLogros(a);
 
   document.getElementById('welcomeBanner').innerHTML=`
     <div class="welcome-banner">
-      <div class="welcome-av" onclick="navigateTo('mi-perfil')" style="cursor:pointer;overflow:hidden">
-        ${a.avatarUrl?'<img src="'+a.avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':a.nombre[0]}
-      </div>
+      <div class="welcome-av">${a.nombre[0]}</div>
       <div>
         <div class="welcome-title">¡Hola, <span>${a.nombre.split(' ')[0]}</span>! 💪</div>
         <div class="welcome-sub">${rut?'Rutina: '+rut.nombre:'Sin rutina asignada — hablá con tu profe'}</div>
-        <div style="font-size:11px;color:var(--accent);font-weight:700;margin-top:2px;letter-spacing:.06em">${titulo}</div>
       </div>
       <div style="margin-left:auto;text-align:center">
         <div style="font-family:'Bebas Neue';font-size:36px;color:var(--accent)">LVL ${nivel}</div>
@@ -5548,24 +4761,18 @@ function renderHomeAlumno(){
 
   document.getElementById('alumLogros').innerHTML=`
     <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${logros.slice(0,4).map(l=>{
-        const r=RAREZA_CFG[l.rareza]||RAREZA_CFG.comun;
-        return`<div style="background:rgba(255,255,255,.04);border:1px solid ${r.color}40;border-radius:8px;padding:6px 10px;font-size:12px;display:flex;align-items:center;gap:6px">
-          <span>${l.icon}</span><span>${l.nombre}</span><span style="font-size:10px;color:${r.color}">${r.badge}</span>
-        </div>`;
-      }).join('')||'<div style="color:var(--muted2);font-size:13px">Seguí entrenando para desbloquear logros 💪</div>'}
-    </div>
-    ${logros.length>4?`<div style="font-size:12px;color:var(--accent);margin-top:8px;cursor:pointer" onclick="navigateTo('mis-logros')">Ver todos (${logros.length}) →</div>`:''}`;
+      ${logros.slice(0,4).map(l=>`<div style="background:rgba(232,255,0,.08);border:1px solid rgba(232,255,0,.18);border-radius:8px;padding:8px 12px;font-size:13px">${l.icon} ${l.nombre}</div>`).join('')||'<div style="color:var(--muted2);font-size:13px">Seguí entrenando para desbloquear logros 💪</div>'}
+    </div>`;
 
-  const xpPct=Math.min(100,(xp%(nivel*100))/(nivel*100)*100)||0;
+  const xpPct=(xp%100);
   document.getElementById('alumXP').innerHTML=`
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px">
       <div class="flex-between mb8">
-        <span style="font-size:14px;font-weight:600">Nivel ${nivel} · <span style="color:var(--accent);font-size:12px">${titulo}</span></span>
-        <span style="font-size:12px;color:var(--muted2)">${xp} XP</span>
+        <span style="font-size:14px;font-weight:600">Nivel ${nivel}</span>
+        <span style="font-size:12px;color:var(--muted2)">${xp} / ${nivel*100} XP</span>
       </div>
       <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
-      <div style="font-size:12px;color:var(--muted2);margin-top:8px">${logros.length} logros desbloqueados</div>
+      <div style="font-size:12px;color:var(--muted2);margin-top:8px">${100-xpPct} XP para el nivel ${nivel+1}</div>
     </div>`;
 }
 
@@ -5801,11 +5008,7 @@ function renderMiNutricion(){
     <div class="card mb16">
       <div class="card-header">
         <span class="card-title">📝 Lo que comí hoy</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="abrirAnalisisFoto()" style="color:var(--accent);border-color:var(--accent)">📷 Foto del plato</button>
-          <button class="btn btn-ghost btn-sm" onclick="abrirConsultaIA()" style="color:var(--info);border-color:var(--info)">💬 Consultar IA</button>
-          <button class="btn btn-accent btn-sm" onclick="abrirBuscadorAlumno()">+ Agregar alimento</button>
-        </div>
+        <button class="btn btn-accent btn-sm" onclick="abrirBuscadorAlumno()">+ Agregar alimento</button>
       </div>
       <div class="card-body" style="padding:0" id="miRegistroList">
         ${reg.items.length ? reg.items.map((item,i)=>`
@@ -5936,785 +5139,6 @@ function eliminarAlimentoRegistro(idx){
 }
 
 // ══════════════════════════════════════════════
-// NUTRICIÓN IA
-// ══════════════════════════════════════════════
-
-async function llamarClaudeIA(systemPrompt, userContent, isVision){
-  const key = gymConfig.anthropic_key;
-  if(!key){ showToast('Configurá la API key de IA en ⚙️ Configuración','error'); return null; }
-  const msgContent = isVision ? userContent : [{ type:'text', text: userContent }];
-  try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model:'claude-opus-4-5',
-        max_tokens:4000,
-        system: systemPrompt,
-        messages:[{ role:'user', content: msgContent }]
-      })
-    });
-    if(!resp.ok){ const err=await resp.json(); throw new Error(err.error?.message||resp.statusText); }
-    const data = await resp.json();
-    return data.content?.[0]?.text || null;
-  }catch(e){
-    showToast('Error IA: '+e.message,'error');
-    console.error('Claude API error:',e);
-    return null;
-  }
-}
-
-// ── Admin: Generar plan completo con IA ──────────
-async function generarPlanConIA(){
-  if(!nutricionAlumnoSeleccionado){ showToast('Seleccioná un alumno','error'); return; }
-  const a = alumnos.find(x=>x.id===nutricionAlumnoSeleccionado);
-  if(!a){ showToast('Alumno no encontrado','error'); return; }
-  if(!a.peso||!a.altura){ showToast('El alumno necesita peso y altura en su perfil','error'); return; }
-
-  const hoy = new Date();
-  const nac = new Date(a.nacimiento+'T12:00');
-  let edad = hoy.getFullYear()-nac.getFullYear();
-  if(hoy<new Date(hoy.getFullYear(),nac.getMonth(),nac.getDate())) edad--;
-
-  const system = 'Sos un nutricionista deportivo argentino. Respondés SOLO en JSON válido, sin texto adicional, sin markdown, sin explicaciones. El JSON debe tener exactamente esta estructura: {"kcal":NUMBER,"proteina":NUMBER,"carbos":NUMBER,"grasas":NUMBER,"comidas":[{"icono":"EMOJI","nombre":"STRING","hora":"HH:MM","descripcion":"STRING","calorias":NUMBER}],"resumen":"STRING corto de 1 oración"}. Las comidas deben incluir alimentos típicos argentinos, ser específicas (no genéricas), y la descripción debe detallar alimentos y porciones. Generá entre 4 y 5 comidas.';
-
-  const user = 'Alumno: '+a.nombre+'. Sexo: '+(a.sexo==='M'?'masculino':'femenino')+'. Edad: '+edad+' años. Peso: '+a.peso+'kg. Altura: '+a.altura+'cm. Objetivo: '+(a.objetivo||'salud general')+'. Nivel de entrenamiento: '+(a.nivel||'Principiante')+(a.lesiones?' Lesiones/consideraciones: '+a.lesiones:'')+'. Generá un plan nutricional diario completo y personalizado.';
-
-  showLoadingOverlay('✨ La IA está generando el plan...');
-  const resp = await llamarClaudeIA(system, user, false);
-  hideLoadingOverlay();
-  if(!resp) return;
-
-  try{
-    const clean = resp.replace(/```json|```/g,'').trim();
-    const plan = JSON.parse(clean);
-    if(!plan.kcal||!plan.comidas?.length) throw new Error('Estructura inválida');
-
-    // Mostrar preview antes de aplicar
-    const overlay = document.createElement('div');
-    overlay.className='modal-overlay open';
-    overlay.innerHTML = '<div class="modal" style="max-width:500px">'
-      + '<div class="modal-header"><span class="modal-title">✨ Plan generado por IA</span>'
-      + '<button class="modal-close" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'
-      + '<div class="modal-body" style="padding:20px">'
-      + '<div style="background:var(--surface2);border:1px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:16px">'
-      + '<div style="font-family:\'Bebas Neue\';font-size:36px;color:var(--accent)">'+plan.kcal+' <span style="font-size:14px;color:var(--muted2)">kcal/día</span></div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">'
-      + ['Proteína '+plan.proteina+'g','Carbos '+plan.carbos+'g','Grasas '+plan.grasas+'g'].map(function(t,i){
-          var c=['var(--info)','var(--accent)','var(--accent2)'][i];
-          return '<div style="background:var(--surface);border-radius:8px;padding:8px;text-align:center;font-size:12px;color:'+c+'">'+t+'</div>';
-        }).join('')
-      + '</div></div>'
-      + '<div style="font-size:13px;color:var(--muted2);margin-bottom:14px;font-style:italic">'+plan.resumen+'</div>'
-      + '<div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:16px">'
-      + plan.comidas.map(function(c){
-          return '<div style="background:var(--surface2);border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px">'
-            + '<span style="font-size:20px">'+c.icono+'</span>'
-            + '<div style="min-width:0;flex:1">'
-            + '<div style="font-size:13px;font-weight:700">'+c.nombre+' <span style="color:var(--muted2);font-size:11px;font-weight:400">'+c.hora+' · '+c.calorias+' kcal</span></div>'
-            + '<div style="font-size:11px;color:var(--muted2);margin-top:3px;line-height:1.5">'+c.descripcion+'</div>'
-            + '</div></div>';
-        }).join('')
-      + '</div>'
-      + '<button class="btn btn-accent" style="width:100%" onclick="aplicarPlanIA('+JSON.stringify(plan).replace(/"/g,'&quot;')+');this.closest(\'.modal-overlay\').remove()">✓ Aplicar este plan</button>'
-      + '<button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="this.closest(\'.modal-overlay\').remove()">Cancelar</button>'
-      + '</div></div>';
-    overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
-    document.body.appendChild(overlay);
-  }catch(e){
-    showToast('Error al procesar respuesta de IA','error');
-    console.error('Parse error:',e,resp);
-  }
-}
-
-function aplicarPlanIA(plan){
-  const id = nutricionAlumnoSeleccionado;
-  if(!id) return;
-  nutricionPlanes[id] = plan;
-  renderNutricion();
-  showToast('Plan IA aplicado — recordá guardar ✓','success');
-}
-
-// ── Alumno: Analizar foto del plato ─────────────
-function abrirAnalisisFoto(){
-  const overlay = document.createElement('div');
-  overlay.className='modal-overlay open';
-  overlay.id='analisisFotoOverlay';
-  overlay.innerHTML = '<div class="modal" style="max-width:460px">'
-    + '<div class="modal-header"><span class="modal-title">📷 Analizar foto del plato</span>'
-    + '<button class="modal-close" onclick="document.getElementById(\'analisisFotoOverlay\').remove()">×</button></div>'
-    + '<div class="modal-body" style="padding:20px">'
-    + '<div id="fotoPreviewZone" style="border:2px dashed var(--border2);border-radius:12px;padding:24px;text-align:center;margin-bottom:16px;transition:border-color .2s" ondragover="event.preventDefault();this.style.borderColor=\'var(--accent)\'" ondragleave="this.style.borderColor=\'var(--border2)\'" ondrop="handleFotoDrop(event)">'
-    + '<div style="font-size:48px;margin-bottom:12px">🍽️</div>'
-    + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'
-    + '<button class="btn btn-accent" onclick="document.getElementById(\'inputFotoCamara\').click()">📷 Cámara</button>'
-    + '<button class="btn btn-ghost" onclick="document.getElementById(\'inputFotoGaleria\').click()">🖼️ Galería</button>'
-    + '</div>'
-    + '<div style="color:var(--muted);font-size:11px;margin-top:10px">O arrastrá una foto acá</div>'
-    + '</div>'
-    + '<input type="file" id="inputFotoCamara" accept="image/*" capture="environment" style="display:none" onchange="previsualizarFoto(this)">'
-    + '<input type="file" id="inputFotoGaleria" accept="image/*" style="display:none" onchange="previsualizarFoto(this)">'
-    + '<div id="fotoResultadoIA" style="display:none"></div>'
-    + '<div id="btnAnalizarFoto" style="display:none">'
-    + '<input type="text" id="fotoDescripcion" class="search-input" style="width:100%;margin-bottom:10px;box-sizing:border-box" placeholder="Descripción opcional (ej: milanesa con puré, medialunas...)"/>'
-    + '<button class="btn btn-accent" style="width:100%" onclick="analizarFotoPlato()">🔍 Analizar con IA</button>'
-    + '</div>'
-    + '</div></div>';
-  overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
-
-function handleFotoDrop(e){
-  e.preventDefault();
-  e.currentTarget.style.borderColor='var(--border2)';
-  const file=e.dataTransfer.files[0];
-  if(file&&file.type.startsWith('image/')){
-    procesarFotoSeleccionada(file);
-  }
-}
-
-function previsualizarFoto(input){
-  const file=input.files[0];
-  if(file) procesarFotoSeleccionada(file);
-}
-
-let _fotoBase64='', _fotoMime='';
-function procesarFotoSeleccionada(file){
-  _fotoMime=file.type;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    _fotoBase64=e.target.result.split(',')[1];
-    const zone=document.getElementById('fotoPreviewZone');
-    if(zone) zone.innerHTML='<img src="'+e.target.result+'" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain"/>';
-    const btn=document.getElementById('btnAnalizarFoto');
-    if(btn) btn.style.display='block';
-  };
-  reader.readAsDataURL(file);
-}
-
-async function analizarFotoPlato(){
-  if(!_fotoBase64){ showToast('Primero seleccioná una foto','error'); return; }
-  const res=document.getElementById('fotoResultadoIA');
-  const btn=document.getElementById('btnAnalizarFoto');
-  if(res) res.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted2)"><div style="font-size:28px;animation:spin .8s linear infinite;display:inline-block">⚙️</div><div style="margin-top:8px;font-size:13px">Analizando tu plato...</div></div>';
-  if(res) res.style.display='block';
-  if(btn) btn.style.display='none';
-
-  const plan = nutricionPlanes[currentUser?.id];
-  const a = alumnos.find(x=>x.id===currentUser?.id);
-
-  var systemVision = 'Sos un nutricionista deportivo argentino. Analizás fotos de platos de comida. Respondés SOLO en JSON válido sin texto adicional ni markdown. Estructura exacta: {"alimentos":[{"nombre":"STRING","cantidad":"STRING","kcal":NUMBER,"p":NUMBER,"c":NUMBER,"g":NUMBER}],"kcal_total":NUMBER,"p_total":NUMBER,"c_total":NUMBER,"g_total":NUMBER,"feedback":"STRING de 1-2 oraciones","adecuado_objetivo":true_o_false}. Los valores de macros son en gramos.';
-  var userVision = 'Analizá este plato de comida e identificá todos los alimentos visibles con sus macronutrientes estimados.';
-  const descInput = (document.getElementById('fotoDescripcion')?.value||'').trim();
-  if(descInput) userVision += ' El alumno describió el plato como: "'+descInput+'". Usá esa info para ser más preciso.';
-  if(a&&a.objetivo) userVision+=' El objetivo del alumno es: '+a.objetivo+'.';
-  if(plan) userVision+=' Su objetivo calórico diario es '+plan.kcal+' kcal.';
-
-  const msgContent=[
-    {type:'image',source:{type:'base64',media_type:_fotoMime,data:_fotoBase64}},
-    {type:'text',text:userVision}
-  ];
-
-  const resp = await llamarClaudeIA(systemVision, msgContent, true);
-  if(!resp){ if(res) res.innerHTML=''; if(btn) btn.style.display='block'; return; }
-
-  try{
-    const clean=resp.replace(/```json|```/g,'').trim();
-    const data=JSON.parse(clean);
-    if(!data.alimentos||!data.kcal_total) throw new Error('bad');
-
-    var html='<div style="margin-bottom:14px">';
-    data.alimentos.forEach(function(item){
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px">'
-        +'<div><div style="font-size:13px;font-weight:600">'+item.nombre+'</div>'
-        +'<div style="font-size:11px;color:var(--muted2)">'+item.cantidad+' · P:'+item.p+'g C:'+item.c+'g G:'+item.g+'g</div></div>'
-        +'<span style="font-family:\'Bebas Neue\';font-size:16px;color:var(--accent)">'+item.kcal+' kcal</span></div>';
-    });
-    html+='</div>';
-    html+='<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:14px">'
-      +'<div style="font-family:\'Bebas Neue\';font-size:28px;color:var(--accent)">'+data.kcal_total+' <span style="font-size:12px;color:var(--muted2)">kcal totales</span></div>'
-      +'<div style="font-size:12px;color:var(--muted2);margin-top:4px">P:'+data.p_total+'g · C:'+data.c_total+'g · G:'+data.g_total+'g</div>'
-      +'</div>';
-    html+='<div style="background:rgba(var(--accent-rgb),.06);border:1px solid rgba(var(--accent-rgb),.15);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted2);line-height:1.6">'
-      +'💡 '+data.feedback+'</div>';
-    html+='<button class="btn btn-accent" style="width:100%" onclick="agregarFotoAlRegistro('+JSON.stringify(data).replace(/"/g,'&quot;')+')">✓ Agregar al registro de hoy</button>';
-
-    if(res) res.innerHTML=html;
-  }catch(e){
-    if(res) res.innerHTML='<div style="color:var(--danger);font-size:13px;padding:10px">No se pudo procesar la respuesta. Intentá con otra foto.</div>';
-    if(btn) btn.style.display='block';
-    console.error('Vision parse error:',e,resp);
-  }
-}
-
-function agregarFotoAlRegistro(data){
-  const reg=getMiRegistroDiario();
-  const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  data.alimentos.forEach(function(item){
-    reg.items.push({nombre:item.nombre+' ('+item.cantidad+')',kcal:item.kcal,p:item.p,c:item.c,g:item.g,hora:hora});
-    reg.kcal=(reg.kcal||0)+item.kcal;
-    reg.p=(reg.p||0)+item.p;
-    reg.c=(reg.c||0)+item.c;
-    reg.g=(reg.g||0)+item.g;
-  });
-  saveMiRegistroDiario(reg);
-  document.getElementById('analisisFotoOverlay')?.remove();
-  showToast('Plato agregado al registro ✓','success');
-  renderMiNutricion();
-}
-
-// ── Alumno: Consultar IA (feedback/sugerencias) ──
-function abrirConsultaIA(){
-  const plan=nutricionPlanes[currentUser?.id];
-  const reg=getMiRegistroDiario();
-  const a=alumnos.find(x=>x.id===currentUser?.id);
-  const overlay=document.createElement('div');
-  overlay.className='modal-overlay open';
-  overlay.id='consultaIAOverlay';
-
-  var sugerencias=[
-    '¿Qué debería comer esta noche?',
-    'Analizá lo que comí hoy',
-    '¿Qué snack puedo comer antes de entrenar?',
-    'Sugerí desayunos para mi objetivo',
-    '¿Estoy comiendo suficiente proteína?'
-  ];
-
-  overlay.innerHTML='<div class="modal" style="max-width:480px">'
-    +'<div class="modal-header"><span class="modal-title">💬 Consultar IA nutricional</span>'
-    +'<button class="modal-close" onclick="document.getElementById(\'consultaIAOverlay\').remove()">×</button></div>'
-    +'<div class="modal-body" style="padding:16px">'
-    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'
-    +sugerencias.map(function(s){
-      return '<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="document.getElementById(\'inputConsultaIA\').value=\''+s.replace(/'/g,"\\'")+'\'">'+s+'</button>';
-    }).join('')
-    +'</div>'
-    +'<textarea id="inputConsultaIA" class="search-input" style="width:100%;min-height:80px;resize:vertical;line-height:1.5;box-sizing:border-box" placeholder="Escribí tu consulta nutricional..."></textarea>'
-    +'<div id="respuestaIANutricion" style="display:none;margin-top:12px;background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;color:var(--muted2);line-height:1.7;white-space:pre-wrap"></div>'
-    +'<button class="btn btn-accent" style="width:100%;margin-top:12px" onclick="enviarConsultaIA()">✨ Consultar</button>'
-    +'</div></div>';
-  overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-  setTimeout(function(){ document.getElementById('inputConsultaIA')?.focus(); },100);
-}
-
-async function enviarConsultaIA(){
-  const pregunta=(document.getElementById('inputConsultaIA')?.value||'').trim();
-  if(!pregunta){ showToast('Escribí tu consulta','error'); return; }
-  const respDiv=document.getElementById('respuestaIANutricion');
-  if(respDiv){ respDiv.style.display='block'; respDiv.innerHTML='⚙️ Pensando...'; }
-
-  const plan=nutricionPlanes[currentUser?.id];
-  const reg=getMiRegistroDiario();
-  const a=alumnos.find(x=>x.id===currentUser?.id);
-
-  var ctx='';
-  if(a) ctx+='Alumno: '+a.nombre+'. Objetivo: '+(a.objetivo||'salud general')+'. Peso: '+a.peso+'kg.';
-  if(plan) ctx+=' Plan calórico: '+plan.kcal+' kcal/día (P:'+plan.proteina+'g C:'+plan.carbos+'g G:'+plan.grasas+'g).';
-  if(reg&&reg.items&&reg.items.length) ctx+=' Hoy ya comió '+reg.kcal+' kcal: '+reg.items.map(function(i){return i.nombre;}).join(', ')+'.';
-
-  var system='Sos un nutricionista deportivo argentino, amigable y práctico. Usás términos argentinos. Respondés de forma concisa y útil, máximo 3 párrafos. No usés markdown ni asteriscos.';
-  var user=ctx+'\n\nPregunta del alumno: '+pregunta;
-
-  const resp=await llamarClaudeIA(system,user,false);
-  if(respDiv) respDiv.innerHTML=resp||'No se pudo obtener respuesta.';
-}
-
-// ══════════════════════════════════════════════
-// ══════════════════════════════════════════════
-// MI PERFIL — SISTEMA DE PERSONALIZACIÓN
-// ══════════════════════════════════════════════
-
-const MARCOS_DEFS = [
-  {id:'marco-none',      label:'Sin marco',      req:null,            preview:'border:3px solid rgba(255,255,255,.1)'},
-  {id:'marco-basico',    label:'Básico',          req:null,            preview:'border:3px solid #888'},
-  {id:'marco-fitness',   label:'Fitness',         req:{tipo:'nivel',v:10}, preview:'border:3px solid #4caf50;box-shadow:0 0 10px rgba(76,175,80,.5)'},
-  {id:'marco-elite',     label:'Elite',           req:{tipo:'nivel',v:25}, preview:'border:3px solid #4a9eff;box-shadow:0 0 10px rgba(74,158,255,.5)'},
-  {id:'marco-elite-anim',label:'Elite Giratorio', req:{tipo:'nivel',v:25}, preview:'border:3px solid #4a9eff'},
-  {id:'marco-gladiador', label:'Gladiador',       req:{tipo:'nivel',v:50}, preview:'border:3px solid #c084fc;box-shadow:0 0 12px rgba(192,132,252,.6)'},
-  {id:'marco-gladiador-anim',label:'Gladiador Anim.',req:{tipo:'nivel',v:50},preview:'border:3px solid #c084fc'},
-  {id:'marco-legendario',label:'Legendario',      req:{tipo:'nivel',v:100},preview:'border:3px solid #e8ff00;box-shadow:0 0 16px rgba(232,255,0,.7)'},
-  {id:'marco-fundador',  label:'Fundador ⭐',     req:{tipo:'logro',v:'t_fundador'}, preview:'box-shadow:0 0 0 3px gold,0 0 20px rgba(255,215,0,.8)'},
-];
-
-const EFECTOS_DEFS = [
-  {id:'',              label:'Sin efecto',  req:null},
-  {id:'efecto-llamas', label:'🔥 Llamas',   req:{tipo:'nivel',v:5}},
-  {id:'efecto-rayos',  label:'⚡ Rayos',    req:{tipo:'nivel',v:10}},
-  {id:'efecto-nieve',  label:'❄️ Nieve',    req:{tipo:'nivel',v:5}},
-  {id:'efecto-energia',label:'🌊 Energía',  req:{tipo:'nivel',v:15}},
-  {id:'efecto-velocidad',label:'💨 Velocidad',req:{tipo:'nivel',v:10}},
-  {id:'efecto-particulas',label:'🌟 Partículas',req:{tipo:'nivel',v:20}},
-  {id:'efecto-nebulosa',label:'🌌 Nebulosa', req:{tipo:'nivel',v:30}},
-  {id:'efecto-corona', label:'👑 Corona',   req:{tipo:'nivel',v:50}},
-  {id:'efecto-diamantes',label:'💎 Diamantes',req:{tipo:'nivel',v:40}},
-  {id:'efecto-meteoritos',label:'☄️ Meteoritos',req:{tipo:'nivel',v:25}},
-  {id:'efecto-fundador',label:'✨ Aura Fundador',req:{tipo:'logro',v:'t_fundador'}},
-];
-
-const FONDOS_DEFS = [
-  {id:'bg-carbono',    label:'Negro Carbono', req:null},
-  {id:'bg-acero',      label:'Acero Cepillado',req:null},
-  {id:'bg-neon-yellow',label:'Neón Amarillo', req:{tipo:'nivel',v:10}},
-  {id:'bg-neon-blue',  label:'Neón Azul',     req:{tipo:'nivel',v:10}},
-  {id:'bg-llamas',     label:'Llamas',        req:{tipo:'nivel',v:20}},
-  {id:'bg-espacio',    label:'Espacio',       req:{tipo:'nivel',v:15}},
-  {id:'bg-montanas',   label:'Montañas',      req:null},
-  {id:'bg-industrial', label:'Industrial',    req:null},
-  {id:'bg-anime',      label:'Modo Anime',    req:{tipo:'nivel',v:30}},
-  {id:'bg-cyberpunk',  label:'Cyberpunk',     req:{tipo:'nivel',v:25}},
-];
-
-const INSIGNIAS_DEFS = [
-  {id:'ins_fundador',   icon:'🚀', label:'Fundador 2026',    req:{tipo:'logro',v:'t_fundador'}},
-  {id:'ins_100atts',    icon:'💯', label:'100 Asistencias',  req:{tipo:'logro',v:'a_centurion'}},
-  {id:'ins_500atts',    icon:'🏛️', label:'500 Asistencias',  req:{tipo:'logro',v:'a_veterano'}},
-  {id:'ins_racha30',    icon:'🔥', label:'Racha 30 días',    req:{tipo:'logro',v:'a_maquina'}},
-  {id:'ins_racha90',    icon:'⚡', label:'Racha 90 días',    req:{tipo:'logro',v:'a_imparable'}},
-  {id:'ins_nivel50',    icon:'👑', label:'Nivel 50',         req:{tipo:'nivel',v:50}},
-  {id:'ins_nivel25',    icon:'⚔️', label:'Nivel 25',         req:{tipo:'nivel',v:25}},
-  {id:'ins_guerrero',   icon:'💪', label:'Señor del Hierro', req:{tipo:'logro',v:'f_10pr'}},
-  {id:'ins_campe',      icon:'🏆', label:'Maestro Entreno',  req:{tipo:'logro',v:'r_100'}},
-  {id:'ins_temporada',  icon:'🌟', label:'Campeón Temporada',req:{tipo:'logro',v:'t_guerrero_inv'}},
-];
-
-function perfilReqOk(req, nivel, logrosIds){
-  if(!req) return true;
-  if(req.tipo==='nivel') return nivel>=req.v;
-  if(req.tipo==='logro') return logrosIds.includes(req.v);
-  return false;
-}
-
-function buildAvatarHTML(cfg, avatarUrl, nombre, size){
-  size = size||96;
-  const inner = avatarUrl
-    ? '<img src="'+avatarUrl+'" alt="avatar" style="width:'+size+'px;height:'+size+'px;object-fit:cover;border-radius:50%">'
-    : '<span style="font-family:\'Bebas Neue\';font-size:'+(size*0.42)+'px">'+(nombre||'?')[0].toUpperCase()+'</span>';
-  const marco = cfg.marco||'marco-basico';
-  const efecto = cfg.efecto||'';
-  const efWrap = efecto ? '<div class="efecto-wrap"></div>' : '';
-  return '<div class="av-wrap '+marco+' '+(efecto||'')+'" style="width:'+(size+16)+'px;height:'+(size+16)+'px;display:inline-flex;align-items:center;justify-content:center">'
-    +'<div class="av-img" style="width:'+size+'px;height:'+size+'px">'+inner+'</div>'
-    +efWrap
-    +'</div>';
-}
-
-function updateSidebarAvatar(){
-  const el = document.getElementById('sideAvatar');
-  if(!el) return;
-  const a = currentUser;
-  if(!a) return;
-  if(a.avatarUrl){
-    el.innerHTML = '<img src="'+a.avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-  } else {
-    el.textContent = a.avatar||a.nombre[0];
-  }
-}
-
-function renderMiPerfil(){
-  const c = document.getElementById('miPerfilContainer');
-  if(!c) return;
-  const a = currentUser;
-  if(!a){ c.innerHTML=''; return; }
-
-  const logrosIds = getLogrosAlumno(a.id);
-  const xp = calcXP(a.id);
-  const nivel = calcNivelFromXP(xp);
-  const titulo = getTitulo(nivel, logrosIds.includes('t_fundador'));
-  const racha = calcRacha(a.id);
-  const atts = asistencias.filter(x=>x.alumnoId===a.id).length;
-  const cfg = Object.assign({marco:'marco-basico',efecto:'',fondo:'bg-carbono',insignias:[]}, a.perfilConfig||{});
-
-  // Insignias activas (max 3)
-  const insActivas = (cfg.insignias||[]).slice(0,3).map(id=>{
-    return INSIGNIAS_DEFS.find(x=>x.id===id);
-  }).filter(Boolean);
-
-  function renderTarjeta(){
-    return '<div class="perfil-card '+cfg.fondo+'" id="perfilCardPreview">'
-      +'<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.5));border-radius:20px;pointer-events:none"></div>'
-      +'<div style="position:relative;z-index:1">'
-      +buildAvatarHTML(cfg, a.avatarUrl, a.nombre, 88)
-      +'<div style="margin-top:10px;font-family:\'Bebas Neue\';font-size:26px;letter-spacing:.05em">'+a.nombre+'</div>'
-      +'<div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.08em;margin-bottom:6px">'+titulo+'</div>'
-      +'<div style="display:flex;justify-content:center;gap:16px;margin-bottom:12px">'
-      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:var(--accent)">'+nivel+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">NIVEL</div></div>'
-      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:#4a9eff">'+atts+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">ASIST.</div></div>'
-      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:#ff6b35">'+racha+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">RACHA</div></div>'
-      +'<div style="text-align:center"><div style="font-family:\'Bebas Neue\';font-size:22px;color:#c084fc">'+logrosIds.length+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">LOGROS</div></div>'
-      +'</div>'
-      +(insActivas.length?'<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap">'
-        +insActivas.map(i=>'<span class="insignia-badge">'+i.icon+' '+i.label+'</span>').join('')
-        +'</div>':'')
-      +'</div></div>';
-  }
-
-  function renderEditor(){
-    function selectorGrid(defs, currentVal, onChange, tipo){
-      return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px">'
-        +defs.map(function(d){
-          const ok = perfilReqOk(d.req, nivel, logrosIds);
-          const sel = currentVal===d.id?'selected':'';
-          const lock = ok?'':'locked';
-          const lockIcon = ok?'':'🔒 ';
-          const reqTxt = d.req
-            ? (d.req.tipo==='nivel'?'Niv.'+d.req.v:(d.req.tipo==='logro'?'Logro req.':''))
-            : '';
-          return '<div class="psel-item '+sel+' '+lock+'" '
-            +(ok?'onclick="window._perfilTmp.'+tipo+'=\''+d.id+'\';window._reRenderPerfil()"':'title="Requiere '+reqTxt+'"')+'>'
-            +(tipo==='fondo'?'<div style="width:100%;height:28px;border-radius:6px;margin-bottom:4px;'+getBgPreview(d.id)+'"></div>':'')
-            +lockIcon+d.label
-            +(d.req&&!ok?'<div style="font-size:9px;color:var(--muted);margin-top:2px">'+reqTxt+'</div>':'')
-            +'</div>';
-        }).join('')
-        +'</div>';
-    }
-
-    // Insignias editor (toggle, max 3)
-    function insGrid(){
-      const ins = cfg.insignias||[];
-      return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">'
-        +INSIGNIAS_DEFS.map(function(d){
-          const ok = perfilReqOk(d.req, nivel, logrosIds);
-          const active = ins.includes(d.id);
-          const lock = ok?'':'locked';
-          return '<div class="psel-item '+(active?'selected':'')+' '+lock+'" '
-            +(ok?'onclick="window._toggleInsignia(\''+d.id+'\')"':'title="No desbloqueado"')+'>'
-            +d.icon+' '+d.label
-            +(active?'<div style="font-size:10px;color:var(--accent);margin-top:2px">✓ Activa</div>':'')
-            +(!ok?'<div style="font-size:9px;color:var(--muted)">🔒</div>':'')
-            +'</div>';
-        }).join('')
-        +'</div>';
-    }
-
-    return '<div class="card" style="margin-bottom:16px">'
-      +'<div class="card-header"><span class="card-title">📷 Foto de perfil</span></div>'
-      +'<div class="card-body">'
-      +'<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">'
-      +buildAvatarHTML(cfg, a.avatarUrl, a.nombre, 64)
-      +'<div>'
-      +'<button class="btn btn-accent btn-sm" onclick="document.getElementById(\'inputAvatarFile\').click()">📷 Cambiar foto</button>'
-      +(a.avatarUrl?'<button class="btn btn-ghost btn-sm" style="color:var(--danger);margin-left:8px" onclick="eliminarFotoPerfil()">✕ Eliminar</button>':'')
-      +'<div style="font-size:11px;color:var(--muted2);margin-top:6px">JPG, PNG o WEBP · Recomendado 500×500px</div>'
-      +'</div></div>'
-      +'<input type="file" id="inputAvatarFile" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewYSubirAvatar(this)">'
-      +'<div id="avatarUploadStatus"></div>'
-      +'</div></div>'
-
-      +'<div class="card" style="margin-bottom:16px">'
-      +'<div class="card-header"><span class="card-title">🖼️ Marco</span></div>'
-      +'<div class="card-body">'+selectorGrid(MARCOS_DEFS, cfg.marco, null, 'marco')+'</div></div>'
-
-      +'<div class="card" style="margin-bottom:16px">'
-      +'<div class="card-header"><span class="card-title">✨ Efecto animado</span></div>'
-      +'<div class="card-body">'+selectorGrid(EFECTOS_DEFS, cfg.efecto||'', null, 'efecto')+'</div></div>'
-
-      +'<div class="card" style="margin-bottom:16px">'
-      +'<div class="card-header"><span class="card-title">🎨 Fondo de tarjeta</span></div>'
-      +'<div class="card-body">'+selectorGrid(FONDOS_DEFS, cfg.fondo||'bg-carbono', null, 'fondo')+'</div></div>'
-
-      +'<div class="card" style="margin-bottom:16px">'
-      +'<div class="card-header"><span class="card-title">🏅 Insignias (máx. 3 visibles)</span></div>'
-      +'<div class="card-body">'+insGrid()+'</div></div>'
-
-      +'<button class="btn btn-accent" style="width:100%;margin-bottom:32px" onclick="guardarPerfilConfig()">💾 Guardar perfil</button>';
-  }
-
-  function getBgPreview(id){
-    const map={
-      'bg-carbono':'background:linear-gradient(135deg,#111,#222)',
-      'bg-acero':'background:linear-gradient(135deg,#1c1c2e,#2d2d44)',
-      'bg-neon-yellow':'background:linear-gradient(135deg,#1a1a00,#333300)',
-      'bg-neon-blue':'background:linear-gradient(135deg,#000d1a,#001a33)',
-      'bg-llamas':'background:linear-gradient(135deg,#2d0a00,#4a1000)',
-      'bg-espacio':'background:linear-gradient(135deg,#000008,#050015)',
-      'bg-montanas':'background:linear-gradient(135deg,#0a0d0a,#101810)',
-      'bg-industrial':'background:linear-gradient(135deg,#0d0d0d,#1a1414)',
-      'bg-anime':'background:linear-gradient(135deg,#0d001a,#1a0033)',
-      'bg-cyberpunk':'background:linear-gradient(135deg,#0d0d00,#00001a)',
-    };
-    return map[id]||'background:#222';
-  }
-
-  // tmp config for live preview
-  window._perfilTmp = Object.assign({}, cfg);
-
-  window._reRenderPerfil = function(){
-    Object.assign(cfg, window._perfilTmp);
-    a.perfilConfig = Object.assign({}, cfg);
-    const wrap = document.getElementById('perfilCardWrap');
-    if(wrap) wrap.innerHTML = renderTarjeta();
-    // re-run editor selectors highlight
-    document.querySelectorAll('.psel-item.selected').forEach(el=>el.classList.remove('selected'));
-    // re-render whole page to refresh selections
-    renderMiPerfil();
-  };
-
-  window._toggleInsignia = function(id){
-    const ins = cfg.insignias||[];
-    const idx = ins.indexOf(id);
-    if(idx>=0){ ins.splice(idx,1); }
-    else if(ins.length<3){ ins.push(id); }
-    else { showToast('Máximo 3 insignias activas','error'); return; }
-    cfg.insignias = ins;
-    a.perfilConfig = Object.assign({}, cfg);
-    renderMiPerfil();
-  };
-
-  c.innerHTML = '<div id="perfilCardWrap">'+renderTarjeta()+'</div>'+renderEditor();
-}
-
-async function previewYSubirAvatar(input){
-  const file = input.files[0];
-  if(!file) return;
-  // Reset input so same file can be re-selected
-  input.value='';
-
-  const reader = new FileReader();
-  reader.onload = function(e){
-    abrirCropperAvatar(e.target.result, file.type||'image/jpeg');
-  };
-  reader.readAsDataURL(file);
-}
-
-function abrirCropperAvatar(dataUrl, mime){
-  // Remove existing if any
-  document.getElementById('cropperOverlay')?.remove();
-
-  const overlay = document.createElement('div');
-  overlay.id = 'cropperOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px';
-
-  overlay.innerHTML = `
-    <div style="background:var(--surface2);border-radius:16px;padding:20px;width:100%;max-width:360px">
-      <div style="font-family:'Bebas Neue';font-size:22px;margin-bottom:4px">Ajustar foto</div>
-      <div style="font-size:12px;color:var(--muted2);margin-bottom:14px">Arrastrá para centrar · Pellizco/rueda para zoom</div>
-      <div id="cropZone" style="width:260px;height:260px;border-radius:50%;overflow:hidden;margin:0 auto 16px;border:3px solid var(--accent);cursor:grab;position:relative;touch-action:none;user-select:none">
-        <img id="cropImg" src="${dataUrl}" style="position:absolute;transform-origin:0 0" draggable="false">
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <span style="font-size:18px">🔍</span>
-        <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" style="flex:1;accent-color:var(--accent)">
-        <span style="font-size:18px">🔎</span>
-      </div>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('cropperOverlay').remove()">Cancelar</button>
-        <button class="btn btn-accent" style="flex:1" onclick="confirmarCrop('${mime}')">✓ Usar foto</button>
-      </div>
-    </div>`;
-
-  document.body.appendChild(overlay);
-  iniciarCropper();
-}
-
-function iniciarCropper(){
-  const zone = document.getElementById('cropZone');
-  const img  = document.getElementById('cropImg');
-  const zoomSlider = document.getElementById('cropZoom');
-  if(!zone||!img) return;
-
-  const ZONE = 260; // px del círculo en pantalla
-  let state = {x:0, y:0, zoom:1, dragging:false, lastX:0, lastY:0, natW:0, natH:0, minZoom:1};
-
-  function initState(){
-    state.natW = img.naturalWidth;
-    state.natH = img.naturalHeight;
-    if(!state.natW || !state.natH) return;
-    // zoom mínimo: la imagen llena el círculo
-    const minZ = ZONE / Math.min(state.natW, state.natH);
-    state.minZoom = minZ;
-    state.zoom = minZ;
-    zoomSlider.min   = minZ;
-    zoomSlider.max   = minZ * 4;
-    zoomSlider.step  = minZ * 0.01;
-    zoomSlider.value = minZ;
-    // centrar
-    state.x = (ZONE - state.natW * state.zoom) / 2;
-    state.y = (ZONE - state.natH * state.zoom) / 2;
-    clamp(state);
-    applyTransform();
-  }
-
-  function applyTransform(){
-    img.style.width  = (state.natW * state.zoom) + 'px';
-    img.style.height = (state.natH * state.zoom) + 'px';
-    img.style.left   = state.x + 'px';
-    img.style.top    = state.y + 'px';
-  }
-
-  function clamp(s){
-    const w = s.natW * s.zoom, h = s.natH * s.zoom;
-    if(s.x > 0) s.x = 0;
-    if(s.y > 0) s.y = 0;
-    if(s.x + w < ZONE) s.x = ZONE - w;
-    if(s.y + h < ZONE) s.y = ZONE - h;
-  }
-
-  // Esperar que cargue — usar ambos métodos para mayor compatibilidad
-  if(img.complete && img.naturalWidth > 0){
-    initState();
-  } else {
-    img.onload = initState;
-  }
-
-  // Mouse
-  zone.addEventListener('mousedown', e=>{
-    state.dragging=true; state.lastX=e.clientX; state.lastY=e.clientY;
-    zone.style.cursor='grabbing'; e.preventDefault();
-  });
-  window.addEventListener('mousemove', e=>{
-    if(!state.dragging) return;
-    state.x += e.clientX - state.lastX;
-    state.y += e.clientY - state.lastY;
-    state.lastX=e.clientX; state.lastY=e.clientY;
-    clamp(state); applyTransform();
-  });
-  window.addEventListener('mouseup', ()=>{ state.dragging=false; zone.style.cursor='grab'; });
-
-  // Touch
-  let lastTouchDist=0, lastTouchX=0, lastTouchY=0;
-  zone.addEventListener('touchstart', e=>{
-    e.preventDefault();
-    if(e.touches.length===1){
-      state.dragging=true;
-      lastTouchX=e.touches[0].clientX; lastTouchY=e.touches[0].clientY;
-    } else if(e.touches.length===2){
-      state.dragging=false;
-      lastTouchDist=Math.hypot(
-        e.touches[0].clientX-e.touches[1].clientX,
-        e.touches[0].clientY-e.touches[1].clientY
-      );
-    }
-  },{passive:false});
-  zone.addEventListener('touchmove', e=>{
-    e.preventDefault();
-    if(e.touches.length===1 && state.dragging){
-      const dx=e.touches[0].clientX-lastTouchX, dy=e.touches[0].clientY-lastTouchY;
-      state.x+=dx; state.y+=dy;
-      lastTouchX=e.touches[0].clientX; lastTouchY=e.touches[0].clientY;
-      clamp(state); applyTransform();
-    } else if(e.touches.length===2){
-      const dist=Math.hypot(
-        e.touches[0].clientX-e.touches[1].clientX,
-        e.touches[0].clientY-e.touches[1].clientY
-      );
-      const ratio = dist / lastTouchDist;
-      const newZoom = Math.max(state.minZoom, Math.min(parseFloat(zoomSlider.max), state.zoom * ratio));
-      // zoom hacia el centro del círculo
-      const cx=ZONE/2, cy=ZONE/2;
-      state.x = cx - (cx - state.x) * (newZoom / state.zoom);
-      state.y = cy - (cy - state.y) * (newZoom / state.zoom);
-      state.zoom = newZoom;
-      zoomSlider.value = newZoom;
-      lastTouchDist = dist;
-      clamp(state); applyTransform();
-    }
-  },{passive:false});
-  zone.addEventListener('touchend', ()=>{ state.dragging=false; });
-
-  // Wheel zoom
-  zone.addEventListener('wheel', e=>{
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.05 : 0.05;
-    const newZoom = Math.max(state.minZoom, Math.min(parseFloat(zoomSlider.max), state.zoom + state.minZoom * delta * 10));
-    const cx=ZONE/2, cy=ZONE/2;
-    state.x = cx - (cx - state.x) * (newZoom / state.zoom);
-    state.y = cy - (cy - state.y) * (newZoom / state.zoom);
-    state.zoom = newZoom;
-    zoomSlider.value = newZoom;
-    clamp(state); applyTransform();
-  },{passive:false});
-
-  // Slider zoom
-  zoomSlider.addEventListener('input', ()=>{
-    const newZoom = parseFloat(zoomSlider.value);
-    const cx=ZONE/2, cy=ZONE/2;
-    state.x = cx - (cx - state.x) * (newZoom / state.zoom);
-    state.y = cy - (cy - state.y) * (newZoom / state.zoom);
-    state.zoom = newZoom;
-    clamp(state); applyTransform();
-  });
-
-  window._cropState = state;
-  window._cropImg   = img;
-  window._cropZone  = ZONE;
-}
-
-async function confirmarCrop(mime){
-  const state = window._cropState;
-  const img   = window._cropImg;
-  const ZONE  = window._cropZone || 260;
-  if(!state||!img) return;
-
-  // Escala: el canvas final es 500px, la zona visible es ZONE px
-  // state.x, state.y son offsets de la imagen dentro de la zona (en px de pantalla)
-  // Para obtener qué parte de la imagen original cae en el círculo:
-  // origen en imagen original = -state.x / state.zoom, -state.y / state.zoom
-  // tamaño del recorte en imagen original = ZONE / state.zoom
-  const OUTPUT = 500;
-  const srcX = -state.x / state.zoom;
-  const srcY = -state.y / state.zoom;
-  const srcSize = ZONE / state.zoom;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = OUTPUT; canvas.height = OUTPUT;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, srcX, srcY, srcSize, srcSize, 0, 0, OUTPUT, OUTPUT);
-
-  document.getElementById('cropperOverlay')?.remove();
-
-  const status = document.getElementById('avatarUploadStatus');
-  if(status) status.innerHTML='<div style="font-size:12px;color:var(--muted2);margin-top:8px">⚙️ Subiendo foto...</div>';
-
-  try{
-    const blob = await new Promise(res=>canvas.toBlob(res,'image/jpeg',.9));
-    const path = currentUser.id+'/avatar.jpg';
-    const {error:upErr} = await sb.storage.from('avatares').upload(path, blob, {upsert:true, contentType:'image/jpeg'});
-    if(upErr) throw upErr;
-
-    const {data:urlData} = sb.storage.from('avatares').getPublicUrl(path);
-    const url = urlData.publicUrl+'?t='+Date.now();
-
-    await sb.from('perfiles').update({avatar_url:url}).eq('id',currentUser.id);
-    currentUser.avatarUrl = url;
-    const idx = alumnos.findIndex(x=>x.id===currentUser.id);
-    if(idx>=0) alumnos[idx].avatarUrl = url;
-
-    updateSidebarAvatar();
-    if(status) status.innerHTML='<div style="font-size:12px;color:var(--accent);margin-top:8px">✓ Foto actualizada</div>';
-    setTimeout(()=>renderMiPerfil(), 300);
-  }catch(e){
-    if(status) status.innerHTML='<div style="font-size:12px;color:var(--danger);margin-top:8px">Error: '+e.message+'</div>';
-    console.error('Avatar upload error:',e);
-  }
-}
-
-async function eliminarFotoPerfil(){
-  if(!confirm('¿Eliminar tu foto de perfil?')) return;
-  try{
-    await sb.storage.from('avatares').remove([currentUser.id+'/avatar.jpg']);
-    await sb.from('perfiles').update({avatar_url:null}).eq('id',currentUser.id);
-    currentUser.avatarUrl='';
-    const idx=alumnos.findIndex(x=>x.id===currentUser.id);
-    if(idx>=0) alumnos[idx].avatarUrl='';
-    updateSidebarAvatar();
-    renderMiPerfil();
-    showToast('Foto eliminada','success');
-  }catch(e){ showToast('Error al eliminar foto','error'); }
-}
-
-async function guardarPerfilConfig(){
-  const cfg = currentUser.perfilConfig||{};
-  try{
-    await sb.from('perfiles').update({perfil_config:cfg}).eq('id',currentUser.id);
-    const idx=alumnos.findIndex(x=>x.id===currentUser.id);
-    if(idx>=0) alumnos[idx].perfilConfig=cfg;
-    updateSidebarAvatar();
-    showToast('Perfil guardado ✓','success');
-  }catch(e){ showToast('Error al guardar: '+e.message,'error'); }
-}
-
 // MAPA MUSCULAR
 // ══════════════════════════════════════════════
 
@@ -6815,58 +5239,6 @@ function marcarEjercicioCompletado(exId){
   const key='ejercicios_completados_'+currentUser?.id+'_'+todayStr;
   const lista=JSON.parse(localStorage.getItem(key)||'[]');
   if(!lista.includes(exId)){ lista.push(exId); localStorage.setItem(key,JSON.stringify(lista)); }
-}
-
-function openRegistroFisico(){
-  const hoy=new Date().toISOString().split('T')[0];
-  const rfFecha=document.getElementById('rfFecha');
-  if(rfFecha) rfFecha.value=hoy;
-  // Pre-fill with current weight if available
-  const a=alumnos.find(x=>x.id===currentUser?.id);
-  if(a&&a.peso){ const el=document.getElementById('rfPeso'); if(el&&!el.value) el.value=a.peso; }
-  openModal('modalFisico');
-}
-
-async function saveRegistroFisico(){
-  const peso=parseFloat(document.getElementById('rfPeso')?.value)||0;
-  const grasa=parseFloat(document.getElementById('rfGrasa')?.value)||0;
-  const pecho=parseFloat(document.getElementById('rfPecho')?.value)||0;
-  const cintura=parseFloat(document.getElementById('rfCintura')?.value)||0;
-  const cadera=parseFloat(document.getElementById('rfCadera')?.value)||0;
-  const brazo=parseFloat(document.getElementById('rfBrazo')?.value)||0;
-  const muslo=parseFloat(document.getElementById('rfMuslo')?.value)||0;
-  const fecha=document.getElementById('rfFecha')?.value||new Date().toISOString().split('T')[0];
-  if(!peso&&!grasa&&!pecho){ showToast('Ingresá al menos una medida','error'); return; }
-  const medida={fecha,peso,grasa,pecho,cintura,cadera,brazo,muslo};
-  try{
-    showLoadingOverlay('Guardando medidas...');
-    const{error}=await sb.from('medidas_fisicas').insert({
-      alumno_id:currentUser.id,fecha,peso:peso||null,grasa_corporal:grasa||null,
-      pecho:pecho||null,cintura:cintura||null,cadera:cadera||null,brazo:brazo||null,muslo:muslo||null
-    });
-    hideLoadingOverlay();
-    if(error) throw error;
-    closeModal('modalFisico');
-    showToast('Medidas guardadas ✓','success');
-    // Update local weight on profile if changed
-    if(peso){
-      const idx=alumnos.findIndex(x=>x.id===currentUser.id);
-      if(idx>=0){ alumnos[idx].peso=peso; }
-    }
-  }catch(e){
-    hideLoadingOverlay();
-    // Silently save to localStorage as fallback
-    try{
-      const key='medidas_'+currentUser.id;
-      const existing=JSON.parse(localStorage.getItem(key)||'[]');
-      existing.push(medida);
-      localStorage.setItem(key,JSON.stringify(existing));
-      closeModal('modalFisico');
-      showToast('Medidas guardadas localmente ✓','success');
-    }catch(le){
-      showToast('Error al guardar medidas','error');
-    }
-  }
 }
 
 function renderMiProgreso(){
@@ -6996,117 +5368,28 @@ function renderMisLogros(){
   const c=document.getElementById('page-mis-logros');
   if(!c) return;
   const a=currentUser;
+  const desbloqueados=a?checkLogros(a):[];
   const atts=a?asistencias.filter(x=>x.alumnoId===a.id).length:0;
   const racha=a?calcRacha(a.id):0;
-  const xp=a?calcXP(a.id):0;
-  const nivel=calcNivelFromXP(xp);
-  const desbIds=new Set(getLogrosAlumno(a?.id||''));
-  const titulo=getTitulo(nivel, desbIds.has('t_fundador'));
-  const totalXPLogros=Array.from(desbIds).reduce((s,lid)=>{
-    const l=LOGROS_DEFS.find(x=>x.id===lid);
-    return s+(l?RAREZA_XP[l.rareza]||10:10);
-  },0);
 
-  const CATS=[
-    {id:'todos',     label:'Todos'},
-    {id:'asistencia',label:'🏃 Asistencia'},
-    {id:'fuerza',    label:'💪 Fuerza'},
-    {id:'nutricion', label:'🥗 Nutrición'},
-    {id:'progreso',  label:'📸 Progreso'},
-    {id:'rutinas',   label:'📋 Rutinas'},
-    {id:'especiales',label:'⭐ Especiales'},
-    {id:'temporada', label:'🏅 Temporadas'},
-    {id:'nivel',     label:'🎮 Nivel'},
-  ];
+  // Mostrar todos los logros posibles, marcando cuáles están desbloqueados
+  const items=LOGROS_DEFS.map(l=>{
+    const ok=desbloqueados.find(d=>d.id===l.id);
+    return `<div class="card" style="text-align:center;padding:20px 12px;opacity:${ok?1:.4};transition:opacity .3s">
+      <div style="font-size:40px;margin-bottom:8px">${l.icon}</div>
+      <div style="font-size:13px;font-weight:700">${l.nombre}</div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:4px">${l.desc}</div>
+      ${ok?'<div style="font-size:11px;color:var(--accent);margin-top:8px;font-weight:700">✓ Desbloqueado</div>':'<div style="font-size:11px;color:var(--muted2);margin-top:8px">🔒 Bloqueado</div>'}
+    </div>`;
+  }).join('');
 
-  const filterState={cat:'todos'};
-  window._logrosFilter=filterState;
-
-  function renderGrid(cat){
-    const lista = LOGROS_DEFS.filter(l=>cat==='todos'||l.cat===cat);
-    const desbloqueados = lista.filter(l=>desbIds.has(l.id));
-    const bloqueados    = lista.filter(l=>!desbIds.has(l.id));
-    const renderCard=function(l,ok){
-      const r=RAREZA_CFG[l.rareza]||RAREZA_CFG.comun;
-      const xpVal=RAREZA_XP[l.rareza]||10;
-      return '<div style="background:var(--surface2);border:1px solid '+(ok?r.color:'var(--border2)')+
-        ';border-radius:14px;padding:16px 12px;text-align:center;opacity:'+(ok?1:.45)+
-        ';transition:all .3s;position:relative;'+(ok?'box-shadow:0 0 16px '+r.glow:'')+'">'+
-        (l.temporada?'<div style="position:absolute;top:6px;right:6px;font-size:9px;color:'+r.color+';font-weight:700;letter-spacing:.05em">'+l.temporada.split(' ')[0].toUpperCase()+'</div>':'')+
-        '<div style="font-size:36px;margin-bottom:8px">'+l.icon+'</div>'+
-        '<div style="font-size:12px;font-weight:700;line-height:1.3">'+l.nombre+'</div>'+
-        '<div style="font-size:10px;color:var(--muted2);margin-top:4px;line-height:1.4">'+l.desc+'</div>'+
-        '<div style="margin-top:8px;display:flex;justify-content:center;align-items:center;gap:6px">'+
-        '<span style="font-size:10px;font-weight:700;color:'+r.color+'">'+r.badge+' '+r.label.toUpperCase()+'</span>'+
-        '</div>'+
-        '<div style="font-size:11px;color:'+(ok?r.color:'var(--muted)')+';margin-top:4px;font-weight:600">'+
-        (ok?'✓ +'+xpVal+' XP':'🔒 '+xpVal+' XP')+
-        '</div></div>';
-    };
-    let html='';
-    if(desbloqueados.length){
-      html+='<div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:10px;margin-top:4px">✓ DESBLOQUEADOS ('+desbloqueados.length+')</div>';
-      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:20px">';
-      html+=desbloqueados.map(l=>renderCard(l,true)).join('');
-      html+='</div>';
-    }
-    if(bloqueados.length){
-      html+='<div style="font-size:11px;font-weight:700;color:var(--muted2);letter-spacing:.08em;margin-bottom:10px">🔒 BLOQUEADOS ('+bloqueados.length+')</div>';
-      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px">';
-      html+=bloqueados.map(l=>renderCard(l,false)).join('');
-      html+='</div>';
-    }
-    if(!lista.length) html='<div style="color:var(--muted2);text-align:center;padding:32px">Sin logros en esta categoría</div>';
-    document.getElementById('logrosGrid').innerHTML=html;
-  }
-
-  const xpPct=Math.min(100,(xp%(nivel*100))/(nivel*100)*100)||0;
-
-  c.innerHTML=`
-    <div class="page-header"><div class="ph-left">
-      <div class="page-title">Mis <span>Logros</span></div>
-      <div class="page-sub">XP, rarezas y temporadas</div>
-    </div></div>
-
-    <!-- Perfil XP -->
-    <div class="card mb16" style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border2)">
-      <div class="card-body" style="padding:20px">
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-          <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;font-family:'Bebas Neue';color:#000;flex-shrink:0">${nivel}</div>
-          <div style="flex:1;min-width:160px">
-            <div style="font-family:'Bebas Neue';font-size:22px;letter-spacing:.05em">${a.nombre}</div>
-            <div style="font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.08em">${titulo}</div>
-            <div class="xp-bar-track" style="margin-top:8px"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
-            <div style="font-size:11px;color:var(--muted2);margin-top:4px">${xp} XP total · Nivel ${nivel}</div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <div style="text-align:center;background:var(--surface);border-radius:10px;padding:10px 14px">
-              <div style="font-family:'Bebas Neue';font-size:24px;color:var(--accent)">${desbIds.size}</div>
-              <div style="font-size:10px;color:var(--muted2)">Logros</div>
-            </div>
-            <div style="text-align:center;background:var(--surface);border-radius:10px;padding:10px 14px">
-              <div style="font-family:'Bebas Neue';font-size:24px;color:var(--info)">${atts}</div>
-              <div style="font-size:10px;color:var(--muted2)">Asistencias</div>
-            </div>
-            <div style="text-align:center;background:var(--surface);border-radius:10px;padding:10px 14px">
-              <div style="font-family:'Bebas Neue';font-size:24px;color:var(--orange)">${racha}</div>
-              <div style="font-size:10px;color:var(--muted2)">Racha</div>
-            </div>
-          </div>
-        </div>
-      </div>
+  c.innerHTML=`<div class="page-header"><div class="ph-left"><div class="page-title">Mis <span>Logros</span></div></div></div>
+    <div style="display:flex;gap:12px;margin-bottom:20px">
+      <div class="stat-card"><span class="stat-icon">🏆</span><div class="stat-num c-accent">${desbloqueados.length}</div><div class="stat-label">Desbloqueados</div></div>
+      <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-num c-green">${atts}</div><div class="stat-label">Asistencias</div></div>
+      <div class="stat-card"><span class="stat-icon">🔥</span><div class="stat-num c-blue">${racha}</div><div class="stat-label">Racha</div></div>
     </div>
-
-    <!-- Filtros -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
-      ${CATS.map(cat=>`<button id="fcat-${cat.id}" class="btn btn-sm ${cat.id==='todos'?'btn-accent':'btn-ghost'}" onclick="window._logrosFilter.cat='${cat.id}';document.querySelectorAll('[id^=fcat-]').forEach(b=>b.className='btn btn-sm btn-ghost');this.className='btn btn-sm btn-accent';renderLogrosGrid('${cat.id}')">${cat.label}</button>`).join('')}
-    </div>
-
-    <!-- Grid -->
-    <div id="logrosGrid"></div>`;
-
-  window.renderLogrosGrid=renderGrid;
-  renderGrid('todos');
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px">${items}</div>`;
 }
 
 function applyMuscleStates(hoy, semana, muscHoy){
@@ -7381,8 +5664,6 @@ function renderConfiguracion(){
   document.getElementById('prevNombre1').textContent=gymConfig.nombre1;
   document.getElementById('prevNombre2').textContent=gymConfig.nombre2;
   applyAccent(gymConfig.accent);
-  const keyInput=document.getElementById('cfgAnthropicKey');
-  if(keyInput) keyInput.value=gymConfig.anthropic_key||'';
 }
 
 function saveConfig(){
@@ -7402,16 +5683,6 @@ function saveAdminPass(){
   gymConfig.adminPass=p1;dbSaveGymConfig();
   document.getElementById('cfgPass1').value='';document.getElementById('cfgPass2').value='';
   showToast('Contraseña actualizada ✓','success');
-}
-
-function saveAnthropicKey(){
-  if(currentUser?.role!=='admin'){showToast('Solo admins pueden hacer esto','error');return;}
-  const k=(document.getElementById('cfgAnthropicKey')?.value||'').trim();
-  if(!k){showToast('Ingresá la API key','error');return;}
-  if(!k.startsWith('sk-ant-')){showToast('La key debe empezar con sk-ant-','error');return;}
-  gymConfig.anthropic_key=k;
-  dbSaveGymConfig();
-  showToast('API key guardada ✓','success');
 }
 
 function setAccent(color){
