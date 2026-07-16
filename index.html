@@ -1419,7 +1419,7 @@ if("serviceWorker" in navigator){
         </div>
         <div class="form-group"><label>Frecuencia semanal</label>
           <select id="fFrecuencia">
-            <option value="7">Todos los días (7x)</option>
+            <option value="6">Todos los días hábiles (6x)</option>
             <option value="5">5 veces por semana</option>
             <option value="4">4 veces por semana</option>
             <option value="3" selected>3 veces por semana</option>
@@ -2672,13 +2672,13 @@ function renderDashboard(){
   const proxVenc=pagos.filter(p=>{const d=daysUntil(p.vencimiento);return d!==null&&d>=0&&d<=7});
   const rutinasVencenPronto=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d>=0&&d<=7;}).length;
   const rutinasVencidas=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d<0;}).length;
-  const totalReloj=proxVenc.length+rutinasVencenPronto;
   document.getElementById('dashStats').innerHTML=`
     <div class="stat-card c-yellow" style="cursor:pointer" onclick="navigateTo('alumnos')"><span class="stat-icon">👥</span><div class="stat-num c-yellow">${activos.length}</div><div class="stat-label">Alumnos activos</div></div>
     <div class="stat-card c-green" style="cursor:pointer" onclick="navigateTo('asistencia')"><span class="stat-icon">✅</span><div class="stat-num c-green">${hoy.length}</div><div class="stat-label">Asistencias hoy</div></div>
     <div class="stat-card c-orange" style="cursor:pointer" onclick="navigateTo('rutinas')"><span class="stat-icon">📋</span><div class="stat-num c-orange">${rutinas.length}</div><div class="stat-label">Rutinas</div></div>
     <div class="stat-card c-red" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">💳</span><div class="stat-num c-red">${vencidos.length}</div><div class="stat-label">Pagos vencidos</div></div>
-    <div class="stat-card c-blue" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${totalReloj}</div><div class="stat-label">Vencen pronto</div></div>
+    <div class="stat-card c-blue" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${proxVenc.length}</div><div class="stat-label">Pagos próximos</div></div>
+    <div class="stat-card" style="cursor:pointer;--before-color:#a78bfa" onclick="navigateTo('alumnos')"><span class="stat-icon">🔄</span><div class="stat-num" style="color:#a78bfa">${rutinasVencenPronto+rutinasVencidas}</div><div class="stat-label">Rutinas a cambiar</div></div>
   `;
   setTimeout(()=>drawDashChart(),60);
   const alerts=[];
@@ -2780,8 +2780,8 @@ function calcRacha(alumnoId){
   var alumno=alumnos.find(function(a){return a.id===alumnoId;});
   var frecuencia=alumno?.frecuencia||7; // días por semana que viene
 
-  if(frecuencia>=7){
-    // Racha diaria: tiene que venir todos los días
+  if(frecuencia>=6){
+    // Racha diaria: tiene que venir todos los días hábiles (lunes a sábado)
     var racha=0;
     var d=new Date(today);
     for(var i=0;i<365;i++){
@@ -3074,7 +3074,7 @@ async function loadDiasCerrados(){
 }
 
 function esDiaCerrado(fechaStr){
-  // Domingo = cerrado siempre
+  // Domingo = cerrado (gym abre lunes a sábado)
   var d = new Date(fechaStr+'T12:00');
   if(d.getDay()===0) return true;
   return diasCerrados.some(dc=>dc.fecha===fechaStr);
