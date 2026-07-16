@@ -1417,6 +1417,16 @@ if("serviceWorker" in navigator){
         <div class="form-group"><label>Nivel fitness</label>
           <select id="fNivel"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option></select>
         </div>
+        <div class="form-group"><label>Frecuencia semanal</label>
+          <select id="fFrecuencia">
+            <option value="7">Todos los días (7x)</option>
+            <option value="5">5 veces por semana</option>
+            <option value="4">4 veces por semana</option>
+            <option value="3" selected>3 veces por semana</option>
+            <option value="2">2 veces por semana</option>
+            <option value="1">1 vez por semana</option>
+          </select>
+        </div>
         <div class="form-group form-full">
           <label>Lesiones / restricciones</label>
           <div id="lesionesBuilder" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px">
@@ -1683,7 +1693,13 @@ if("serviceWorker" in navigator){
 // DATA STORE
 // ══════════════════════════════════════════════
 const today = new Date();
-const todayStr = today.toISOString().split('T')[0];
+// Fecha en hora Argentina (UTC-3) — evita que después de las 21hs cuente como el día siguiente
+function getArgentinaDateStr(d){
+  const ar = new Date(d.getTime() - (d.getTimezoneOffset() * 60000) + (-180 - (-d.getTimezoneOffset())) * 60000);
+  // Usamos toLocaleString con timezone explícito para máxima precisión
+  return new Date(d.toLocaleString('en-US', {timeZone:'America/Argentina/Buenos_Aires'})).toISOString().split('T')[0];
+}
+const todayStr = getArgentinaDateStr(today);
 
 // Detectar QR en URL al cargar (antes del login)
 window.addEventListener('load', async ()=>{
@@ -1886,6 +1902,7 @@ function mapPerfil(r){
     cambioRutina:r.cambio_rutina||'',objetivo:r.objetivo||'',
     nivel:r.nivel||'Principiante',sexo:r.sexo||'',lesiones:r.lesiones||'',
     notas:r.notas_privadas||'',peso:r.peso||0,altura:r.altura||0,
+    frecuencia:r.frecuencia_semanal||3,
     avatarUrl:r.avatar_url||'',
     perfilConfig:r.perfil_config||{},
     historialMedidas:[],prs:{}};
@@ -1950,6 +1967,7 @@ async function dbSaveAlumno(data, editingId){
       altura:data.altura||null,
       rol:'alumno',
       tiene_cuenta:true,
+      frecuencia_semanal:data.frecuencia||3,
     };
     const{error:perfError}=await sb.from('perfiles').upsert(row,{onConflict:'id'});
     if(perfError)throw perfError;
@@ -1984,6 +2002,7 @@ async function dbSaveAlumno(data, editingId){
       peso:data.peso||null,
       altura:data.altura||null,
       rol:'alumno',
+      frecuencia_semanal:data.frecuencia||3,
     };
     const{error}=await sb.from('perfiles').update(row).eq('id',editingId);
     if(error)throw error;
@@ -2017,14 +2036,15 @@ async function dbDeleteRutina(id){
 // ── CRUD ASISTENCIAS ────────────────────────────
 async function dbMarcarAsistencia(alumnoId){
   const now=new Date();
-  const hora=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const hora=now.toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires',hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','').trim();
+  const fechaHoy=getArgentinaDateStr(now);
   const{data:r,error}=await sb.from('asistencias')
-    .upsert({alumno_id:alumnoId,fecha:todayStr,hora:hora},{onConflict:'alumno_id,fecha'})
+    .upsert({alumno_id:alumnoId,fecha:fechaHoy,hora:hora},{onConflict:'alumno_id,fecha'})
     .select().single();
   if(error&&error.code!=='23505')throw error;
   // Update cache
-  const existing=asistencias.find(a=>a.alumnoId===alumnoId&&a.fecha===todayStr);
-  if(!existing)asistencias.push({id:r?.id||'local',alumnoId,fecha:todayStr,hora});
+  const existing=asistencias.find(a=>a.alumnoId===alumnoId&&a.fecha===fechaHoy);
+  if(!existing)asistencias.push({id:r?.id||'local',alumnoId,fecha:fechaHoy,hora});
   return hora;
 }
 
@@ -2654,11 +2674,11 @@ function renderDashboard(){
   const rutinasVencidas=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d<0;}).length;
   const totalReloj=proxVenc.length+rutinasVencenPronto;
   document.getElementById('dashStats').innerHTML=`
-    <div class="stat-card c-yellow"><span class="stat-icon">👥</span><div class="stat-num c-yellow">${activos.length}</div><div class="stat-label">Alumnos activos</div></div>
-    <div class="stat-card c-green"><span class="stat-icon">✅</span><div class="stat-num c-green">${hoy.length}</div><div class="stat-label">Asistencias hoy</div></div>
-    <div class="stat-card c-orange"><span class="stat-icon">📋</span><div class="stat-num c-orange">${rutinas.length}</div><div class="stat-label">Rutinas</div></div>
-    <div class="stat-card c-red"><span class="stat-icon">💳</span><div class="stat-num c-red">${vencidos.length}</div><div class="stat-label">Pagos vencidos</div></div>
-    <div class="stat-card c-blue"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${totalReloj}</div><div class="stat-label">Vencen pronto</div></div>
+    <div class="stat-card c-yellow" style="cursor:pointer" onclick="navigateTo('alumnos')"><span class="stat-icon">👥</span><div class="stat-num c-yellow">${activos.length}</div><div class="stat-label">Alumnos activos</div></div>
+    <div class="stat-card c-green" style="cursor:pointer" onclick="navigateTo('asistencia')"><span class="stat-icon">✅</span><div class="stat-num c-green">${hoy.length}</div><div class="stat-label">Asistencias hoy</div></div>
+    <div class="stat-card c-orange" style="cursor:pointer" onclick="navigateTo('rutinas')"><span class="stat-icon">📋</span><div class="stat-num c-orange">${rutinas.length}</div><div class="stat-label">Rutinas</div></div>
+    <div class="stat-card c-red" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">💳</span><div class="stat-num c-red">${vencidos.length}</div><div class="stat-label">Pagos vencidos</div></div>
+    <div class="stat-card c-blue" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${totalReloj}</div><div class="stat-label">Vencen pronto</div></div>
   `;
   setTimeout(()=>drawDashChart(),60);
   const alerts=[];
@@ -2757,16 +2777,54 @@ function filterAlumnoEstado(v){filterEstadoVal=v;renderAlumnos()}
 
 function calcRacha(alumnoId){
   var atts=asistencias.filter(function(x){return x.alumnoId===alumnoId;}).map(function(x){return x.fecha;});
-  var racha=0;
-  var d=new Date(today);
-  for(var i=0;i<365;i++){
-    var ds=d.toISOString().split('T')[0];
-    if(esDiaCerrado(ds)){d.setDate(d.getDate()-1);continue;}
-    if(atts.includes(ds)) racha++;
-    else if(ds<todayStr) break;
-    d.setDate(d.getDate()-1);
+  var alumno=alumnos.find(function(a){return a.id===alumnoId;});
+  var frecuencia=alumno?.frecuencia||7; // días por semana que viene
+
+  if(frecuencia>=7){
+    // Racha diaria: tiene que venir todos los días
+    var racha=0;
+    var d=new Date(today);
+    for(var i=0;i<365;i++){
+      var ds=d.toISOString().split('T')[0];
+      if(esDiaCerrado(ds)){d.setDate(d.getDate()-1);continue;}
+      if(atts.includes(ds)) racha++;
+      else if(ds<todayStr) break;
+      d.setDate(d.getDate()-1);
+    }
+    return racha;
+  } else {
+    // Racha semanal: cuenta semanas en que cumplió la frecuencia mínima
+    // Agrupamos asistencias por semana (lunes a domingo)
+    function getWeekKey(dateStr){
+      var d=new Date(dateStr+'T12:00');
+      var day=d.getDay()||7; // 1=lunes, 7=domingo
+      var lunes=new Date(d);lunes.setDate(d.getDate()-(day-1));
+      return lunes.toISOString().split('T')[0];
+    }
+    var semanas={};
+    atts.forEach(function(f){
+      var wk=getWeekKey(f);
+      semanas[wk]=(semanas[wk]||0)+1;
+    });
+    // Racha de semanas consecutivas cumpliendo la frecuencia
+    var racha=0;
+    var d=new Date(today);
+    var day=d.getDay()||7;
+    var lunesActual=new Date(d);lunesActual.setDate(d.getDate()-(day-1));
+    for(var i=0;i<52;i++){
+      var lunesStr=lunesActual.toISOString().split('T')[0];
+      var count=semanas[lunesStr]||0;
+      // La semana actual puede no estar completa aún — la contamos si ya cumplió
+      if(count>=frecuencia){
+        racha++;
+      } else if(lunesStr<todayStr.substring(0,7)+'-01'||i>0){
+        // Semana pasada y no cumplió → racha rota
+        break;
+      }
+      lunesActual.setDate(lunesActual.getDate()-7);
+    }
+    return racha;
   }
-  return racha;
 }
 function openNewAlumno(){
   editingAlumnoId=null;
@@ -2777,6 +2835,7 @@ function openNewAlumno(){
   document.getElementById('fEstado').value='activo';
   document.getElementById('fNacimiento').value='';
   if(document.getElementById('fSexo'))document.getElementById('fSexo').value='';
+  if(document.getElementById('fFrecuencia'))document.getElementById('fFrecuencia').value='3';
   document.getElementById('fInicio').value=todayStr;
   populateRutinaSelect('fRutina','');
   switchModalTab('alumno',0);
@@ -2806,6 +2865,7 @@ function editAlumno(id){
   if(document.getElementById('fSexo'))document.getElementById('fSexo').value=a.sexo||'';
   if(document.getElementById('fObjetivo'))document.getElementById('fObjetivo').value=a.objetivo||'';
   if(document.getElementById('fNivel'))document.getElementById('fNivel').value=a.nivel||'Principiante';
+  if(document.getElementById('fFrecuencia'))document.getElementById('fFrecuencia').value=a.frecuencia||'3';
   populateRutinaSelect('fRutina',a.rutinaId);
   switchModalTab('alumno',0);
   openModal('modalAlumno');
@@ -2837,6 +2897,7 @@ async function saveAlumno(){
     sexo:document.getElementById('fSexo')?.value||'',
     objetivo:document.getElementById('fObjetivo')?.value||'',
     nivel:document.getElementById('fNivel')?.value||'Principiante',
+    frecuencia:parseInt(document.getElementById('fFrecuencia')?.value||'3'),
   };
   showLoadingOverlay('Guardando alumno...');
   try{
