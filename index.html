@@ -2676,8 +2676,8 @@ function renderDashboard(){
   const activos=alumnos.filter(a=>a.estado==='activo');
   const vencidos=pagos.filter(p=>{const d=daysUntil(p.vencimiento);return d!==null&&d<0});
   const proxVenc=pagos.filter(p=>{const d=daysUntil(p.vencimiento);return d!==null&&d>=0&&d<=7});
-  const rutinasVencenPronto=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d>=0&&d<=7;}).length;
-  const rutinasVencidas=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d<0;}).length;
+  const rutinasVencenPronto=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d>=0&&d<=7&&a.estado==='activo';}).length;
+  const rutinasVencidas=activos.filter(a=>{const d=daysUntil(a.cambioRutina);return d!==null&&d<0&&a.estado==='activo';}).length;
   document.getElementById('dashStats').innerHTML=`
     <div class="stat-card c-yellow" style="cursor:pointer" onclick="navigateTo('alumnos')"><span class="stat-icon">👥</span><div class="stat-num c-yellow">${activos.length}</div><div class="stat-label">Alumnos activos</div></div>
     <div class="stat-card c-green" style="cursor:pointer" onclick="navigateTo('asistencia')"><span class="stat-icon">✅</span><div class="stat-num c-green">${hoy.length}</div><div class="stat-label">Asistencias hoy</div></div>
@@ -2748,7 +2748,7 @@ function renderAlumnos(filter=''){
   let list=alumnos.filter(a=>{
     const match=!q||(a.nombre.toLowerCase().includes(q)||a.usuario.toLowerCase().includes(q));
     const est=!filterEstadoVal||a.estado===filterEstadoVal;
-    const rutina=!filterRutinaVencer||(() => { const d=daysUntil(a.cambioRutina); return d!==null&&d<=7; })();
+    const rutina=!filterRutinaVencer||(() => { const d=daysUntil(a.cambioRutina); return d!==null&&d<=7&&a.estado==='activo'; })();
     return match&&est&&rutina;
   });
   const tbody=document.getElementById('alumnosTable');
