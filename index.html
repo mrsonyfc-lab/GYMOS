@@ -1003,6 +1003,10 @@ if("serviceWorker" in navigator){
     <div class="ph-right"><button class="btn btn-accent" onclick="openNewAlumno()">+ Nuevo alumno</button></div>
   </div>
   <div class="table-wrap">
+    <div id="rutinaFilterBanner" style="display:none;background:rgba(167,139,250,0.15);border:1px solid #a78bfa;border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:13px">
+      <span>🔄 Mostrando solo alumnos con <strong>rutina a cambiar</strong></span>
+      <button class="btn btn-sm btn-ghost" onclick="filterRutinaVencer=false;document.getElementById('rutinaFilterBanner').style.display='none';renderAlumnos()">✕ Ver todos</button>
+    </div>
     <div class="table-toolbar">
       <span class="table-toolbar-title">Lista de alumnos</span>
       <div class="flex-gap">
@@ -2610,6 +2614,8 @@ function renderNav(items){
 }
 
 function navigateTo(pageId){
+  // Reset filtro rutinas si navegás a otra sección
+  if(pageId!=='alumnos') filterRutinaVencer=false;
   // Clean up any running timers
   if(restTimerInterval){clearInterval(restTimerInterval);restTimerInterval=null;const rt=document.getElementById('restTimerOverlay');if(rt)rt.remove();}
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -2678,7 +2684,7 @@ function renderDashboard(){
     <div class="stat-card c-orange" style="cursor:pointer" onclick="navigateTo('rutinas')"><span class="stat-icon">📋</span><div class="stat-num c-orange">${rutinas.length}</div><div class="stat-label">Rutinas</div></div>
     <div class="stat-card c-red" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">💳</span><div class="stat-num c-red">${vencidos.length}</div><div class="stat-label">Pagos vencidos</div></div>
     <div class="stat-card c-blue" style="cursor:pointer" onclick="navigateTo('pagos')"><span class="stat-icon">⏰</span><div class="stat-num c-blue">${proxVenc.length}</div><div class="stat-label">Pagos próximos</div></div>
-    <div class="stat-card" style="cursor:pointer;--before-color:#a78bfa" onclick="navigateTo('alumnos')"><span class="stat-icon">🔄</span><div class="stat-num" style="color:#a78bfa">${rutinasVencenPronto+rutinasVencidas}</div><div class="stat-label">Rutinas a cambiar</div></div>
+    <div class="stat-card" style="cursor:pointer;--before-color:#a78bfa" onclick="filterRutinaVencer=true;navigateTo('alumnos');updateMobileNav('alumnos')"><span class="stat-icon">🔄</span><div class="stat-num" style="color:#a78bfa">${rutinasVencenPronto+rutinasVencidas}</div><div class="stat-label">Rutinas a cambiar</div></div>
   `;
   setTimeout(()=>drawDashChart(),60);
   const alerts=[];
@@ -2736,11 +2742,14 @@ function drawDashChart(){
 let editingAlumnoId=null, filterEstadoVal='';
 
 function renderAlumnos(filter=''){
+  const banner=document.getElementById('rutinaFilterBanner');
+  if(banner)banner.style.display=filterRutinaVencer?'flex':'none';
   const q=filter.toLowerCase();
   let list=alumnos.filter(a=>{
     const match=!q||(a.nombre.toLowerCase().includes(q)||a.usuario.toLowerCase().includes(q));
     const est=!filterEstadoVal||a.estado===filterEstadoVal;
-    return match&&est;
+    const rutina=!filterRutinaVencer||(() => { const d=daysUntil(a.cambioRutina); return d!==null&&d<=7; })();
+    return match&&est&&rutina;
   });
   const tbody=document.getElementById('alumnosTable');
   if(!list.length){tbody.innerHTML=`<tr><td colspan="7"><div style="text-align:center;padding:40px;color:var(--muted2)"><div style="font-size:32px;margin-bottom:8px">🔍</div><div style="font-size:14px">Sin resultados</div></div></td></tr>`;return;}
@@ -2774,6 +2783,8 @@ function renderAlumnos(filter=''){
 
 function filterAlumnos(v){renderAlumnos(v)}
 function filterAlumnoEstado(v){filterEstadoVal=v;renderAlumnos()}
+var filterRutinaVencer=false;
+function filterAlumnoRutinaVencer(activo){filterRutinaVencer=activo;renderAlumnos();}
 
 function calcRacha(alumnoId){
   var atts=asistencias.filter(function(x){return x.alumnoId===alumnoId;}).map(function(x){return x.fecha;});
