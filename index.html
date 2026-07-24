@@ -3678,7 +3678,12 @@ function renderRutinaDaysBuilder(){
   document.getElementById('rutinaDaysBuilder').innerHTML=rutinaDaysData.map(function(d,di){
     const exRows=d.ejercicios.map(function(ex,ei){
       const e=EJERCICIOS.find(function(x){return x.id===ex.exId;});
+      const isFirst=ei===0, isLast=ei===d.ejercicios.length-1;
       return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--surface);border-radius:8px">'
+        +'<div style="display:flex;flex-direction:column;gap:2px">'
+        +'<button class="btn btn-xs btn-ghost" style="padding:2px 6px;font-size:10px;line-height:1;opacity:'+(isFirst?'0.2':'1')+'" '+(isFirst?'disabled':' onclick="moveExDia('+di+','+ei+',-1)"')+'>▲</button>'
+        +'<button class="btn btn-xs btn-ghost" style="padding:2px 6px;font-size:10px;line-height:1;opacity:'+(isLast?'0.2':'1')+'" '+(isLast?'disabled':' onclick="moveExDia('+di+','+ei+',1)"')+'>▼</button>'
+        +'</div>'
         +'<span style="font-size:12px;flex:1">'+(e?e.nombre:'—')+'<span style="color:var(--muted2);font-size:11px"> · '+(e?e.musculo:'')+'</span></span>'
         +'<input type="text" value="'+ex.series+'" placeholder="3x10" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-family:inherit;font-size:12px;width:80px;outline:none"'
         +' onchange="rutinaDaysData['+di+'].ejercicios['+ei+'].series=this.value" />'
@@ -3756,6 +3761,13 @@ function addRutinaDay(){rutinaDaysData.push({nombre:`Día ${rutinaDaysData.lengt
 function removeRutinaDay(i){rutinaDaysData.splice(i,1);renderRutinaDaysBuilder()}
 function addExToDia(di,sel){if(!sel.value)return;rutinaDaysData[di].ejercicios.push({exId:sel.value,series:'3x10',notas:''});sel.value='';renderRutinaDaysBuilder()}
 function removeExDia(di,ei){rutinaDaysData[di].ejercicios.splice(ei,1);renderRutinaDaysBuilder()}
+function moveExDia(di,ei,dir){
+  const exs=rutinaDaysData[di].ejercicios;
+  const target=ei+dir;
+  if(target<0||target>=exs.length) return;
+  const tmp=exs[ei]; exs[ei]=exs[target]; exs[target]=tmp;
+  renderRutinaDaysBuilder();
+}
 
 async function saveRutina(){
   const nombre=document.getElementById('rNombre').value.trim();
