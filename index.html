@@ -1816,6 +1816,7 @@ async function cargarDatosIniciales(){
       {data:pgData},
       {data:cfData},
       {data:ntData},
+      {data:dcData},
     ] = await Promise.all([
       sb.from('ejercicios').select('*').order('nombre'),
       sb.from('rutinas').select('*').order('nombre'),
@@ -1827,6 +1828,7 @@ async function cargarDatosIniciales(){
       currentUser.role==='admin' ? sb.from('pagos').select('*').order('created_at',{ascending:false}) : Promise.resolve({data:[]}),
       sb.from('gym_config').select('*').single(),
       sb.from('notificaciones').select('*').order('created_at',{ascending:false}),
+      sb.from('dias_cerrados').select('*').order('fecha',{ascending:false}),
     ]);
 
     // Mapear a formato interno (compatible con código existente)
@@ -1835,6 +1837,7 @@ async function cargarDatosIniciales(){
     alumnos    = (alData||[]).map(mapPerfil);
     asistencias= (asData||[]).map(mapAsistencia);
     pagos      = (pgData||[]).map(mapPago);
+    diasCerrados = dcData||[];
 
     if(cfData){
       gymConfig.nombre1=cfData.nombre1||'GYM';
@@ -7672,6 +7675,34 @@ function checkAutoNotifications(){
       }
     }
   });
+
+  // ── Días cerrados próximos → aviso a todos los alumnos activos ──
+  const cierresProximos = diasCerrados.filter(dc=>{
+    const d = daysUntil(dc.fecha);
+    return d!==null && d>=0 && d<=5;
+  });
+  if(cierresProximos.length){
+    alumnos.filter(a=>a.estado==='activo').forEach(a=>{
+      cierresProximos.forEach(dc=>{
+        const notifId = 'alm_cierre_'+a.id+'_'+dc.id;
+        if(notifAlumnos.find(n=>n.id===notifId)) return;
+        const d = daysUntil(dc.fecha);
+        const fechaFmt = new Date(dc.fecha+'T12:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+        const cuando = d===0 ? 'hoy' : d===1 ? 'mañana' : `el ${fechaFmt}`;
+        notifAlumnos.push({
+          alumnoId:a.id,
+          id:notifId,
+          tipo:'warning',
+          icon:'🚪',
+          titulo: d===0 ? 'El gym está cerrado hoy' : 'El gym va a estar cerrado',
+          body:`No vamos a abrir ${cuando}${dc.motivo?' ('+dc.motivo+')':''}. ¡Organizá tu entrenamiento!`,
+          fecha:todayStr,
+          leida:false
+        });
+      });
+    });
+  }
+
   updateNotifBadge();
 }
 
