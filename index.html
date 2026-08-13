@@ -1160,6 +1160,26 @@ if("serviceWorker" in navigator){
   <div class="ex-grid" id="exercisesGrid"></div>
 </div>
 
+<!-- ══ PROGRESO (ADMIN) ══ -->
+<div class="page" id="page-progreso">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="page-title">Progreso de <span>Alumnos</span></div>
+      <div class="page-sub">Evolución de peso y medidas físicas</div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <span class="table-toolbar-title">Lista de alumnos</span>
+      <div class="flex-gap">
+        <input class="search-input" placeholder="🔍 Buscar..." oninput="filterProgresoAdmin(this.value)" />
+      </div>
+    </div>
+    <table><thead><tr><th>Alumno</th><th>Última medición</th><th>Peso actual</th><th>Variación</th><th>Acciones</th></tr></thead>
+    <tbody id="progresoAdminTable"></tbody></table>
+  </div>
+</div>
+
 <!-- ══ PAGOS ══ -->
 <div class="page" id="page-pagos">
   <div class="page-header">
@@ -1645,7 +1665,7 @@ if("serviceWorker" in navigator){
 <div class="modal-overlay" id="modalFisico">
 <div class="modal">
   <div class="modal-header">
-    <span class="modal-title">Registrar Medidas</span>
+    <span class="modal-title" id="modalFisicoTitulo">Registrar Medidas</span>
     <button class="modal-close" onclick="closeModal('modalFisico')">×</button>
   </div>
   <div class="modal-body">
@@ -2092,7 +2112,59 @@ async function dbSaveMedida(alumnoId, data){
   }
 }
 
-// ── CRUD PESO EJERCICIOS ────────────────────────
+// ── MEDIDAS FÍSICAS (Progreso) ──────────────────
+// Tabla real usada: medidas_fisicas (peso, grasa_corporal, pecho, cintura, cadera, brazo, muslo, origen, registrado_por)
+let medidasCache = {}; // { alumnoId: [ {fecha,peso,grasa_corporal,...}, ... ] } ordenado por fecha asc
+
+async function fetchMedidasAlumno(alumnoId, force){
+  if(!force && medidasCache[alumnoId]) return medidasCache[alumnoId];
+  try{
+    const{data,error}=await sb.from('medidas_fisicas').select('*')
+      .eq('alumno_id',alumnoId).order('fecha',{ascending:true});
+    if(error)throw error;
+    medidasCache[alumnoId]=data||[];
+  }catch(e){
+    medidasCache[alumnoId]=medidasCache[alumnoId]||[];
+  }
+  return medidasCache[alumnoId];
+}
+
+async function fetchMedidasTodos(){
+  try{
+    const{data,error}=await sb.from('medidas_fisicas').select('*').order('fecha',{ascending:true});
+    if(error)throw error;
+    const grouped={};
+    (data||[]).forEach(m=>{
+      if(!grouped[m.alumno_id])grouped[m.alumno_id]=[];
+      grouped[m.alumno_id].push(m);
+    });
+    medidasCache=grouped;
+  }catch(e){ /* deja cache previo si falla */ }
+  return medidasCache;
+}
+
+// Mini gráfico de línea en SVG para una serie de valores (peso, grasa, etc.)
+function svgLineChart(rows, campo, color){
+  const pts=rows.filter(r=>r[campo]!==null && r[campo]!==undefined && r[campo]!=='').map(r=>({fecha:r.fecha,v:parseFloat(r[campo])}));
+  if(pts.length<2) return '';
+  const W=600,H=140,PAD=28;
+  const vals=pts.map(p=>p.v);
+  let min=Math.min(...vals), max=Math.max(...vals);
+  if(min===max){min-=1;max+=1;}
+  const x=i=>PAD+(i*(W-PAD*2)/(pts.length-1));
+  const y=v=>H-PAD-((v-min)*(H-PAD*2)/(max-min));
+  const path=pts.map((p,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
+  const dots=pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4" fill="${color}"/>`).join('');
+  const first=pts[0].v, last=pts[pts.length-1].v;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px" xmlns="http://www.w3.org/2000/svg">
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+    <text x="${PAD}" y="14" font-size="11" fill="var(--muted2)">${first}</text>
+    <text x="${W-PAD}" y="14" font-size="11" fill="var(--muted2)" text-anchor="end">${last}</text>
+  </svg>`;
+}
+
+
 async function dbSavePesoEjercicio(alumnoId,exId,peso,reps,series){
   const row={alumno_id:alumnoId,ejercicio_id:exId,
     peso:parseFloat(peso),reps:parseInt(reps)||8,
@@ -2581,6 +2653,7 @@ function buildAdminNav(){
     {id:'alumnos',icon:'👥',label:'Alumnos'},
     {id:'asistencia',icon:'✅',label:'Asistencia'},
     {id:'rutinas',icon:'📋',label:'Rutinas'},
+    {id:'progreso',icon:'📈',label:'Progreso'},
     {id:'pagos',icon:'💳',label:'Pagos'},
     {section:'CONTENIDO'},
     {id:'ejercicios',icon:'🏋️',label:'Ejercicios'},
@@ -2632,7 +2705,7 @@ function navigateTo(pageId){
   const renders={
     'dashboard':renderDashboard,'alumnos':renderAlumnos,'asistencia':function(){renderAsistencia();loadDiasCerrados();},
     'rutinas':renderRutinas,'ejercicios':()=>renderEjercicios('todos'),'pagos':renderPagos,
-    'nutricion':renderNutricion,'configuracion':renderConfiguracion,
+    'nutricion':renderNutricion,'configuracion':renderConfiguracion,'progreso':renderProgresoAdmin,
     'home-alumno':renderHomeAlumno,'mi-rutina':renderMiRutina,'mapa-muscular':renderMapaMuscular,'mi-nutricion':renderMiNutricion,'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,'mis-logros':renderMisLogros,'mi-perfil':renderMiPerfil,
     'mi-progreso':renderMiProgreso,'mi-asistencia':renderMiAsistencia,
 
@@ -6958,17 +7031,25 @@ function marcarEjercicioCompletado(exId){
   if(!lista.includes(exId)){ lista.push(exId); localStorage.setItem(key,JSON.stringify(lista)); }
 }
 
-function openRegistroFisico(){
+function openRegistroFisico(alumnoId){
+  const target = alumnoId || currentUser?.id;
+  window._rfTargetAlumno = target;
   const hoy=new Date().toISOString().split('T')[0];
+  ['rfPeso','rfGrasa','rfPecho','rfCintura','rfCadera','rfBrazo','rfMuslo'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   const rfFecha=document.getElementById('rfFecha');
   if(rfFecha) rfFecha.value=hoy;
   // Pre-fill with current weight if available
-  const a=alumnos.find(x=>x.id===currentUser?.id);
-  if(a&&a.peso){ const el=document.getElementById('rfPeso'); if(el&&!el.value) el.value=a.peso; }
+  const a=alumnos.find(x=>x.id===target);
+  if(a&&a.peso){ const el=document.getElementById('rfPeso'); if(el) el.value=a.peso; }
+  const titulo=document.getElementById('modalFisicoTitulo');
+  if(titulo) titulo.textContent = (currentUser?.role==='admin' && a) ? `Registrar medidas · ${a.nombre}` : 'Registrar Medidas';
   openModal('modalFisico');
 }
 
 async function saveRegistroFisico(){
+  const target = window._rfTargetAlumno || currentUser?.id;
   const peso=parseFloat(document.getElementById('rfPeso')?.value)||0;
   const grasa=parseFloat(document.getElementById('rfGrasa')?.value)||0;
   const pecho=parseFloat(document.getElementById('rfPecho')?.value)||0;
@@ -6978,47 +7059,173 @@ async function saveRegistroFisico(){
   const muslo=parseFloat(document.getElementById('rfMuslo')?.value)||0;
   const fecha=document.getElementById('rfFecha')?.value||new Date().toISOString().split('T')[0];
   if(!peso&&!grasa&&!pecho){ showToast('Ingresá al menos una medida','error'); return; }
-  const medida={fecha,peso,grasa,pecho,cintura,cadera,brazo,muslo};
+  const esAdmin = currentUser?.role==='admin';
+  const row={
+    alumno_id:target,fecha,peso:peso||null,grasa_corporal:grasa||null,
+    pecho:pecho||null,cintura:cintura||null,cadera:cadera||null,brazo:brazo||null,muslo:muslo||null,
+    origen: esAdmin?'admin':'alumno',
+    registrado_por: esAdmin?(currentUser.nombre||'Admin'):null
+  };
   try{
     showLoadingOverlay('Guardando medidas...');
-    const{error}=await sb.from('medidas_fisicas').insert({
-      alumno_id:currentUser.id,fecha,peso:peso||null,grasa_corporal:grasa||null,
-      pecho:pecho||null,cintura:cintura||null,cadera:cadera||null,brazo:brazo||null,muslo:muslo||null
-    });
+    const{data:inserted,error}=await sb.from('medidas_fisicas').insert(row).select().single();
     hideLoadingOverlay();
     if(error) throw error;
     closeModal('modalFisico');
     showToast('Medidas guardadas ✓','success');
+    // Actualizar cache local
+    if(!medidasCache[target]) medidasCache[target]=[];
+    medidasCache[target].push(inserted||row);
+    medidasCache[target].sort((a,b)=>a.fecha.localeCompare(b.fecha));
     // Update local weight on profile if changed
     if(peso){
-      const idx=alumnos.findIndex(x=>x.id===currentUser.id);
+      const idx=alumnos.findIndex(x=>x.id===target);
       if(idx>=0){ alumnos[idx].peso=peso; }
+      if(currentUser && currentUser.id===target) currentUser.peso=peso;
+    }
+    // Refrescar la vista que corresponda
+    if(!esAdmin){
+      renderMiProgreso();
+    } else {
+      const pageProgreso=document.getElementById('page-progreso');
+      if(pageProgreso?.classList.contains('active')) renderProgresoAdmin();
+      const modalBody=document.getElementById('modalProgresoBody');
+      if(modalBody && window._progresoModalAlumno===target) abrirProgresoAlumno(target,true);
     }
   }catch(e){
     hideLoadingOverlay();
-    // Silently save to localStorage as fallback
-    try{
-      const key='medidas_'+currentUser.id;
-      const existing=JSON.parse(localStorage.getItem(key)||'[]');
-      existing.push(medida);
-      localStorage.setItem(key,JSON.stringify(existing));
-      closeModal('modalFisico');
-      showToast('Medidas guardadas localmente ✓','success');
-    }catch(le){
-      showToast('Error al guardar medidas','error');
-    }
+    showToast('Error al guardar medidas: '+(e.message||''),'error');
   }
 }
 
-function renderMiProgreso(){
-  const c=document.getElementById('page-mi-progreso');
-  if(c) c.innerHTML=`<div class="page-header"><div class="ph-left"><div class="page-title">Mi <span>Progreso</span></div></div></div>
-    <div class="card"><div class="card-body" style="text-align:center;padding:40px">
-      <div style="font-size:48px;margin-bottom:16px">📈</div>
-      <div style="font-family:'Bebas Neue';font-size:24px;color:var(--accent)">Próximamente</div>
-      <div style="color:var(--muted2);font-size:13px;margin-top:8px">Tu entrenador irá cargando tu progreso aquí.</div>
+// ── MI PROGRESO (vista alumno) ──────────────────
+async function renderMiProgreso(){
+  const cont=document.getElementById('miProgresoContainer');
+  if(!cont) return;
+  cont.innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:40px;color:var(--muted2)">Cargando progreso...</div></div>`;
+  const rows=await fetchMedidasAlumno(currentUser.id);
+  cont.innerHTML=renderProgresoHTML(rows, false);
+}
+
+// Genera el HTML de resumen + gráfico + historial para un set de medidas
+function renderProgresoHTML(rows, esVistaAdmin){
+  if(!rows||!rows.length){
+    return `<div class="card"><div class="card-body" style="text-align:center;padding:40px">
+      <div style="font-size:48px;margin-bottom:16px">📸</div>
+      <div style="font-family:'Bebas Neue';font-size:22px;color:var(--accent)">Sin medidas cargadas todavía</div>
+      <div style="color:var(--muted2);font-size:13px;margin-top:8px">${esVistaAdmin?'Cargale la primera medición al alumno.':'Registrá tu primera medida para empezar a ver tu evolución.'}</div>
+    </div></div>`;
+  }
+  const pesos=rows.filter(r=>r.peso!==null && r.peso!==undefined);
+  const primero=pesos[0], ultimo=pesos[pesos.length-1];
+  const diff = (pesos.length>1) ? +(ultimo.peso-primero.peso).toFixed(1) : 0;
+  const diffColor = diff<0?'var(--success)':(diff>0?'var(--danger)':'var(--muted2)');
+  const grasaUlt = [...rows].reverse().find(r=>r.grasa_corporal!==null && r.grasa_corporal!==undefined);
+  const chartPeso=svgLineChart(rows,'peso','var(--accent)');
+  const chartGrasa=svgLineChart(rows,'grasa_corporal','#a78bfa');
+  return `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card"><span class="stat-icon">⚖️</span><div class="stat-num c-accent">${ultimo?.peso ?? '—'}</div><div class="stat-label">Peso actual (kg)</div></div>
+      <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-num" style="color:${diffColor}">${diff>0?'+':''}${diff||0}</div><div class="stat-label">Variación total (kg)</div></div>
+      <div class="stat-card"><span class="stat-icon">🔥</span><div class="stat-num c-green">${grasaUlt?.grasa_corporal ?? '—'}</div><div class="stat-label">% Grasa corporal</div></div>
+      <div class="stat-card"><span class="stat-icon">📅</span><div class="stat-num c-accent">${rows.length}</div><div class="stat-label">Mediciones</div></div>
+    </div>
+    ${chartPeso?`<div class="card" style="margin-bottom:16px"><div class="card-header"><span class="card-title">Evolución de peso</span></div><div class="card-body">${chartPeso}</div></div>`:''}
+    ${chartGrasa?`<div class="card" style="margin-bottom:16px"><div class="card-header"><span class="card-title">Evolución de % grasa</span></div><div class="card-body">${chartGrasa}</div></div>`:''}
+    <div class="card"><div class="card-header"><span class="card-title">Historial</span></div>
+    <div class="card-body" style="padding:0;overflow-x:auto">
+      <table style="width:100%;font-size:12px"><thead><tr>
+        <th style="text-align:left;padding:10px">Fecha</th><th>Peso</th><th>% Grasa</th><th>Pecho</th><th>Cintura</th><th>Cadera</th><th>Brazo</th><th>Muslo</th><th>Cargado por</th>
+      </tr></thead><tbody>
+      ${[...rows].reverse().map(r=>`<tr style="border-top:1px solid var(--border)">
+        <td style="padding:10px">${new Date(r.fecha+'T12:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'})}</td>
+        <td style="text-align:center">${r.peso??'—'}</td>
+        <td style="text-align:center">${r.grasa_corporal??'—'}</td>
+        <td style="text-align:center">${r.pecho??'—'}</td>
+        <td style="text-align:center">${r.cintura??'—'}</td>
+        <td style="text-align:center">${r.cadera??'—'}</td>
+        <td style="text-align:center">${r.brazo??'—'}</td>
+        <td style="text-align:center">${r.muslo??'—'}</td>
+        <td style="text-align:center;color:var(--muted2)">${r.origen==='admin'?('👤 '+(r.registrado_por||'Admin')):'🙋 Alumno'}</td>
+      </tr>`).join('')}
+      </tbody></table>
     </div></div>`;
 }
+
+// ── PROGRESO (vista admin) ──────────────────────
+let _progresoAdminFiltro='';
+async function renderProgresoAdmin(){
+  const tbody=document.getElementById('progresoAdminTable');
+  if(!tbody) return;
+  tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted2)">Cargando...</td></tr>`;
+  await fetchMedidasTodos();
+  pintarProgresoAdminTabla();
+}
+
+function filterProgresoAdmin(q){
+  _progresoAdminFiltro=(q||'').toLowerCase();
+  pintarProgresoAdminTabla();
+}
+
+function pintarProgresoAdminTabla(){
+  const tbody=document.getElementById('progresoAdminTable');
+  if(!tbody) return;
+  const lista=alumnos
+    .filter(a=>a.estado==='activo')
+    .filter(a=>!_progresoAdminFiltro || a.nombre.toLowerCase().includes(_progresoAdminFiltro))
+    .sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  if(!lista.length){ tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted2)">Sin alumnos</td></tr>`; return; }
+  tbody.innerHTML=lista.map(a=>{
+    const rows=medidasCache[a.id]||[];
+    const pesos=rows.filter(r=>r.peso!==null && r.peso!==undefined);
+    const ultimo=pesos[pesos.length-1];
+    const primero=pesos[0];
+    const diff = (pesos.length>1) ? +(ultimo.peso-primero.peso).toFixed(1) : 0;
+    const diffColor = diff<0?'var(--success)':(diff>0?'var(--danger)':'var(--muted2)');
+    return `<tr>
+      <td>${a.nombre}</td>
+      <td>${ultimo?new Date(ultimo.fecha+'T12:00').toLocaleDateString('es-AR'):'—'}</td>
+      <td>${ultimo?.peso ?? '—'}</td>
+      <td style="color:${diffColor}">${pesos.length>1?(diff>0?'+':'')+diff+' kg':'—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="abrirProgresoAlumno('${a.id}')">📈 Ver</button>
+        <button class="btn btn-accent btn-sm" onclick="openRegistroFisico('${a.id}')">+ Cargar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function abrirProgresoAlumno(alumnoId, skipReload){
+  const a=alumnos.find(x=>x.id===alumnoId);
+  if(!a) return;
+  window._progresoModalAlumno=alumnoId;
+  let ov=document.getElementById('modalProgresoAlumno');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.className='modal-overlay';
+    ov.id='modalProgresoAlumno';
+    ov.innerHTML=`<div class="modal" style="max-width:720px">
+      <div class="modal-header">
+        <span class="modal-title" id="modalProgresoTitulo">Progreso</span>
+        <button class="modal-close" onclick="closeModal('modalProgresoAlumno')">×</button>
+      </div>
+      <div class="modal-body" id="modalProgresoBody" style="max-height:70vh;overflow-y:auto"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modalProgresoAlumno')">Cerrar</button>
+        <button class="btn btn-accent" onclick="openRegistroFisico(window._progresoModalAlumno)">+ Registrar medida</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+  }
+  document.getElementById('modalProgresoTitulo').textContent=`Progreso · ${a.nombre}`;
+  const body=document.getElementById('modalProgresoBody');
+  body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted2)">Cargando...</div>`;
+  openModal('modalProgresoAlumno');
+  const rows=await fetchMedidasAlumno(alumnoId, skipReload?true:false);
+  body.innerHTML=renderProgresoHTML(rows, true);
+}
+
+
 
 function renderMiAsistencia(){
   const a=asistencias.filter(x=>x.alumnoId===currentUser?.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
