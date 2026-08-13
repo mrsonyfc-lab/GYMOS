@@ -2139,7 +2139,13 @@ async function fetchMedidasTodos(){
       grouped[m.alumno_id].push(m);
     });
     medidasCache=grouped;
-  }catch(e){ /* deja cache previo si falla */ }
+    if(!(data||[]).length){
+      console.warn('medidas_fisicas devolvió 0 filas para el admin. Puede ser un tema de RLS (política SELECT restringida a alumno_id = auth.uid()).');
+    }
+  }catch(e){
+    console.error('Error cargando medidas_fisicas:',e);
+    showToast('No se pudieron cargar las medidas (revisar permisos RLS)','error');
+  }
   return medidasCache;
 }
 
