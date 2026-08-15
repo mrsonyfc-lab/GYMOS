@@ -2153,23 +2153,66 @@ async function fetchMedidasTodos(){
 }
 
 // Mini gráfico de línea en SVG para una serie de valores (peso, grasa, etc.)
-function svgLineChart(rows, campo, color){
+function svgLineChart(rows, campo, color, unidad){
   const pts=rows.filter(r=>r[campo]!==null && r[campo]!==undefined && r[campo]!=='').map(r=>({fecha:r.fecha,v:parseFloat(r[campo])}));
   if(pts.length<2) return '';
-  const W=600,H=140,PAD=28;
+  const W=680,H=220,PADL=42,PADR=16,PADT=24,PADB=34;
   const vals=pts.map(p=>p.v);
   let min=Math.min(...vals), max=Math.max(...vals);
   if(min===max){min-=1;max+=1;}
-  const x=i=>PAD+(i*(W-PAD*2)/(pts.length-1));
-  const y=v=>H-PAD-((v-min)*(H-PAD*2)/(max-min));
-  const path=pts.map((p,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
-  const dots=pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4" fill="${color}"/>`).join('');
-  const first=pts[0].v, last=pts[pts.length-1].v;
+  const margin=(max-min)*0.15; min-=margin; max+=margin;
+  const innerW=W-PADL-PADR, innerH=H-PADT-PADB;
+  const x=i=>PADL+(pts.length===1?0:i*(innerW/(pts.length-1)));
+  const y=v=>PADT+innerH-((v-min)*(innerH/(max-min)));
+
+  // Grilla horizontal (4 líneas) + labels de eje Y
+  let grid='';
+  const steps=4;
+  for(let s=0;s<=steps;s++){
+    const gv=min+(max-min)*s/steps;
+    const gy=y(gv);
+    grid+=`<line x1="${PADL}" y1="${gy.toFixed(1)}" x2="${W-PADR}" y2="${gy.toFixed(1)}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,4"/>`;
+    grid+=`<text x="${PADL-8}" y="${(gy+3).toFixed(1)}" font-size="10" fill="var(--muted2)" text-anchor="end">${gv.toFixed(1)}</text>`;
+  }
+
+  // Curva suavizada (bezier cuadrática por puntos medios)
+  let path=`M ${x(0).toFixed(1)},${y(pts[0].v).toFixed(1)}`;
+  for(let i=0;i<pts.length-1;i++){
+    const xc=(x(i)+x(i+1))/2, yc=(y(pts[i].v)+y(pts[i+1].v))/2;
+    path+=` Q ${x(i).toFixed(1)},${y(pts[i].v).toFixed(1)} ${xc.toFixed(1)},${yc.toFixed(1)}`;
+  }
+  path+=` L ${x(pts.length-1).toFixed(1)},${y(pts[pts.length-1].v).toFixed(1)}`;
+  const areaPath=`${path} L ${x(pts.length-1).toFixed(1)},${(H-PADB).toFixed(1)} L ${x(0).toFixed(1)},${(H-PADB).toFixed(1)} Z`;
+
+  // Puntos + tooltip nativo + valor sobre el último punto
+  const dots=pts.map((p,i)=>{
+    const isLast=i===pts.length-1;
+    const fechaFmt=new Date(p.fecha+'T12:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});
+    return `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="${isLast?5:3.5}" fill="${isLast?color:'var(--surface)'}" stroke="${color}" stroke-width="2">
+      <title>${fechaFmt}: ${p.v}${unidad||''}</title>
+    </circle>`;
+  }).join('');
+
+  // Labels de fecha en eje X (primero, medio, último)
+  const idxLabels=pts.length<=2?[0,pts.length-1]:[0,Math.floor((pts.length-1)/2),pts.length-1];
+  const xLabels=[...new Set(idxLabels)].map(i=>{
+    const f=new Date(pts[i].fecha+'T12:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});
+    return `<text x="${x(i).toFixed(1)}" y="${H-10}" font-size="10" fill="var(--muted2)" text-anchor="middle">${f}</text>`;
+  }).join('');
+
+  const gid='grad-'+campo;
+  const last=pts[pts.length-1].v;
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${grid}
+    <path d="${areaPath}" fill="url(#${gid})" stroke="none"/>
     <path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     ${dots}
-    <text x="${PAD}" y="14" font-size="11" fill="var(--muted2)">${first}</text>
-    <text x="${W-PAD}" y="14" font-size="11" fill="var(--muted2)" text-anchor="end">${last}</text>
+    ${xLabels}
+    <text x="${x(pts.length-1).toFixed(1)}" y="${(y(last)-12).toFixed(1)}" font-size="12" font-weight="700" fill="${color}" text-anchor="middle">${last}${unidad||''}</text>
   </svg>`;
 }
 
@@ -7130,8 +7173,8 @@ function renderProgresoHTML(rows, esVistaAdmin){
   const diff = (pesos.length>1) ? +(ultimo.peso-primero.peso).toFixed(1) : 0;
   const diffColor = diff<0?'var(--success)':(diff>0?'var(--danger)':'var(--muted2)');
   const grasaUlt = [...rows].reverse().find(r=>r.grasa_corporal!==null && r.grasa_corporal!==undefined);
-  const chartPeso=svgLineChart(rows,'peso','var(--accent)');
-  const chartGrasa=svgLineChart(rows,'grasa_corporal','#a78bfa');
+  const chartPeso=svgLineChart(rows,'peso','var(--accent)',' kg');
+  const chartGrasa=svgLineChart(rows,'grasa_corporal','#a78bfa','%');
   return `
     <div class="stats-grid" style="margin-bottom:20px">
       <div class="stat-card"><span class="stat-icon">⚖️</span><div class="stat-num c-accent">${ultimo?.peso ?? '—'}</div><div class="stat-label">Peso actual (kg)</div></div>
