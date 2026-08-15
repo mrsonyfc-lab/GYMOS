@@ -982,7 +982,7 @@ if("serviceWorker" in navigator){
   <div class="two-col mb24">
     <div class="card">
       <div class="card-header"><span class="card-title">Asistencias — últimos 14 días</span></div>
-      <div class="card-body"><canvas id="dashChart" height="120"></canvas></div>
+      <div class="card-body"><div id="dashChart"></div></div>
     </div>
     <div class="card">
       <div class="card-header"><span class="card-title">Alertas del día</span></div>
@@ -2216,6 +2216,45 @@ function svgLineChart(rows, campo, color, unidad){
   </svg>`;
 }
 
+// Gráfico de barras (para conteos por día, ej. visitas totales del gym)
+function svgBarChart(labels, values, color){
+  if(!values||!values.length) return '';
+  const n=values.length;
+  const W=Math.max(680,n*22), H=200, PADL=34, PADR=10, PADT=20, PADB=34;
+  const innerW=W-PADL-PADR, innerH=H-PADT-PADB;
+  const max=Math.max(1,...values);
+  const barW=Math.max(4,(innerW/n)-4);
+  const x=i=>PADL+i*(innerW/n)+((innerW/n)-barW)/2;
+  const y=v=>PADT+innerH-(v*(innerH/max));
+
+  let grid='';
+  const steps=4;
+  for(let s=0;s<=steps;s++){
+    const gv=Math.round(max*s/steps);
+    const gy=PADT+innerH-(gv*(innerH/max));
+    grid+=`<line x1="${PADL}" y1="${gy.toFixed(1)}" x2="${W-PADR}" y2="${gy.toFixed(1)}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,4"/>`;
+    grid+=`<text x="${PADL-8}" y="${(gy+3).toFixed(1)}" font-size="10" fill="var(--muted2)" text-anchor="end">${gv}</text>`;
+  }
+
+  const bars=values.map((v,i)=>{
+    const bx=x(i), by=y(v), bh=(PADT+innerH)-by;
+    return `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0,bh).toFixed(1)}" rx="3" fill="${color}" opacity="${v>0?0.9:0.25}">
+      <title>${labels[i]}: ${v} ${v===1?'visita':'visitas'}</title>
+    </rect>`;
+  }).join('');
+
+  const idxLabels=n<=2?[0,n-1]:[0,Math.floor((n-1)/2),n-1];
+  const xLabels=[...new Set(idxLabels)].map(i=>{
+    return `<text x="${(x(i)+barW/2).toFixed(1)}" y="${H-10}" font-size="10" fill="var(--muted2)" text-anchor="middle">${labels[i]}</text>`;
+  }).join('');
+
+  return `<div style="width:100%;overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:${W}px;height:${H}px" xmlns="http://www.w3.org/2000/svg">
+    ${grid}
+    ${bars}
+    ${xLabels}
+  </svg></div>`;
+}
+
 
 async function dbSavePesoEjercicio(alumnoId,exId,peso,reps,series){
   const row={alumno_id:alumnoId,ejercicio_id:exId,
@@ -2840,28 +2879,16 @@ function renderDashboard(){
 }
 
 function drawDashChart(){
-  const canvas=document.getElementById('dashChart');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  canvas.width=canvas.offsetWidth||400;
+  const cont=document.getElementById('dashChart');
+  if(!cont)return;
   const labels=[], data=[];
   for(let i=13;i>=0;i--){
     const d=new Date(today);d.setDate(d.getDate()-i);
-    labels.push(d.getDate());
+    labels.push(d.getDate()+'/'+(d.getMonth()+1));
     data.push(asistencias.filter(a=>a.fecha===d.toISOString().split('T')[0]).length);
   }
-  const w=canvas.width,h=canvas.height=120,pad=20,bw=(w-pad*2)/data.length,maxV=Math.max(...data,1);
-  ctx.clearRect(0,0,w,h);
   const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#e8ff00';
-  data.forEach((v,i)=>{
-    const bh=v?(v/maxV)*(h-pad*1.5):2;
-    const x=pad+i*bw+bw*.15,y=h-bh-5;
-    const grad=ctx.createLinearGradient(0,y,0,h);
-    grad.addColorStop(0,accent+'cc');grad.addColorStop(1,accent+'22');
-    ctx.fillStyle=grad;
-    ctx.beginPath();ctx.roundRect(x,y,bw*.7,bh,3);ctx.fill();
-    if(i%2===0){ctx.fillStyle='#555';ctx.font='10px DM Sans';ctx.textAlign='center';ctx.fillText(labels[i],x+bw*.35,h-2);}
-  });
+  cont.innerHTML = svgBarChart(labels, data, accent) || `<div style="text-align:center;padding:30px;color:var(--muted2);font-size:13px">Todavía no hay asistencias registradas</div>`;
 }
 
 // ══════════════════════════════════════════════
